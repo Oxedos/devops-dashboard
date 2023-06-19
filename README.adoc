@@ -1,0 +1,3 @@
+# devops-dashboard
+
+A simple PWA - mostly for displaying GitLab Pipelines and MRs
