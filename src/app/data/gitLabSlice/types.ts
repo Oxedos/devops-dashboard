@@ -25,4 +25,10 @@ export interface GitLabState {
   listenedGroups: { visId: string; groupName: string }[];
   pipelinesByGroup: Map<string, GitLabPipeline[]>;
   pipelinesToReload: { projectId: number; groupName: string; ref: string }[]; // Pipelines that will be reloaded
+  jobsToPlay: {
+    projectId: number;
+    jobId: number;
+    mrIid: number;
+    groupName: string;
+  }[];
 }

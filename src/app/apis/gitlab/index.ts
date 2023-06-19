@@ -488,7 +488,7 @@ export async function rerunPipeline(
     },
   };
 
-  // Get data for single pipeline
+  // Rerun pipeline
   let pipelineData;
   try {
     const pipelineDataResponse = await axios.post(pipelineLink, null, config);
@@ -560,5 +560,86 @@ export async function createPipelineForRef(
     jobs: jobs,
     project_id: pipelineData.project_id || projectId,
     title: ref,
+  };
+}
+
+export async function playJob(
+  url: string,
+  privateToken: string,
+  projectId: number,
+  jobId: number,
+): Promise<void> {
+  const playLink =
+    normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}/jobs/${jobId}/play`;
+
+  const config: RawAxiosRequestConfig = {
+    headers: {
+      'PRIVATE-TOKEN': privateToken,
+    },
+  };
+
+  // Play job that is in manual status
+  try {
+    await axios.post(playLink, null, config);
+  } catch (error) {
+    throw new Error(getGitLabErrorMessage(error));
+  }
+  // Do nothing else, caller has to now reload pipelines
+}
+
+export async function loadPipelineForMr(
+  url: string,
+  privateToken: string,
+  projectId: number,
+  mrIid: number,
+): Promise<GitLabPipeline> {
+  const mrLink =
+    normalizeUrl(url, API_SUFFIX) +
+    `/projects/${projectId}/merge_requests/${mrIid}`;
+
+  const config: RawAxiosRequestConfig = {
+    headers: {
+      'PRIVATE-TOKEN': privateToken,
+    },
+  };
+
+  // get data the associated MR
+  let mrData: GitLabMR;
+  try {
+    const mrDataResponse = await axios.get<GitLabMR>(mrLink, config);
+    mrData = mrDataResponse.data;
+  } catch (error) {
+    throw new Error(getGitLabErrorMessage(error));
+  }
+
+  // Load Data for head_pipeline
+  const pipelineLink =
+    normalizeUrl(url, API_SUFFIX) +
+    `/projects/${projectId}/pipelines/${mrData.head_pipeline.id}`;
+  let pipelineData: GitLabPipeline;
+  try {
+    const pipelineDataResponse = await axios.get<GitLabPipeline>(
+      pipelineLink,
+      config,
+    );
+    pipelineData = pipelineDataResponse.data;
+  } catch (error) {
+    throw new Error(getGitLabErrorMessage(error));
+  }
+
+  // Load jobs for this pipeline
+  const jobs = await getPipelineJobs(
+    url,
+    privateToken,
+    projectId,
+    pipelineData.id,
+  );
+
+  const title = mrData.title;
+  return {
+    ...pipelineData,
+    jobs: jobs,
+    project_id: pipelineData.project_id || projectId,
+    title,
   };
 }

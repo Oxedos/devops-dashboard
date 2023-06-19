@@ -169,18 +169,18 @@ export type GitLabMilestone = {
 };
 
 export type GitLabMR = {
-  id: 1;
-  iid: 1;
-  project_id: 3;
-  title: 'test1';
-  description: 'fixed login page css paddings';
-  state: 'merged';
-  created_at: '2017-04-29T08:46:00Z';
-  updated_at: '2017-04-29T08:46:00Z';
-  target_branch: 'master';
-  source_branch: 'test1';
-  upvotes: 0;
-  downvotes: 0;
+  id: number;
+  iid: number;
+  project_id: number;
+  title: string;
+  description: string;
+  state: string;
+  created_at: string;
+  updated_at: string;
+  target_branch: string;
+  source_branch: string;
+  upvotes: number;
+  downvotes: number;
   author: GitLabUserReference;
   user: {
     can_merge: boolean;

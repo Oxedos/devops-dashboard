@@ -1,16 +1,19 @@
 import React, { memo, useState } from 'react';
 import styled from 'styled-components/macro';
-import { GitLabJob } from 'app/apis/gitlab/types';
+import { GitLabJob, GitLabMR } from 'app/apis/gitlab/types';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { getStatusProperties } from '../PipelineStatusHelper';
 import { default as PopoverBase } from 'react-bootstrap/Popover';
 import { default as Status, JobStatus, StatusStyle } from '../Status';
+import PlayButton from '../PlayButton';
 
 type PropTypes = {
   stage: string;
   jobs: GitLabJob[];
   nextJobs?: GitLabJob[];
   withDivider?: boolean;
+  groupName: string;
+  mr?: GitLabMR;
 };
 
 const statusPrecedence = [
@@ -76,6 +79,16 @@ const Stage: React.FC<PropTypes> = props => {
             >
               <JobStatus job={job} style={StatusStyle.round} />
               <strong>{job.name}</strong>
+              {props.mr && job.status === 'manual' && (
+                <FloatRight>
+                  <PlayButton
+                    job={job}
+                    groupName={props.groupName}
+                    mrIid={props.mr.id}
+                    projectId={props.mr.project_id}
+                  />
+                </FloatRight>
+              )}
             </JobLineContainer>
           );
         })}
@@ -108,6 +121,14 @@ const Stage: React.FC<PropTypes> = props => {
 
 const Cursor = styled.div`
   cursor: pointer;
+`;
+
+const FloatRight = styled.div`
+  display: flex;
+  flex-flow: row;
+  align-items: center;
+  justify-content: end;
+  width: 100%;
 `;
 
 const JobLineContainer = styled.a`

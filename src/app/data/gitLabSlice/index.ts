@@ -36,6 +36,7 @@ const loadInitialState = (): GitLabState => {
     listenedGroups: persistedState?.listenedGroups || [],
     pipelinesByGroup: persistedState?.pipelinesByGroup || new Map(),
     pipelinesToReload: [],
+    jobsToPlay: [],
   };
 };
 
@@ -285,6 +286,50 @@ const slice = createSlice({
       );
       state.pipelinesToReload = newList;
     },
+    playJob(
+      state,
+      action: PayloadAction<{
+        groupName: string;
+        projectId: number;
+        jobId: number;
+        mrIid: number;
+      }>,
+    ) {
+      const {
+        payload: { projectId, groupName, mrIid, jobId },
+      } = action;
+      // make sure that we don't add the same pipeline again
+      const newList = state.jobsToPlay.filter(
+        o =>
+          o.projectId !== projectId &&
+          o.jobId !== jobId &&
+          o.mrIid !== mrIid &&
+          o.groupName !== groupName,
+      );
+      newList.push({ groupName, projectId, jobId, mrIid });
+      state.jobsToPlay = newList;
+    },
+    removeJobToPlay(
+      state,
+      action: PayloadAction<{
+        projectId: number;
+        jobId: number;
+        mrIid: number;
+        groupName: string;
+      }>,
+    ) {
+      const {
+        payload: { projectId, jobId, mrIid, groupName },
+      } = action;
+      const newList = state.jobsToPlay.filter(
+        o =>
+          o.projectId !== projectId &&
+          o.jobId !== jobId &&
+          o.mrIid !== mrIid &&
+          o.groupName !== groupName,
+      );
+      state.jobsToPlay = newList;
+    },
     reload(state, action: PayloadAction<void>) {},
     deleteConfiguration(state, action: PayloadAction<void>) {
       return {
@@ -305,6 +350,7 @@ const slice = createSlice({
         listenedGroupsForPipelines: [],
         pipelinesByGroup: new Map(),
         pipelinesToReload: [],
+        jobsToPlay: [],
       };
     },
   },

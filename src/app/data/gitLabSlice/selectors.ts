@@ -54,3 +54,7 @@ export const selectPipelinesToReload = createSelector(
   selectGitLab,
   state => state.pipelinesToReload,
 );
+export const selectJobsToPlay = createSelector(
+  selectGitLab,
+  state => state.jobsToPlay,
+);
