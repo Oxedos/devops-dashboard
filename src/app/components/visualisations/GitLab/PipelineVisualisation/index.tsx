@@ -122,26 +122,6 @@ const PipelineVisualisation: React.FC<PropTypes> = props => {
     );
   }
 
-  // Add labels to MR Pipelines
-  if (displayPipelinesForMRs) {
-    sortedPipelines = sortedPipelines.map(pipeline => {
-      if (!pipeline.ref.startsWith('refs/merge-requests')) {
-        return pipeline;
-      }
-      const pipelineRef = pipeline.ref;
-      const mr = mrs.find(
-        mr =>
-          mr.project_id === pipeline.project_id &&
-          mr.head_pipeline &&
-          mr.head_pipeline.ref === pipelineRef,
-      );
-      if (!mr) {
-        return pipeline;
-      }
-      return { ...pipeline, labels: mr.labels };
-    });
-  }
-
   return (
     <VisualisationContainer
       onSettingsClick={onSettingsClick}
@@ -150,17 +130,35 @@ const PipelineVisualisation: React.FC<PropTypes> = props => {
       title={title}
     >
       <Wrapper>
-        {sortedPipelines.map((pipeline, idx) => (
-          <div key={pipeline.id}>
-            <Pipeline
-              key={pipeline.id}
-              pipeline={pipeline}
-              groupName={group || ''}
-              compact={props.compact}
-            />
-            {idx < pipelines.length - 1 && <StyledHr />}
-          </div>
-        ))}
+        {sortedPipelines.map((pipeline, idx) => {
+          let associatedMr;
+          let pipelineToRender = pipeline;
+          // Add MR labels to pipelines and find associated MR
+          if (pipeline.ref.startsWith('refs/merge-requests')) {
+            const pipelineRef = pipeline.ref;
+            associatedMr = mrs.find(
+              mr =>
+                mr.project_id === pipeline.project_id &&
+                mr.head_pipeline &&
+                mr.head_pipeline.ref === pipelineRef,
+            );
+            if (associatedMr) {
+              pipelineToRender = { ...pipeline, labels: associatedMr.labels };
+            }
+          }
+          return (
+            <div key={pipeline.id}>
+              <Pipeline
+                key={pipeline.id}
+                pipeline={pipelineToRender}
+                groupName={group || ''}
+                compact={props.compact}
+                mr={associatedMr}
+              />
+              {idx < pipelines.length - 1 && <StyledHr />}
+            </div>
+          );
+        })}
       </Wrapper>
     </VisualisationContainer>
   );

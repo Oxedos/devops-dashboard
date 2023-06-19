@@ -27,6 +27,7 @@ type ConfigProps = {
   url?: string;
   onClick?: any;
   spin?: boolean;
+  disabled?: boolean;
 };
 
 type BaseProps = {
@@ -148,7 +149,9 @@ const Status: React.FC<StatusProps> = props => {
   }
 
   return (
-    <Wrapper onClick={props.onClick ? props.onClick : undefined}>
+    <Wrapper
+      onClick={!props.disabled && props.onClick ? props.onClick : undefined}
+    >
       {icon}
       {divider}
     </Wrapper>

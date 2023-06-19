@@ -16,6 +16,7 @@ import {
   selectMrsUserAssigned,
   selectProjectsByGroup,
   selectPipelinesToReload,
+  selectJobsToPlay,
 } from './selectors';
 import { all, fork, join, spawn, takeEvery } from 'redux-saga/effects';
 import moment from 'moment';
@@ -450,6 +451,68 @@ function* rerunPipelines() {
   }
 }
 
+function* playJobs() {
+  const token: string = yield select(selectToken);
+  const url: string = yield select(selectUrl);
+  const jobsToPlay: {
+    groupName: string;
+    projectId: number;
+    mrIid: number;
+    jobId: number;
+  }[] = yield select(selectJobsToPlay);
+
+  for (let job of jobsToPlay) {
+    yield fork(
+      playJob,
+      url,
+      token,
+      job.projectId,
+      job.jobId,
+      job.mrIid,
+      job.groupName,
+    );
+  }
+}
+
+function* playJob(
+  url: string,
+  token: string,
+  projectId: number,
+  jobId: number,
+  mrIid: number,
+  groupName: string,
+) {
+  const loadingId = `[GitLab] playJob ${projectId} ${jobId}`;
+  yield put(globalActions.addLoader({ id: loadingId }));
+  // immediately remove pipeline from list as to not start them several times
+  yield put(actions.removeJobToPlay({ projectId, jobId, mrIid, groupName }));
+
+  try {
+    // play job
+    yield call(API.playJob, url, token, projectId, jobId);
+    // reload this Pipeline
+    const pipelineData = yield call(
+      API.loadPipelineForMr,
+      url,
+      token,
+      projectId,
+      mrIid,
+    );
+    yield put(actions.updatePipeline({ groupName, pipeline: pipelineData }));
+  } catch (error) {
+    if (error instanceof Error) {
+      yield put(
+        globalActions.addErrorNotification(`[GitLab] ${error.message}`),
+      );
+    } else {
+      yield put(globalActions.addErrorNotification(`[GitLab] Unkown Error`));
+    }
+  } finally {
+    yield put(actions.removeJobToPlay({ projectId, jobId, mrIid, groupName })); // just to be sure
+    yield put(globalActions.removeLoader({ id: loadingId }));
+  }
+}
+
 /*
  * Helper functions to manage correct ordering of data loading
  */
@@ -568,6 +631,7 @@ export function* gitLabSaga() {
   yield takeLatest(actions.reload.type, loadAll);
   yield takeLatest(actions.deleteConfiguration.type, clear);
   yield takeEvery(actions.reloadPipeline.type, rerunPipelines);
+  yield takeEvery(actions.playJob.type, playJobs);
   yield spawn(pollLong);
   yield spawn(pollShort);
 }

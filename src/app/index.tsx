@@ -59,6 +59,7 @@ import {
   faChevronLeft,
   faChartLine,
   faUpRightFromSquare,
+  faPlay,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faGitlab,
@@ -150,6 +151,7 @@ export const App: React.FC = props => {
     faChevronRight,
     faChartLine,
     faUpRightFromSquare,
+    faPlay
   );
 
   const HomeWithDashboardIdCheckpoint = withDashboardIdCheckpoint(HomePage);

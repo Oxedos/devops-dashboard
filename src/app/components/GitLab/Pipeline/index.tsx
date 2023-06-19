@@ -1,6 +1,6 @@
 import React from 'react';
 import styled from 'styled-components/macro';
-import { GitLabJob, GitLabPipeline } from 'app/apis/gitlab/types';
+import { GitLabJob, GitLabMR, GitLabPipeline } from 'app/apis/gitlab/types';
 import Job from '../Job';
 import { useSelector } from 'react-redux';
 import { selectProjects } from 'app/data/gitLabSlice/selectors';
@@ -17,6 +17,7 @@ type PropTypes = {
   pipeline: GitLabPipeline;
   groupName: string;
   compact?: boolean;
+  mr?: GitLabMR;
 };
 
 const calcuclateUptime = (pipeline: GitLabPipeline) => {
@@ -80,6 +81,8 @@ const Pipeline: React.FC<PropTypes> = props => {
           jobs={stage.jobs}
           nextJobs={idx < stages.length - 2 ? stages[idx + 1].jobs : undefined}
           withDivider={idx < stages.length - 1}
+          groupName={props.groupName}
+          mr={props.mr}
         />
       </JobWrapper>
     ));
@@ -93,6 +96,8 @@ const Pipeline: React.FC<PropTypes> = props => {
             idx < sortedJobs.length - 2 ? sortedJobs[idx + 1] : undefined
           }
           withDivider={idx < sortedJobs.length - 1}
+          groupName={props.groupName}
+          mr={props.mr}
         />
       </JobWrapper>
     ));
