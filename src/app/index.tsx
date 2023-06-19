@@ -151,7 +151,7 @@ export const App: React.FC = props => {
     faChevronRight,
     faChartLine,
     faUpRightFromSquare,
-    faPlay
+    faPlay,
   );
 
   const HomeWithDashboardIdCheckpoint = withDashboardIdCheckpoint(HomePage);
