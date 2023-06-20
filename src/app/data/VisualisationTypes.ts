@@ -22,6 +22,7 @@ export enum VisualisationType {
   RSS_FEED_VISUALISATION,
   WS_VULNERABLE_SERVICES_TABLE,
   WS_VULNERABLE_DEPENDENCIES_TABLE,
+  GITLAB_EVENTS,
 }
 
 /**
@@ -41,6 +42,7 @@ export const getAfterVisualisationUpdatedActions = (
     case VisualisationType.GITLAB_ISSUES_OPEN_METRIC:
     case VisualisationType.GITLAB_READY_MR_TABLE:
     case VisualisationType.GITLAB_MR_ASSIGNED_TABLE:
+    case VisualisationType.GITLAB_EVENTS:
       return [
         gitLabActions.addListenedGroup({
           groupName: props.group,
@@ -101,6 +103,7 @@ export const getAfterVisualisationRemovedActions = (
   props: any,
 ) => {
   switch (type) {
+    case VisualisationType.GITLAB_EVENTS:
     case VisualisationType.GITLAB_PIPELINES_TABLE:
       return [
         gitLabActions.removeListenedGroup({
@@ -232,5 +235,11 @@ export const AllVisualisations = [
     icon: 'stream',
     type: VisualisationType.RSS_FEED_VISUALISATION,
     label: 'RSS Feed',
+  },
+  {
+    group: 'gitlab',
+    icon: 'stream',
+    type: VisualisationType.GITLAB_EVENTS,
+    label: 'GitLab Events',
   },
 ];

@@ -513,6 +513,53 @@ function* playJob(
   }
 }
 
+function* loadEventsForProject(projectId: number, url: string, token: string) {
+  const loadingId = `[GitLab] getEvents ${projectId}`;
+  yield put(globalActions.addLoader({ id: loadingId }));
+  try {
+    const after = moment().subtract(1, 'day').format('YYYY-MM-DD');
+    const events: GitLabTypes.GitLabEvent[] = yield call(
+      API.getEvents,
+      url,
+      token,
+      projectId,
+      after,
+    );
+    yield put(gitLabActions.setEvents({ projectId, events }));
+  } catch (error) {
+    if (error instanceof Error) {
+      yield put(
+        globalActions.addErrorNotification(`[GitLab] ${error.message}`),
+      );
+    } else {
+      yield put(globalActions.addErrorNotification(`[GitLab] Unkown Error`));
+    }
+  } finally {
+    yield put(globalActions.removeLoader({ id: loadingId }));
+  }
+}
+
+function* getEvents() {
+  const token: string = yield select(selectToken);
+  const url: string = yield select(selectUrl);
+  let projectsByGroup: Map<string, GitLabTypes.GitLabProject[]> = yield select(
+    selectProjectsByGroup,
+  );
+  const listenedGroups: string[] = yield select(selectListenedGroups);
+
+  if (listenedGroups.length <= 0) return;
+
+  for (let groupName of listenedGroups) {
+    const projects = projectsByGroup.get(groupName);
+    if (!projects) {
+      continue;
+    }
+    for (let project of projects) {
+      yield fork(loadEventsForProject, project.id, url, token);
+    }
+  }
+}
+
 /*
  * Helper functions to manage correct ordering of data loading
  */
@@ -589,7 +636,7 @@ function* pollShort() {
       yield fork(getIssueStatistics);
       yield fork(getAllIssueStatistics);
 
-      yield all([call(getMergeRequests), call(getPipelines)]);
+      yield all([call(getMergeRequests), call(getPipelines), call(getEvents)]);
 
       yield call(getMissingProjects);
       yield call(persist);
@@ -609,7 +656,11 @@ function* loadAll() {
   yield call(getGroups); // All other calls depend on groups, block for this call
 
   yield fork(getIssueStatistics);
-  yield all([call(getMergeRequests), call(loadProjectsAndPipelines)]);
+  yield all([
+    call(getMergeRequests),
+    call(loadProjectsAndPipelines),
+    call(getEvents),
+  ]);
   yield call(getMissingProjects);
 
   yield call(persist);

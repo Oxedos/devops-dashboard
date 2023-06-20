@@ -5,6 +5,7 @@ import {
   GitLabUserData,
   GitLabIssueStatistics,
   GitLabPipeline,
+  GitLabEvent,
 } from 'app/apis/gitlab/types';
 
 /* --- STATE --- */
@@ -31,4 +32,5 @@ export interface GitLabState {
     mrIid: number;
     groupName: string;
   }[];
+  events: Map<number, GitLabEvent[]>; // projectId -> GitLabEvent[]
 }

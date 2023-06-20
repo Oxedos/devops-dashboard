@@ -8,6 +8,7 @@ import PipelineVisualisation from './GitLab/PipelineVisualisation';
 import VulnerabilitesTable from './Whitesource/VulnerabilitesTable';
 import RssFeedVisualisation from './RSS/RssFeedVisualisation';
 import SimpleMessage from './components/SimpleMessage';
+import EventsVisualisation from './GitLab/EventsVisualisation';
 
 type PropTypes = {
   type: VisualisationType;
@@ -49,6 +50,8 @@ const Visualisation: React.FC<PropTypes> = props => {
       );
     case VisualisationType.RSS_FEED_VISUALISATION:
       return <RssFeedVisualisation {...visulisationProps} />;
+    case VisualisationType.GITLAB_EVENTS:
+      return <EventsVisualisation {...visulisationProps} />;
     default:
       return (
         <SimpleMessage

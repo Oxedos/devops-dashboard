@@ -4,10 +4,13 @@ import styled from 'styled-components/macro';
 import Figure from 'react-bootstrap/Figure';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 type PropTypes = {
   user: GitLabUserReference;
   imgOnly?: boolean;
+  iconProps?: { color: string; icon: IconProp };
 };
 
 const GitLabUser: React.FC<PropTypes> = props => {
@@ -24,8 +27,14 @@ const GitLabUser: React.FC<PropTypes> = props => {
         )}
       >
         {props.user.avatar_url ? (
-          <StyledFigure>
+          <StyledFigure className="fa-layers">
             <Figure.Image src={props.user.avatar_url} />
+            {props.iconProps && (
+              <FontAwesomeIcon
+                icon={props.iconProps.icon}
+                color={props.iconProps.color}
+              />
+            )}
           </StyledFigure>
         ) : (
           <DefaultAuthorWrapper>
@@ -56,6 +65,10 @@ const StyledFigure = styled(Figure)`
     border-radius: 50%;
     margin: 0;
     padding: 0;
+  }
+  svg {
+    padding-top: 2em;
+    padding-left: 1.5em;
   }
 `;
 
