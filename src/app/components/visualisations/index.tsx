@@ -1,7 +1,5 @@
 import { VisualisationType } from 'app/data/VisualisationTypes';
 import React from 'react';
-import MergeRequestVisualisation from './GitLab/MergeRequestVisualisation';
-import IssueVisualisation from './GitLab/IssueVisualisation';
 import ReadyMrsVisualisation from './GitLab/LatestMrsVisualisation';
 import MrsAssignedToYouVisualisation from './GitLab/MrsAssignedToYouVisualisation';
 import PipelineVisualisation from './GitLab/PipelineVisualisation';
@@ -25,10 +23,6 @@ const Visualisation: React.FC<PropTypes> = props => {
     ...props.props,
   };
   switch (props.type) {
-    case VisualisationType.GITLAB_MR_OPEN_METRIC:
-      return <MergeRequestVisualisation {...visulisationProps} />;
-    case VisualisationType.GITLAB_ISSUES_OPEN_METRIC:
-      return <IssueVisualisation {...visulisationProps} />;
     case VisualisationType.GITLAB_READY_MR_TABLE:
       return <ReadyMrsVisualisation {...visulisationProps} />;
     case VisualisationType.GITLAB_MR_ASSIGNED_TABLE:

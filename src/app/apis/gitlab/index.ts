@@ -3,8 +3,6 @@ import { normalizeUrl } from 'app/apis/apiHelper';
 import { getGitLabErrorMessage, getWithKeysetPagination } from './helper';
 import {
   GitLabGroup,
-  GitLabIssue,
-  GitLabIssueStatistics,
   GitLabMR,
   GitLabUserData,
   GitLabProject,
@@ -34,98 +32,6 @@ export async function getGroups(
     params,
   };
   return getWithKeysetPagination(link, config);
-}
-
-type GetIssueTypeParams = {
-  state?: 'all' | 'opened' | 'closed';
-  assignee_username?: string;
-  labels?: string[] | 'None' | 'Any';
-  order_by?:
-    | 'created_at'
-    | 'updated_at'
-    | 'priority'
-    | 'due_date'
-    | 'relative_position'
-    | 'label_priority'
-    | 'milestone_due'
-    | 'popularity'
-    | 'weight';
-  scope?: 'created_by_me' | 'assigned_to_me' | 'all';
-};
-
-export async function getIssues(
-  url: string,
-  privateToken: string,
-  groupId: number,
-  params: GetIssueTypeParams = {},
-): Promise<GitLabIssue[]> {
-  // Set defaults
-  params = {
-    scope: 'all',
-    state: 'opened',
-    ...params,
-  };
-  const link = normalizeUrl(url, API_SUFFIX) + `/groups/${groupId}/issues`;
-  const config = {
-    headers: {
-      'PRIVATE-TOKEN': privateToken,
-    },
-    params,
-  };
-  return getWithKeysetPagination(link, config);
-}
-
-export async function getIssuesStatisticsForGroup(
-  url: string,
-  privateToken: string,
-  groupId: number,
-  params: GetIssueTypeParams = {},
-): Promise<GitLabIssueStatistics> {
-  // Set defaults
-  params = {
-    scope: 'all',
-    ...params,
-  };
-  try {
-    const response = await axios.get<GitLabIssueStatistics>(
-      normalizeUrl(url, API_SUFFIX) + `/groups/${groupId}/issues_statistics`,
-      {
-        headers: {
-          'PRIVATE-TOKEN': privateToken,
-        },
-        params,
-      },
-    );
-    return response.data;
-  } catch (error) {
-    throw new Error(getGitLabErrorMessage(error));
-  }
-}
-
-export async function getIssuesStatistics(
-  url: string,
-  privateToken: string,
-  params: GetIssueTypeParams = {},
-): Promise<GitLabIssueStatistics> {
-  // Set defaults
-  params = {
-    scope: 'all',
-    ...params,
-  };
-  try {
-    const response = await axios.get<GitLabIssueStatistics>(
-      normalizeUrl(url, API_SUFFIX) + `/issues_statistics`,
-      {
-        headers: {
-          'PRIVATE-TOKEN': privateToken,
-        },
-        params,
-      },
-    );
-    return response.data;
-  } catch (error) {
-    throw new Error(getGitLabErrorMessage(error));
-  }
 }
 
 type GetMergeRequestParams = {

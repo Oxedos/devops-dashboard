@@ -31,14 +31,6 @@ export const selectProjects = createSelector(
   selectGitLab,
   state => state.projects,
 );
-export const selectIssueStatistics = createSelector(
-  selectGitLab,
-  state => state.issueStatisticsByGroup,
-);
-export const selectIssueStatisticsAll = createSelector(
-  selectGitLab,
-  state => state.issueStatisticsAll,
-);
 export const selectListenedGroups = createSelector(selectGitLab, state =>
   uniqueGroupListeners(state),
 );
