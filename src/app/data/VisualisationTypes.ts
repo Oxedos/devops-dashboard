@@ -5,8 +5,8 @@ import { rssActions } from './rssSlice';
 // Do note remove enums!
 // The order number of each enum is important!
 export enum VisualisationType {
-  GITLAB_MR_OPEN_METRIC,
-  GITLAB_ISSUES_OPEN_METRIC,
+  DP_9,
+  DP_10,
   GITLAB_READY_MR_TABLE,
   GITLAB_MR_ASSIGNED_TABLE,
   DP_1, // Deprecated
@@ -38,8 +38,6 @@ export const getAfterVisualisationUpdatedActions = (
   props: any,
 ) => {
   switch (type) {
-    case VisualisationType.GITLAB_MR_OPEN_METRIC:
-    case VisualisationType.GITLAB_ISSUES_OPEN_METRIC:
     case VisualisationType.GITLAB_READY_MR_TABLE:
     case VisualisationType.GITLAB_MR_ASSIGNED_TABLE:
     case VisualisationType.GITLAB_EVENTS:
@@ -121,13 +119,6 @@ export const getAfterVisualisationRemovedActions = (
 
 export const getDefaultSize = (type: VisualisationType) => {
   switch (type) {
-    case VisualisationType.GITLAB_MR_OPEN_METRIC:
-      return {
-        minW: 4,
-        minH: 8,
-        w: 4,
-        h: 8,
-      };
     case VisualisationType.GITLAB_PIPELINES_TABLE:
       return {
         minW: 5,
@@ -182,18 +173,6 @@ export const GroupIcons = {
  * Used for creating the Add Widget Modal
  */
 export const AllVisualisations = [
-  {
-    group: 'gitlab',
-    icon: ['fab', 'metric'],
-    type: VisualisationType.GITLAB_ISSUES_OPEN_METRIC,
-    label: 'Open GitLab Issues',
-  },
-  {
-    group: 'gitlab',
-    icon: ['fab', 'metric'],
-    type: VisualisationType.GITLAB_MR_OPEN_METRIC,
-    label: 'Open Merge Requests',
-  },
   {
     group: 'gitlab',
     icon: 'table',

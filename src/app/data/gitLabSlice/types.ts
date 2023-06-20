@@ -3,7 +3,6 @@ import {
   GitLabMR,
   GitLabProject,
   GitLabUserData,
-  GitLabIssueStatistics,
   GitLabPipeline,
   GitLabEvent,
 } from 'app/apis/gitlab/types';
@@ -21,8 +20,6 @@ export interface GitLabState {
   mrsUserAssigned: GitLabMR[]; // All MRs currently assigned to the user (disregarding group listeners)
   projects: GitLabProject[]; // Concatenation of all projects of all groups the user listens to. No duplicates
   projectsByGroup: Map<string, GitLabProject[]>; // Projects per group including subprojects. Key: full_name
-  issueStatisticsAll: GitLabIssueStatistics | undefined; // Global issue statistics of all issues the user has access to
-  issueStatisticsByGroup: Map<string, GitLabIssueStatistics>; // Issue Statistics for all groups the user listens to
   listenedGroups: { visId: string; groupName: string }[];
   pipelinesByGroup: Map<string, GitLabPipeline[]>;
   pipelinesToReload: { projectId: number; groupName: string; ref: string }[]; // Pipelines that will be reloaded

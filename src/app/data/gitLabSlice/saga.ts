@@ -312,73 +312,6 @@ function* getMergeRequests() {
   yield put(globalActions.removeLoader({ id: loadingId }));
 }
 
-function* getAllIssueStatistics() {
-  const token: string = yield select(selectToken);
-  const url: string = yield select(selectUrl);
-  const loadingId = '[GitLab] getAllIssueStatistics';
-  yield put(globalActions.addLoader({ id: loadingId }));
-
-  try {
-    const statisticsAll = yield call(API.getIssuesStatistics, url, token);
-    yield put(actions.setIssuesStatisticForAll(statisticsAll));
-  } catch (error) {
-    if (error instanceof Error) {
-      yield put(
-        globalActions.addErrorNotification(`[GitLab] ${error.message}`),
-      );
-    } else {
-      yield put(globalActions.addErrorNotification(`[GitLab] Unknwown Error`));
-    }
-  } finally {
-    yield put(globalActions.removeLoader({ id: loadingId }));
-  }
-}
-
-function* getIssueStatistics() {
-  const token: string = yield select(selectToken);
-  const url: string = yield select(selectUrl);
-  const listenedGroups: string[] = yield select(selectListenedGroups);
-  let groups: GitLabTypes.GitLabGroup[] = yield select(selectGroups);
-
-  if (listenedGroups.length <= 0) return;
-
-  const loadingId = '[GitLab] getIssueStatistics';
-  yield put(globalActions.addLoader({ id: loadingId }));
-
-  if (groups.length <= 0) {
-    yield call(getGroups);
-    groups = yield select(selectGroups);
-  }
-
-  for (let groupName of listenedGroups) {
-    const group = groups.find(group => group.full_name === groupName);
-    if (!group) continue;
-    try {
-      const groupIssuesStatistics = yield call(
-        API.getIssuesStatisticsForGroup,
-        url,
-        token,
-        group.id,
-      );
-      yield put(
-        actions.setIssuesStatisticForGroup({
-          groupName: group.full_name,
-          stats: groupIssuesStatistics,
-        }),
-      );
-    } catch (error) {
-      if (error instanceof Error) {
-        yield put(
-          globalActions.addErrorNotification(`[GitLab] ${error.message}`),
-        );
-      } else {
-        yield put(globalActions.addErrorNotification(`[GitLab] Unknown Error`));
-      }
-    }
-  }
-  yield put(globalActions.removeLoader({ id: loadingId }));
-}
-
 function* rerunPipeline(
   url: string,
   token: string,
@@ -620,8 +553,6 @@ function* pollLong() {
 }
 
 function* loadAfterListenerAdd() {
-  yield fork(getIssueStatistics);
-
   yield all([call(getMergeRequests), call(loadProjectsAndPipelines)]);
   yield call(getMissingProjects);
 
@@ -633,8 +564,6 @@ function* pollShort() {
     const configured: boolean = yield select(selectConfigured);
     if (configured) {
       yield fork(getUserAssignedMrs);
-      yield fork(getIssueStatistics);
-      yield fork(getAllIssueStatistics);
 
       yield all([call(getMergeRequests), call(getPipelines), call(getEvents)]);
 
@@ -651,11 +580,9 @@ function* loadAll() {
   // Calls without any dependency
   yield fork(getUserInfo);
   yield fork(getUserAssignedMrs);
-  yield fork(getAllIssueStatistics);
 
   yield call(getGroups); // All other calls depend on groups, block for this call
 
-  yield fork(getIssueStatistics);
   yield all([
     call(getMergeRequests),
     call(loadProjectsAndPipelines),
@@ -677,7 +604,7 @@ function* clear() {
 
 export function* gitLabSaga() {
   yield takeLatest(actions.setConfigured.type, testConnection);
-  yield takeEvery(actions.addListenedGroup.type, loadAfterListenerAdd);
+  yield takeLatest(actions.addListenedGroup.type, loadAfterListenerAdd);
   yield takeEvery(actions.removeListenedGroup.type, persist);
   yield takeLatest(actions.reload.type, loadAll);
   yield takeLatest(actions.deleteConfiguration.type, clear);

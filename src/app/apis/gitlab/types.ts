@@ -26,44 +26,6 @@ export type GitLabUserReference = {
   web_url: string;
 };
 
-export type GitLabIssue = {
-  state: string;
-  description: string;
-  author: GitLabUserReference;
-  project_id: number;
-  assignees: GitLabUserReference[];
-  assignee: GitLabUserReference;
-  updated_at: string;
-  closed_at: string;
-  closed_by: string;
-  id: number;
-  title: string;
-  created_at: string;
-  moved_to_id: string;
-  iid: number;
-  labels: string[];
-  upvotes: number;
-  downvotes: number;
-  merge_requests_count: number;
-  user_notes_count: number;
-  due_date: string;
-  web_url: string;
-  task_completion_status: {
-    count: number;
-    completed_count: number;
-  };
-};
-
-export type GitLabIssueStatistics = {
-  statistics: {
-    counts: {
-      all: number;
-      closed: number;
-      opened: number;
-    };
-  };
-};
-
 export type GitLabProject = {
   id: number;
   description: string;

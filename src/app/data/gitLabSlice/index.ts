@@ -2,7 +2,6 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import {
   GitLabEvent,
   GitLabGroup,
-  GitLabIssueStatistics,
   GitLabMR,
   GitLabPipeline,
   GitLabProject,
@@ -32,8 +31,6 @@ const loadInitialState = (): GitLabState => {
     mrsUserAssigned: persistedState?.mrsUserAssigned || [],
     projects: persistedState?.projects || [],
     projectsByGroup: persistedState?.projectsByGroup || new Map(),
-    issueStatisticsAll: persistedState?.issueStatisticsAll,
-    issueStatisticsByGroup: persistedState?.issueStatisticsByGroup || new Map(),
     listenedGroups: persistedState?.listenedGroups || [],
     pipelinesByGroup: persistedState?.pipelinesByGroup || new Map(),
     pipelinesToReload: [],
@@ -144,24 +141,6 @@ const slice = createSlice({
       state.projectsByGroup.set(groupName, newProjects);
       state.projects = upsert(state.projects, newProjects, isEqualbyId);
     },
-    setIssuesStatisticForGroup(
-      state,
-      action: PayloadAction<{
-        groupName: string;
-        stats: GitLabIssueStatistics;
-      }>,
-    ) {
-      const {
-        payload: { groupName, stats },
-      } = action;
-      state.issueStatisticsByGroup.set(groupName, stats);
-    },
-    setIssuesStatisticForAll(
-      state,
-      action: PayloadAction<GitLabIssueStatistics>,
-    ) {
-      state.issueStatisticsAll = action.payload;
-    },
     addListenedGroup(
       state,
       action: PayloadAction<{ visId: string; groupName: string }>,
@@ -215,8 +194,6 @@ const slice = createSlice({
         );
         // projectsByGroup
         state.projectsByGroup.delete(groupName);
-        // issueStatisticsByGroup
-        state.issueStatisticsByGroup.delete(groupName);
         // pipelinesByGroup
         state.pipelinesByGroup.delete(groupName);
       }
@@ -358,10 +335,7 @@ const slice = createSlice({
         mrsUserAssigned: [],
         projects: [],
         projectsByGroup: new Map(),
-        issueStatisticsAll: undefined,
-        issueStatisticsByGroup: new Map(),
         listenedGroups: [],
-        listenedGroupsForPipelines: [],
         pipelinesByGroup: new Map(),
         pipelinesToReload: [],
         jobsToPlay: [],
