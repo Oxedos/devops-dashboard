@@ -58,3 +58,4 @@ export const selectJobsToPlay = createSelector(
   selectGitLab,
   state => state.jobsToPlay,
 );
+export const selectEvents = createSelector(selectGitLab, state => state.events);

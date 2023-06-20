@@ -245,3 +245,38 @@ export type GitLabMR = {
   blocking_discussions_resolved: boolean;
   head_pipeline: GitLabPipelineBasic;
 };
+
+export type GitLabEvent = {
+  id: number;
+  title: null;
+  project_id: number;
+  action_name: string;
+  target_id: number;
+  target_iid: number;
+  target_type: GitLabEventTargetType | string;
+  author_id: number;
+  target_title: string;
+  created_at: string;
+  author: GitLabUserReference;
+  author_username: string;
+  push_data?: {
+    commit_count: number;
+    action: string;
+    ref_type: string;
+    commit_from: string;
+    commit_to: string;
+    ref: string;
+    commit_title?: string;
+    ref_count: number;
+  };
+};
+
+export enum GitLabEventTargetType {
+  issue = 'issue',
+  milestone = 'milestone',
+  merge_request = 'merge_request',
+  note = 'note',
+  project = 'project',
+  snippet = 'snippet',
+  user = 'user',
+}

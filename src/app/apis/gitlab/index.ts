@@ -12,6 +12,7 @@ import {
   GitLabBranch,
   GitLabPipeline,
   GitLabSimpleMr,
+  GitLabEvent,
 } from './types';
 
 export const API_SUFFIX = '/api/v4';
@@ -642,4 +643,28 @@ export async function loadPipelineForMr(
     project_id: pipelineData.project_id || projectId,
     title,
   };
+}
+
+export async function getEvents(
+  url: string,
+  privateToken: string,
+  projectId: number,
+  after: string,
+): Promise<GitLabEvent[]> {
+  const params = {
+    after,
+  };
+  const link = normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}/events`;
+  const config = {
+    headers: {
+      'PRIVATE-TOKEN': privateToken,
+    },
+    params,
+  };
+  try {
+    const response = await axios.get<GitLabEvent[]>(link, config);
+    return response.data;
+  } catch (error) {
+    throw new Error(getGitLabErrorMessage(error));
+  }
 }

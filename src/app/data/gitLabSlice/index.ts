@@ -1,5 +1,6 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import {
+  GitLabEvent,
   GitLabGroup,
   GitLabIssueStatistics,
   GitLabMR,
@@ -37,6 +38,7 @@ const loadInitialState = (): GitLabState => {
     pipelinesByGroup: persistedState?.pipelinesByGroup || new Map(),
     pipelinesToReload: [],
     jobsToPlay: [],
+    events: persistedState?.events || new Map(),
   };
 };
 
@@ -330,6 +332,18 @@ const slice = createSlice({
       );
       state.jobsToPlay = newList;
     },
+    setEvents(
+      state,
+      action: PayloadAction<{
+        projectId: number;
+        events: GitLabEvent[];
+      }>,
+    ) {
+      const {
+        payload: { projectId, events },
+      } = action;
+      state.events.set(projectId, events);
+    },
     reload(state, action: PayloadAction<void>) {},
     deleteConfiguration(state, action: PayloadAction<void>) {
       return {
@@ -351,6 +365,7 @@ const slice = createSlice({
         pipelinesByGroup: new Map(),
         pipelinesToReload: [],
         jobsToPlay: [],
+        events: new Map(),
       };
     },
   },
