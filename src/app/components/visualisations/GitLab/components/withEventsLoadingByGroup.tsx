@@ -1,9 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import {
-  selectAllMrs,
   selectEvents,
-  selectMrsByGroup,
   selectProjectsByGroup,
 } from 'app/data/gitLabSlice/selectors';
 import SimpleMessage from '../../components/SimpleMessage';
