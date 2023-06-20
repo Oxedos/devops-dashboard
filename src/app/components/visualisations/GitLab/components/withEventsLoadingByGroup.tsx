@@ -5,6 +5,7 @@ import {
   selectProjectsByGroup,
 } from 'app/data/gitLabSlice/selectors';
 import SimpleMessage from '../../components/SimpleMessage';
+import Moment from 'moment';
 
 type PropTypes = {
   id: string;
@@ -38,7 +39,13 @@ const withEventsLoadingByGroup = (WrappedComponent: React.FC<any>) => {
 
     const events = projects
       .flatMap(project => allEvents.get(project.id))
-      .filter(event => event !== undefined);
+      .filter(event => event !== undefined)
+      .sort((a, b) => {
+        if (!a || !b) return 0;
+        const momentA: any = Moment(a.created_at);
+        const momentB: any = Moment(b.created_at);
+        return momentB - momentA;
+      });
 
     if (!events || events.length <= 0) {
       return (
@@ -51,7 +58,6 @@ const withEventsLoadingByGroup = (WrappedComponent: React.FC<any>) => {
         />
       );
     }
-
     return <WrappedComponent {...props} events={events} />;
   };
 
