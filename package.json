@@ -90,7 +90,7 @@
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.10",
     "@types/node": "20.3.1",
     "@types/react": "18.2.12",
-    "@types/react-dom": "18.2.5",
+    "@types/react-dom": "18.2.6",
     "@types/react-redux": "7.1.25",
     "@types/react-router-dom": "5.3.3",
     "@types/shelljs": "0.8.12",
