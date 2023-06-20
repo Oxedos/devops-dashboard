@@ -60,6 +60,9 @@ import {
   faChartLine,
   faUpRightFromSquare,
   faPlay,
+  faCodeMerge,
+  faCodePullRequest,
+  faCodeBranch,
 } from '@fortawesome/free-solid-svg-icons';
 import {
   faGitlab,
@@ -152,6 +155,9 @@ export const App: React.FC = props => {
     faChartLine,
     faUpRightFromSquare,
     faPlay,
+    faCodeMerge,
+    faCodePullRequest,
+    faCodeBranch,
   );
 
   const HomeWithDashboardIdCheckpoint = withDashboardIdCheckpoint(HomePage);
