@@ -35,7 +35,7 @@ const withEventsLoadingByGroup = (WrappedComponent: React.FC<any>) => {
 
     const projects = projectsByGroup.get(props.group);
 
-    if (!projects) {
+    if (!projects || !allEvents || allEvents.length <= 0) {
       return <WrappedComponent {...props} events={[]} />;
     }
 
