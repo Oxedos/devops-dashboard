@@ -17,9 +17,14 @@ const GitLabUser: React.FC<PropTypes> = props => {
   if (!props.user) return null;
 
   return (
-    <AuthorWrapper onClick={() => window.open(props.user.web_url)}>
+    <AuthorWrapper
+      onClick={e => {
+        e.stopPropagation();
+        e.preventDefault();
+        window.open(props.user.web_url);
+      }}
+    >
       <OverlayTrigger
-        placement="left"
         overlay={overlayProps => (
           <Tooltip id="button-tooltip" {...overlayProps}>
             {props.user.name}
