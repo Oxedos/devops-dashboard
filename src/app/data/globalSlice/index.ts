@@ -141,7 +141,13 @@ const slice = createSlice({
         time: new Date().toISOString(),
         type: NotificationType.error,
       };
-      state.notifications.push(notification);
+      // Limit error notifications by checking if we have the same text in state already
+      const containsMessages = state.notifications.find(
+        n => n.message === action.payload,
+      );
+      if (!containsMessages) {
+        state.notifications.push(notification);
+      }
     },
     addWarningNotification(state, action: PayloadAction<string>) {
       const notification = {

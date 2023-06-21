@@ -62,7 +62,7 @@ const NotificationToast: React.FC<NotificationPropTypes> = props => {
     >
       <Toast.Header>
         {Icon}
-        <strong className="mr-auto pl-2">{title}</strong>
+        <strong className="mr-auto">{title}</strong>
       </Toast.Header>
       <Toast.Body>{props.notification.message}</Toast.Body>
     </StyledToast>
@@ -89,6 +89,9 @@ const Wrapper = styled.div`
   bottom: 1em;
   right: 1em;
   z-index: 100;
+  display: flex;
+  gap: 1em;
+  flex-flow: column;
 `;
 
 const StyledToast = styled(Toast)`
@@ -101,6 +104,9 @@ const StyledToast = styled(Toast)`
   .toast-header {
     background: var(--clr-menu);
     color: var(--clr-white);
+    & svg {
+      padding-right: 0.5em;
+    }
   }
 
   span {
