@@ -4,10 +4,12 @@ import {
   selectConfigured,
   selectProjects,
   selectMrsUserAssigned,
+  selectAllMrs,
+  selectPipelines,
 } from 'app/data/gitLabSlice/selectors';
 import GitLabUser from 'app/components/GitLab/GitLabUser';
 import TableVisualisation from '../../components/TableVisualisation';
-import { GitLabMR, GitLabProject } from 'app/apis/gitlab/types';
+import { GitLabMR, GitLabPipeline, GitLabProject } from 'app/apis/gitlab/types';
 import compose from 'app/components/compose';
 import withGitLabConfiguredCheck from '../components/withGitLabConfiguredCheck';
 import SimpleMessage from '../../components/SimpleMessage';
@@ -20,35 +22,51 @@ type PropTypes = {
   onSettingsClick?: Function;
 };
 
-function getUserAssignedMrs(mrs: GitLabMR[], projects: GitLabProject[]) {
+function getUserAssignedMrs(
+  mrs: GitLabMR[],
+  projects: GitLabProject[],
+  pipelines: GitLabPipeline[],
+) {
   const header = ['Project', 'Pipeline', 'Title', 'Author', 'Reviewer'];
-  const values = mrs.map(mr => ({
-    project: projects.find(p => p.id === mr.project_id)?.name,
-    pipeline: (
-      <Centered>
-        <PipelineStatus
-          pipeline={mr.head_pipeline}
-          simple
-          tooltip={mr.head_pipeline.status}
-          url={mr.head_pipeline.web_url}
-          style={StatusStyle.simple}
-        />
-      </Centered>
-    ),
-    title: mr.title,
-    author: <GitLabUser user={mr.author} imgOnly />,
-    reviewer: mr.reviewers && <GitLabUser user={mr.reviewers[0]} imgOnly />,
-    clickHandler: () => window.open(mr.web_url),
-  }));
+  const values = mrs.map(mr => {
+    const pipeline = pipelines.find(
+      pipeline =>
+        pipeline && pipeline.ref && pipeline.ref.includes(`${mr.iid}`),
+    );
+    return {
+      project: projects.find(p => p.id === mr.project_id)?.name,
+      pipeline: pipeline && (
+        <Centered>
+          <PipelineStatus
+            pipeline={pipeline}
+            simple
+            tooltip={pipeline?.status || 'unkown'}
+            url={pipeline?.web_url || undefined}
+            style={StatusStyle.simple}
+          />
+        </Centered>
+      ),
+      title: mr.title,
+      author: <GitLabUser user={mr.author} imgOnly />,
+      reviewer: mr.reviewers && <GitLabUser user={mr.reviewers[0]} imgOnly />,
+      clickHandler: () => window.open(mr.web_url),
+    };
+  });
   return { header, values };
 }
 
 const MrAssignedToYouVisualisation: React.FC<PropTypes> = props => {
-  const mrsUserAssigned = useSelector(selectMrsUserAssigned);
+  const mrIdsUserAssigned = useSelector(selectMrsUserAssigned);
+  const mrs = useSelector(selectAllMrs);
   const projects = useSelector(selectProjects);
+  const pipelines = useSelector(selectPipelines);
   const configured = useSelector(selectConfigured);
 
-  const visProps = getUserAssignedMrs(mrsUserAssigned, projects);
+  const visProps = getUserAssignedMrs(
+    mrs.filter(mr => mrIdsUserAssigned.includes(mr.id)),
+    projects,
+    pipelines,
+  );
 
   const title = 'MRs Assigned To You';
 

@@ -3,31 +3,49 @@ import {
   GitLabMR,
   GitLabProject,
   GitLabUserData,
-  GitLabPipeline,
   GitLabEvent,
+  GroupName,
+  MrId,
+  ProjectId,
+  PipelineId,
+  JobId,
+  GitLabPipeline,
+  EventId,
 } from 'app/apis/gitlab/types';
 
 /* --- STATE --- */
 export interface GitLabState {
+  // Config Data
   configured: boolean; // If GitLab DataSource is correctly set up
   url: string | undefined; // baseUrl of API including /api/<version>
   token: string | undefined; // private token to access API
+  // Data of current user
   userId: number | undefined;
   userData: GitLabUserData | undefined; // Data returned from GET /user
-  groups: GitLabGroup[]; // All groups the user is member of
-  mrsByGroup: Map<string, GitLabMR[]>; // MRs stored by their groups full_name
-  mrs: GitLabMR[]; // A concatenation of all MRs of all groups the user listens to. No duplicates
-  mrsUserAssigned: GitLabMR[]; // All MRs currently assigned to the user (disregarding group listeners)
-  projects: GitLabProject[]; // Concatenation of all projects of all groups the user listens to. No duplicates
-  projectsByGroup: Map<string, GitLabProject[]>; // Projects per group including subprojects. Key: full_name
+  // Which data to regularly fetch
   listenedGroups: { visId: string; groupName: string }[];
-  pipelinesByGroup: Map<string, GitLabPipeline[]>;
-  pipelinesToReload: { projectId: number; groupName: string; ref: string }[]; // Pipelines that will be reloaded
+  // General Data -> main data storage
+  groups: GitLabGroup[]; // All groups the user is member of / has access to
+  mrs: GitLabMR[]; // all currently loaded MRs
+  projects: GitLabProject[]; // All currently loaded projects
+  events: GitLabEvent[];
+  pipelines: GitLabPipeline[];
+  // Data Associations
+  mrsUserAssigned: MrId[];
+  mrsByGroup: Map<GroupName, MrId[]>;
+  projectsByGroup: Map<GroupName, ProjectId[]>;
+  pipelinesByGroup: Map<GroupName, PipelineId[]>;
+  eventsByProject: Map<ProjectId, EventId[]>;
+  // Temporary Data for GitLab Actions and such
+  pipelinesToReload: {
+    projectId: ProjectId;
+    groupName: GroupName;
+    ref: string;
+  }[]; // Pipelines that will be reloaded
   jobsToPlay: {
-    projectId: number;
-    jobId: number;
+    projectId: ProjectId;
+    jobId: JobId;
     mrIid: number;
-    groupName: string;
+    groupName: GroupName;
   }[];
-  events: Map<number, GitLabEvent[]>; // projectId -> GitLabEvent[]
 }

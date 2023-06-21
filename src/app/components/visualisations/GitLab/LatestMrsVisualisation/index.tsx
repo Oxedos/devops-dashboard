@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import { selectProjects } from 'app/data/gitLabSlice/selectors';
 import GitLabUser from 'app/components/GitLab/GitLabUser';
 import TableVisualisation from '../../components/TableVisualisation';
-import { GitLabMR, GitLabProject } from 'app/apis/gitlab/types';
+import { GitLabMR, GitLabPipeline, GitLabProject } from 'app/apis/gitlab/types';
 import compose from 'app/components/compose';
 import withGitLabConfiguredCheck from '../components/withGitLabConfiguredCheck';
 import withMrLoadingByGroup from '../components/withMrLoadingByGroup';
@@ -21,9 +21,14 @@ type PropTypesNoHoc = {
 type PropTypes = {
   onSettingsClick: Function;
   mrs: GitLabMR[];
+  pipelines?: GitLabPipeline[];
 } & PropTypesNoHoc;
 
-function getLatestMrs(mrs: GitLabMR[], projects: GitLabProject[]) {
+function getLatestMrs(
+  mrs: GitLabMR[],
+  projects: GitLabProject[],
+  pipelines: GitLabPipeline[],
+) {
   let header: string[] = [];
   let values: any = undefined;
 
@@ -36,15 +41,19 @@ function getLatestMrs(mrs: GitLabMR[], projects: GitLabProject[]) {
       return dateY - dateX;
     })
     .map(mr => {
+      const pipeline = pipelines.find(
+        pipeline =>
+          pipeline && pipeline.ref && pipeline.ref.includes(`${mr.iid}`),
+      );
       return {
         project: projects.find(p => p.id === mr.project_id)?.name,
-        pipeline: (
+        pipeline: pipeline && (
           <Centered>
             <PipelineStatus
-              pipeline={mr.head_pipeline}
+              pipeline={pipeline}
               simple
-              tooltip={mr.head_pipeline.status}
-              url={mr.head_pipeline.web_url}
+              tooltip={pipeline?.status || 'unkown'}
+              url={pipeline?.web_url || undefined}
               style={StatusStyle.simple}
             />
           </Centered>
@@ -52,7 +61,7 @@ function getLatestMrs(mrs: GitLabMR[], projects: GitLabProject[]) {
         title: mr.title,
         author: <GitLabUser user={mr.author} imgOnly />,
         assignee: <GitLabUser user={mr.assignee} imgOnly />,
-        reviewer: <GitLabUser user={mr.reviewers[0]} imgOnly />,
+        reviewer: mr.reviewers && <GitLabUser user={mr.reviewers[0]} imgOnly />,
         clickHandler: () => window.open(mr.web_url),
       };
     });
@@ -62,7 +71,7 @@ function getLatestMrs(mrs: GitLabMR[], projects: GitLabProject[]) {
 
 const ReadyMrsVisualisation: React.FC<PropTypes> = props => {
   const projects = useSelector(selectProjects);
-  const visProps = getLatestMrs(props.mrs, projects);
+  const visProps = getLatestMrs(props.mrs, projects, props.pipelines || []);
   const title = `Ready MRs in ${props.group || 'all Groups'}`;
 
   if (visProps.values.length <= 0) {

@@ -2,7 +2,17 @@ import * as Effects from 'redux-saga/effects';
 import { gitLabActions as actions, gitLabActions, LOCALSTORAGE_KEY } from '.';
 import { globalActions } from 'app/data/globalSlice';
 import * as API from 'app/apis/gitlab';
-import * as GitLabTypes from 'app/apis/gitlab/types';
+import {
+  GitLabEvent,
+  GitLabGroup,
+  GitLabMR,
+  GitLabPipeline,
+  GitLabProject,
+  GitLabUserData,
+  GroupName,
+  MrId,
+  ProjectId,
+} from 'app/apis/gitlab/types';
 import * as PersistanceAPI from 'app/apis/persistance';
 import {
   selectGitLab,
@@ -17,12 +27,19 @@ import {
   selectProjectsByGroup,
   selectPipelinesToReload,
   selectJobsToPlay,
+  selectMrsByGroup,
 } from './selectors';
-import { all, fork, join, spawn, takeEvery } from 'redux-saga/effects';
+import {
+  all,
+  fork,
+  join,
+  spawn,
+  takeEvery,
+  takeLeading,
+} from 'redux-saga/effects';
 import moment from 'moment';
 
 const { select, call, put, delay } = Effects;
-const takeLatest: any = Effects.takeLatest;
 
 /*
  * Pure Data Loaders
@@ -36,11 +53,7 @@ function* getUserInfo() {
 
   // Get user data
   try {
-    const userInfo: GitLabTypes.GitLabUserData = yield call(
-      API.getUserInfo,
-      url,
-      token,
-    );
+    const userInfo: GitLabUserData = yield call(API.getUserInfo, url, token);
     yield put(actions.setUserId(userInfo.id));
     yield put(actions.setUserData(userInfo));
   } catch (error) {
@@ -64,11 +77,7 @@ function* getGroups() {
 
   // Get Groups
   try {
-    const groups: GitLabTypes.GitLabGroup[] = yield call(
-      API.getGroups,
-      url,
-      token,
-    );
+    const groups: GitLabGroup[] = yield call(API.getGroups, url, token);
     yield put(actions.setGroups(groups));
   } catch (error) {
     if (error instanceof Error) {
@@ -84,15 +93,16 @@ function* getGroups() {
 }
 
 function* loadProjectsForGroup(
-  groups: GitLabTypes.GitLabGroup[],
+  groups: GitLabGroup[],
   groupName: string,
   url: string,
   token: string,
 ) {
+  if (!groupName || !groups || groups.length <= 0) return;
   const group = groups.find(group => group.full_name === groupName);
   if (!group) return;
   try {
-    const projects: GitLabTypes.GitLabProject[] = yield call(
+    const projects: GitLabProject[] = yield call(
       API.getProjectsForGroup,
       url,
       token,
@@ -102,7 +112,9 @@ function* loadProjectsForGroup(
         with_shared: false,
       },
     );
-    yield put(actions.setProjects({ groupName, projects }));
+    yield put(
+      actions.setProjects({ items: projects, assoicatedId: groupName }),
+    );
   } catch (error) {
     if (error instanceof Error) {
       yield put(
@@ -118,13 +130,10 @@ function* getProjects() {
   const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
   const listenedGroups: string[] = yield select(selectListenedGroups);
-  let groups: GitLabTypes.GitLabGroup[] = yield select(selectGroups);
+  let groups: GitLabGroup[] = yield select(selectGroups);
 
   if (listenedGroups.length <= 0) return;
-  if (groups.length <= 0) {
-    yield call(getGroups);
-    groups = yield select(selectGroups);
-  }
+  if (groups.length <= 0) return;
 
   const loadingId = '[GitLab] getProjects';
   yield put(globalActions.addLoader({ id: loadingId }));
@@ -145,19 +154,18 @@ function* getProjects() {
 }
 
 function* loadPipelinesForProject(
-  project: GitLabTypes.GitLabProject,
+  project: GitLabProject,
+  mrs: GitLabMR[],
   url: string,
   token: string,
 ) {
   try {
-    const pipelines: GitLabTypes.GitLabPipeline[] = yield call(
+    const pipelines: GitLabPipeline[] = yield call(
       API.getPipelines,
       url,
       token,
       project.id,
-      {
-        updated_after: moment().subtract(2, 'weeks').toISOString(),
-      },
+      mrs,
     );
     return pipelines;
   } catch (error) {
@@ -166,21 +174,44 @@ function* loadPipelinesForProject(
 }
 
 function* loadPipelinesForGroup(
-  projectsByGroup: Map<string, GitLabTypes.GitLabProject[]>,
-  groupName: string,
+  groupName: GroupName,
+  mrs: GitLabMR[],
+  projects: GitLabProject[],
+  projectsByGroup: Map<GroupName, ProjectId[]>,
+  mrsByGroup: Map<GroupName, MrId[]>,
   url: string,
   token: string,
 ) {
-  const projects = projectsByGroup.get(groupName);
-  if (!projects || projects.length <= 0) return [];
+  // Get all projects in the current group
+  const projectIds = projectsByGroup.get(groupName);
+  if (!projectIds || projectIds.length <= 0) return [];
+  const groupProjects = projects.filter(project =>
+    projectIds.includes(project.id),
+  );
+  if (!groupProjects || groupProjects.length <= 0) return [];
 
+  // Get all MRs for the current group
+  const mrIds = mrsByGroup.get(groupName);
+  if (!mrIds || mrIds.length <= 0) return;
+  const groupMrs = mrs.filter(mr => mrIds.includes(mr.id));
+  if (!groupMrs || groupMrs.length <= 0) return [];
+
+  // call loadPipelinesForProject
   const loadingId = `[GitLab] getPipelines ${groupName}`;
   yield put(globalActions.addLoader({ id: loadingId }));
 
   let tasks: any[] = [];
   // Parallelise all calls for each project in this group
-  for (let project of projects) {
-    const task = yield fork(loadPipelinesForProject, project, url, token);
+  for (let project of groupProjects) {
+    if (project.archived || !project.jobs_enabled) continue;
+    const projectMRs = groupMrs.filter(mr => mr.project_id === project.id);
+    const task = yield fork(
+      loadPipelinesForProject,
+      project,
+      projectMRs,
+      url,
+      token,
+    );
     tasks.push(task);
   }
   const taskResults: any[] = yield join(tasks);
@@ -188,24 +219,37 @@ function* loadPipelinesForGroup(
   yield put(globalActions.removeLoader({ id: loadingId }));
   yield put(
     gitLabActions.setPipelines({
-      groupName,
-      pipelines: taskResults.flat(),
+      items: taskResults.flat(),
+      assoicatedId: groupName,
     }),
   );
 }
 
 function* getPipelines() {
-  const token: string = yield select(selectToken);
-  const url: string = yield select(selectUrl);
-  let projectsByGroup: Map<string, GitLabTypes.GitLabProject[]> = yield select(
-    selectProjectsByGroup,
-  );
   const listenedGroups: string[] = yield select(selectListenedGroups);
-
   if (listenedGroups.length <= 0) return;
 
+  const token: string = yield select(selectToken);
+  const url: string = yield select(selectUrl);
+  const projectsByGroup: Map<GroupName, ProjectId[]> = yield select(
+    selectProjectsByGroup,
+  );
+  const mrsByGroup: Map<GroupName, MrId[]> = yield select(selectMrsByGroup);
+  const mrs: GitLabMR[] = yield select(selectAllMrs);
+  const projects: GitLabProject[] = yield select(selectProjects);
+
   for (let groupName of listenedGroups) {
-    yield fork(loadPipelinesForGroup, projectsByGroup, groupName, url, token);
+    if (!groupName) continue;
+    yield fork(
+      loadPipelinesForGroup,
+      groupName,
+      mrs,
+      projects,
+      projectsByGroup,
+      mrsByGroup,
+      url,
+      token,
+    );
   }
 }
 
@@ -221,7 +265,7 @@ function* getUserAssignedMrs() {
       order_by: 'updated_at',
       sort: 'desc',
     });
-    yield put(actions.setMrsUserAssigned(mrsUserAssigned));
+    yield put(actions.setMrs({ mrs: mrsUserAssigned }));
   } catch (error) {
     if (error instanceof Error) {
       yield put(
@@ -238,54 +282,61 @@ function* getUserAssignedMrs() {
 function* getMissingProjects() {
   const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
-
   const loadingId = '[GitLab] getMissingProjects';
-  yield put(globalActions.addLoader({ id: loadingId }));
 
   // Check for MRs where there's no project loaded for
-  const allMrs: GitLabTypes.GitLabMR[] = yield select(selectAllMrs);
-  const userAssignedMrs: GitLabTypes.GitLabMR[] = yield select(
-    selectMrsUserAssigned,
-  );
-  const projects: GitLabTypes.GitLabProject[] = yield select(selectProjects);
+  const allMrs: GitLabMR[] = yield select(selectAllMrs);
+  const userAssignedMrs: GitLabMR[] = yield select(selectMrsUserAssigned);
+  const projects: GitLabProject[] = yield select(selectProjects);
   const unloadedProjectIds = allMrs
     .concat(userAssignedMrs)
     .filter(mr => !projects.find(project => project.id === mr.project_id))
     .map(mr => mr.project_id);
-  const newProjects: GitLabTypes.GitLabProject[] = [];
-  for (let projectId of unloadedProjectIds) {
-    const project: GitLabTypes.GitLabProject = yield call(
-      API.getProject,
-      url,
-      token,
-      projectId,
+
+  if (!unloadedProjectIds || unloadedProjectIds.length <= 0) return;
+
+  try {
+    yield put(globalActions.addLoader({ id: loadingId }));
+    const newProjects: GitLabProject[] = [];
+    for (let projectId of unloadedProjectIds) {
+      if (!projectId) continue;
+      const project: GitLabProject = yield call(
+        API.getProject,
+        url,
+        token,
+        projectId,
+      );
+      newProjects.push(project);
+    }
+    yield put(
+      gitLabActions.setProjects({
+        items: newProjects,
+        assoicatedId: '[No Listened Group]',
+      }),
     );
-    newProjects.push(project);
+  } catch (error) {
+    if (error instanceof Error) {
+      yield put(
+        globalActions.addErrorNotification(`[GitLab] ${error.message}`),
+      );
+    } else {
+      yield put(globalActions.addErrorNotification(`[GitLab] Unknown Error`));
+    }
+  } finally {
+    yield put(globalActions.removeLoader({ id: loadingId }));
   }
-  yield put(
-    gitLabActions.setProjects({
-      groupName: '[No Listened Group]',
-      projects: newProjects,
-    }),
-  );
-  yield put(globalActions.removeLoader({ id: loadingId }));
 }
 
 function* getMergeRequests() {
   const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
   const listenedGroups: string[] = yield select(selectListenedGroups);
-  let groups: GitLabTypes.GitLabGroup[] = yield select(selectGroups);
+  let groups: GitLabGroup[] = yield select(selectGroups);
 
-  if (listenedGroups.length <= 0) return;
+  if (listenedGroups.length <= 0 || groups.length <= 0) return;
 
   const loadingId = '[GitLab] getMergeRequests';
   yield put(globalActions.addLoader({ id: loadingId }));
-
-  if (groups.length <= 0) {
-    yield call(getGroups);
-    groups = yield select(selectGroups);
-  }
 
   // Get all MRs for listened groups
   for (let groupName of listenedGroups) {
@@ -330,7 +381,7 @@ function* rerunPipeline(
       // extract MrIid from ref
       const match = ref.match(/[\d]+/);
       const mrIid = match ? match[0] : '';
-      const newPipelineData = yield call(
+      const newPipelineData: GitLabPipeline = yield call(
         API.rerunPipeline,
         url,
         token,
@@ -338,7 +389,9 @@ function* rerunPipeline(
         mrIid,
       );
       yield put(
-        actions.updatePipeline({ groupName, pipeline: newPipelineData }),
+        actions.updatePipeline({
+          pipeline: newPipelineData,
+        }),
       );
     } else {
       const newPipelineData = yield call(
@@ -348,9 +401,7 @@ function* rerunPipeline(
         projectId,
         ref,
       );
-      yield put(
-        actions.updatePipeline({ groupName, pipeline: newPipelineData }),
-      );
+      yield put(actions.updatePipeline({ pipeline: newPipelineData }));
     }
   } catch (error) {
     if (error instanceof Error) {
@@ -431,7 +482,7 @@ function* playJob(
       projectId,
       mrIid,
     );
-    yield put(actions.updatePipeline({ groupName, pipeline: pipelineData }));
+    yield put(actions.updatePipeline({ pipeline: pipelineData }));
   } catch (error) {
     if (error instanceof Error) {
       yield put(
@@ -451,14 +502,16 @@ function* loadEventsForProject(projectId: number, url: string, token: string) {
   yield put(globalActions.addLoader({ id: loadingId }));
   try {
     const after = moment().subtract(1, 'day').format('YYYY-MM-DD');
-    const events: GitLabTypes.GitLabEvent[] = yield call(
+    const events: GitLabEvent[] = yield call(
       API.getEvents,
       url,
       token,
       projectId,
       after,
     );
-    yield put(gitLabActions.setEvents({ projectId, events }));
+    yield put(
+      gitLabActions.setEvents({ assoicatedId: projectId, items: events }),
+    );
   } catch (error) {
     if (error instanceof Error) {
       yield put(
@@ -475,7 +528,7 @@ function* loadEventsForProject(projectId: number, url: string, token: string) {
 function* getEvents() {
   const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
-  let projectsByGroup: Map<string, GitLabTypes.GitLabProject[]> = yield select(
+  const projectsByGroup: Map<string, ProjectId[]> = yield select(
     selectProjectsByGroup,
   );
   const listenedGroups: string[] = yield select(selectListenedGroups);
@@ -483,12 +536,12 @@ function* getEvents() {
   if (listenedGroups.length <= 0) return;
 
   for (let groupName of listenedGroups) {
-    const projects = projectsByGroup.get(groupName);
-    if (!projects) {
-      continue;
-    }
-    for (let project of projects) {
-      yield fork(loadEventsForProject, project.id, url, token);
+    if (!groupName) continue;
+    const projectIds = projectsByGroup.get(groupName);
+    if (!projectIds) continue;
+    for (let projectId of projectIds) {
+      if (!projectId) continue;
+      yield fork(loadEventsForProject, projectId, url, token);
     }
   }
 }
@@ -509,11 +562,7 @@ function* testConnection() {
 
   // Get user data
   try {
-    const userInfo: GitLabTypes.GitLabUserData = yield call(
-      API.getUserInfo,
-      url,
-      token,
-    );
+    const userInfo: GitLabUserData = yield call(API.getUserInfo, url, token);
     yield put(actions.setUserId(userInfo.id));
     yield put(actions.setUserData(userInfo));
   } catch (error) {
@@ -534,42 +583,33 @@ function* testConnection() {
   yield call(loadAll);
 }
 
-function* loadProjectsAndPipelines() {
-  yield call(getProjects);
-  yield call(getPipelines);
-}
-
 function* pollLong() {
   while (true) {
     const configured: boolean = yield select(selectConfigured);
+    yield delay(1000 * 60 * 60); // every 60 Minutes
     if (configured) {
       yield fork(getUserInfo);
       yield call(getGroups);
       yield call(getProjects);
       yield call(persist);
-      yield delay(1000 * 60 * 15); // every 15 Minutes
     }
   }
-}
-
-function* loadAfterListenerAdd() {
-  yield all([call(getMergeRequests), call(loadProjectsAndPipelines)]);
-  yield call(getMissingProjects);
-
-  yield call(persist);
 }
 
 function* pollShort() {
   while (true) {
     const configured: boolean = yield select(selectConfigured);
+    yield delay(1000 * 60); // every minute
     if (configured) {
-      yield fork(getUserAssignedMrs);
+      yield all([
+        call(getUserAssignedMrs),
+        call(getMergeRequests),
+        call(getEvents),
+      ]);
 
-      yield all([call(getMergeRequests), call(getPipelines), call(getEvents)]);
-
+      yield call(getPipelines);
       yield call(getMissingProjects);
       yield call(persist);
-      yield delay(1000 * 60); // every minute
     }
   }
 }
@@ -583,11 +623,10 @@ function* loadAll() {
 
   yield call(getGroups); // All other calls depend on groups, block for this call
 
-  yield all([
-    call(getMergeRequests),
-    call(loadProjectsAndPipelines),
-    call(getEvents),
-  ]);
+  yield all([call(getProjects), call(getMergeRequests)]);
+
+  yield all([call(getEvents), call(getPipelines)]);
+
   yield call(getMissingProjects);
 
   yield call(persist);
@@ -603,11 +642,11 @@ function* clear() {
 }
 
 export function* gitLabSaga() {
-  yield takeLatest(actions.setConfigured.type, testConnection);
-  yield takeLatest(actions.addListenedGroup.type, loadAfterListenerAdd);
+  yield takeLeading(actions.setConfigured.type, testConnection);
+  yield takeLeading(actions.addListenedGroup.type, loadAll);
   yield takeEvery(actions.removeListenedGroup.type, persist);
-  yield takeLatest(actions.reload.type, loadAll);
-  yield takeLatest(actions.deleteConfiguration.type, clear);
+  yield takeLeading(actions.reload.type, loadAll);
+  yield takeLeading(actions.deleteConfiguration.type, clear);
   yield takeEvery(actions.reloadPipeline.type, rerunPipelines);
   yield takeEvery(actions.playJob.type, playJobs);
   yield spawn(pollLong);
