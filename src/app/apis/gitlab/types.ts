@@ -1,5 +1,15 @@
+export type MrId = number;
+export type GroupName = string;
+export type GroupId = number;
+export type ProjectId = number;
+export type UserId = number;
+export type JobId = number;
+export type PipelineId = number;
+export type MilestoneId = number;
+export type EventId = number;
+
 export type GitLabGroup = {
-  id: number;
+  id: GroupId;
   name: string;
   path: string;
   full_name: string;
@@ -11,7 +21,7 @@ export type GitLabGroup = {
 };
 
 export type GitLabUserData = {
-  id: number;
+  id: UserId;
   username: string;
   name: string;
   email: string;
@@ -19,7 +29,7 @@ export type GitLabUserData = {
 };
 
 export type GitLabUserReference = {
-  id: number;
+  id: UserId;
   name: string;
   username: string;
   avatar_url: string;
@@ -27,7 +37,7 @@ export type GitLabUserReference = {
 };
 
 export type GitLabProject = {
-  id: number;
+  id: ProjectId;
   description: string;
   default_branch: string;
   ssh_url_to_repo: string;
@@ -44,6 +54,8 @@ export type GitLabProject = {
   forks_count: number;
   avatar_url: string;
   star_count: number;
+  archived: boolean;
+  jobs_enabled: boolean;
 };
 
 export type GitLabJob = {
@@ -61,10 +73,10 @@ export type GitLabJob = {
   finished_at: string;
   duration: number;
   tag_list: string[];
-  id: number;
+  id: JobId;
   name: string;
   pipeline: {
-    id: number;
+    id: PipelineId;
   };
   ref: string;
   stage: string;
@@ -75,8 +87,8 @@ export type GitLabJob = {
 };
 
 export type GitLabPipelineBasic = {
-  id: number;
-  project_id: number;
+  id: PipelineId;
+  project_id: ProjectId;
   status: string;
   ref: string;
   sha: string;
@@ -93,31 +105,81 @@ export type GitLabPipeline = {
   labels: String[];
 } & GitLabPipelineBasic;
 
-export type GitLabBranch = {
-  name: string;
-  merged: boolean;
-  protected: boolean;
-  default: boolean;
-  developers_can_push: boolean;
-  developers_can_merge: boolean;
-  can_push: boolean;
-  web_url: string;
-};
-
 export type GitLabSimpleMr = {
-  id: number;
+  id: MrId;
   iid: number;
   project_id: number;
   title: string;
   description: string;
   state: string;
+  merge_user: GitLabUserReference;
+  merged_at: string;
+  prepared_at: string;
+  closed_by: string;
+  closed_at: string;
   created_at: string;
   updated_at: string;
+  target_branch: string;
+  source_branch: string;
+  upvotes: number;
+  downvotes: number;
+  author: GitLabUserReference;
+  assignee: GitLabUserReference;
+  assignees: GitLabUserReference[];
+  reviewers: GitLabUserReference[];
+  source_project_id: number;
+  target_project_id: number;
+  labels: string[];
+  draft: boolean;
+  work_in_progress: boolean;
+  milestone: {
+    id: number;
+    iid: number;
+    project_id: number;
+    title: string;
+    description: string;
+    state: string;
+    created_at: string;
+    updated_at: string;
+    due_date: string;
+    start_date: string;
+    web_url: string;
+  };
+  merge_when_pipeline_succeeds: boolean;
+  merge_status: string;
+  detailed_merge_status: string;
+  sha: string;
+  merge_commit_sha: string;
+  squash_commit_sha: string;
+  user_notes_count: number;
+  discussion_locked: string;
+  should_remove_source_branch: boolean;
+  force_remove_source_branch: boolean;
+  allow_collaboration: boolean;
+  allow_maintainer_to_push: boolean;
   web_url: string;
+  references: {
+    short: string;
+    relative: string;
+    full: string;
+  };
+  time_stats: {
+    time_estimate: number;
+    total_time_spent: number;
+    human_time_estimate: string;
+    human_total_time_spent: string;
+  };
+  squash: boolean;
+  task_completion_status: {
+    count: number;
+    completed_count: number;
+  };
+  has_conflicts: boolean;
+  blocking_discussions_resolved: boolean;
 };
 
 export type GitLabMilestone = {
-  id: number;
+  id: MilestoneId;
   iid: number;
   project_id: number;
   title: string;
@@ -131,7 +193,7 @@ export type GitLabMilestone = {
 };
 
 export type GitLabMR = {
-  id: number;
+  id: MrId;
   iid: number;
   project_id: number;
   title: string;
@@ -209,7 +271,7 @@ export type GitLabMR = {
 };
 
 export type GitLabEvent = {
-  id: number;
+  id: EventId;
   title: null;
   project_id: number;
   action_name: string;

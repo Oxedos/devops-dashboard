@@ -1,3 +1,6 @@
+import { PayloadAction } from '@reduxjs/toolkit';
+import { GitLabState } from './gitLabSlice/types';
+
 /**
  * Add a new item to a list or update the item if it is already in the list
  * @param list The list to update
@@ -53,3 +56,84 @@ export const remove = (
   });
   return newList;
 };
+
+export function updateState<DataType, DataIdType, AssociatedIdType>(
+  newData: DataType[],
+  stateData: DataType[],
+  associationId: AssociatedIdType,
+  associationMap: Map<AssociatedIdType, DataIdType[]>,
+  getId: GetIdFunctionType<DataType, DataIdType>,
+  equals: EqualFunctionType<DataType>,
+): void {
+  // Upsert every item into the state
+  newData.forEach(newItem => {
+    // check if list has item, if not just add the item
+    const existingItemIdx = stateData.findIndex(i => equals(i, newItem));
+    if (existingItemIdx === -1) {
+      stateData.push(newItem);
+    } else {
+      // return a new list that has the new item replace the old one
+      stateData[existingItemIdx] = newItem;
+    }
+  });
+  // update the assoicated map
+  associationMap.set(associationId, newData.map(getId));
+}
+
+export function removeFromState<IdType, DataType>(
+  removeItems: DataType[],
+  stateData: DataType[],
+  associationId: IdType,
+  associationMap: Map<IdType, DataType>,
+  equals: EqualFunctionType<DataType>,
+): void {
+  // Check if the state contains anything at all
+  if (stateData.length <= 0) {
+    return;
+  }
+  removeItems.forEach(removeItem => {
+    const existingItemIdx = stateData.findIndex(i => equals(i, removeItem));
+    if (existingItemIdx !== -1) {
+      stateData.splice(existingItemIdx, 1);
+    }
+  });
+  // Clear the associated map as well
+  associationMap.delete(associationId);
+}
+
+export type EqualFunctionType<DataType> = (a: DataType, b: DataType) => boolean;
+export type GetIdFunctionType<DataType, DataIdType> = (
+  a: DataType,
+) => DataIdType;
+
+export const equalByAttribute =
+  <DataType>(attributeName: string): EqualFunctionType<DataType> =>
+  (a: DataType, b: DataType) =>
+    a[attributeName] === b[attributeName];
+
+export const getIdByAttribute = <DataType, DataIdType>(
+  attributeName: string,
+): GetIdFunctionType<DataType, DataIdType> => {
+  return (a: DataType) => a[attributeName];
+};
+
+export function createSettingReducer<DataType, DataIdType, AssociatedIdType>(
+  stateAttribute: string,
+  stateMapAttribute: string,
+  dataIdAttribute: string,
+): (
+  state: GitLabState,
+  action: PayloadAction<{ items: DataType[]; assoicatedId: AssociatedIdType }>,
+) => void {
+  return (state, action) => {
+    const { items, assoicatedId } = action.payload;
+    updateState<DataType, DataIdType, AssociatedIdType>(
+      items,
+      state[stateAttribute],
+      assoicatedId,
+      state[stateMapAttribute],
+      getIdByAttribute(dataIdAttribute),
+      equalByAttribute(dataIdAttribute),
+    );
+  };
+}

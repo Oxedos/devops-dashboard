@@ -1,16 +1,19 @@
-import axios, { RawAxiosRequestConfig } from 'axios';
 import { normalizeUrl } from 'app/apis/apiHelper';
-import { getGitLabErrorMessage, getWithKeysetPagination } from './helper';
+import axios, { RawAxiosRequestConfig } from 'axios';
 import {
-  GitLabGroup,
-  GitLabMR,
-  GitLabUserData,
-  GitLabProject,
-  GitLabJob,
-  GitLabBranch,
-  GitLabPipeline,
-  GitLabSimpleMr,
+  getGitLabErrorMessage,
+  getWithKeysetPagination,
+  gitlabConfig,
+} from './helper';
+import {
   GitLabEvent,
+  GitLabGroup,
+  GitLabJob,
+  GitLabMR,
+  GitLabPipeline,
+  GitLabProject,
+  GitLabSimpleMr,
+  GitLabUserData,
 } from './types';
 
 export const API_SUFFIX = '/api/v4';
@@ -50,7 +53,7 @@ export async function getGroupMergeRequests(
   privateToken: string,
   groupId: number,
   params: GetMergeRequestParams = {},
-): Promise<GitLabMR[]> {
+): Promise<GitLabSimpleMr[]> {
   const mrListLink =
     normalizeUrl(url, API_SUFFIX) + `/groups/${groupId}/merge_requests`;
   const mrListConfig: RawAxiosRequestConfig = {
@@ -67,75 +70,19 @@ export async function getGroupMergeRequests(
     mrListLink,
     mrListConfig,
   );
-
-  // GET /projects/:id/merge_requests/:merge_request_iid
-  const mrPromises = mrList.map(simpleMr =>
-    axios.get<GitLabMR>(
-      normalizeUrl(url, API_SUFFIX) +
-        `/projects/${simpleMr.project_id}/merge_requests/${simpleMr.iid}`,
-      {
-        headers: {
-          'PRIVATE-TOKEN': privateToken,
-        },
-      },
-    ),
-  );
-
-  const responses = await Promise.all(mrPromises);
-  return responses.map(response => response.data);
-}
-
-export async function getProjectMergeRequests(
-  url: string,
-  privateToken: string,
-  projectId: number,
-  params: GetMergeRequestParams = {},
-): Promise<GitLabMR[]> {
-  const mrListLink =
-    normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}/merge_requests`;
-  const mrListConfig: RawAxiosRequestConfig = {
-    headers: {
-      'PRIVATE-TOKEN': privateToken,
-    },
-    params: {
-      scope: 'all',
-      state: 'opened',
-      ...params,
-    },
-  };
-  const mrList: GitLabSimpleMr[] = await getWithKeysetPagination(
-    mrListLink,
-    mrListConfig,
-  );
-
-  // GET /projects/:id/merge_requests/:merge_request_iid
-  const mrPromises = mrList.map(simpleMr =>
-    axios.get<GitLabMR>(
-      normalizeUrl(url, API_SUFFIX) +
-        `/projects/${simpleMr.project_id}/merge_requests/${simpleMr.iid}`,
-      {
-        headers: {
-          'PRIVATE-TOKEN': privateToken,
-        },
-      },
-    ),
-  );
-
-  const responses = await Promise.all(mrPromises);
-  return responses.map(response => response.data);
+  return mrList;
 }
 
 export async function getMergeRequests(
   url: string,
   privateToken: string,
   params: GetMergeRequestParams = {},
-): Promise<GitLabMR[]> {
+): Promise<GitLabSimpleMr[]> {
   // Set defaults
   const allParams = {
     scope: 'all',
     state: 'opened',
     ...params,
-    view: 'simple',
   };
   const mrListLink = normalizeUrl(url, API_SUFFIX) + `/merge_requests`;
   const mrListConfig: RawAxiosRequestConfig = {
@@ -144,36 +91,11 @@ export async function getMergeRequests(
     },
     params: allParams,
   };
-  const mrList = await getWithKeysetPagination(mrListLink, mrListConfig);
-  // GET /projects/:id/merge_requests/:merge_request_iid
-  const mrPromises = mrList.map(simpleMr =>
-    axios.get<GitLabMR>(
-      normalizeUrl(url, API_SUFFIX) +
-        `/projects/${simpleMr.project_id}/merge_requests/${simpleMr.iid}`,
-      {
-        headers: {
-          'PRIVATE-TOKEN': privateToken,
-        },
-      },
-    ),
+  const mrList = await getWithKeysetPagination<GitLabSimpleMr>(
+    mrListLink,
+    mrListConfig,
   );
-
-  const responses = await Promise.all(mrPromises);
-  return responses.map(response => response.data);
-}
-
-export async function getGroupMembers(
-  url: string,
-  privateToken: string,
-  groupId: number,
-) {
-  const link = normalizeUrl(url, API_SUFFIX) + `/groups/${groupId}/members/all`;
-  const config = {
-    headers: {
-      'PRIVATE-TOKEN': privateToken,
-    },
-  };
-  return getWithKeysetPagination(link, config);
+  return mrList;
 }
 
 export async function getUserInfo(
@@ -201,21 +123,6 @@ type GetProjectParams = {
   with_shared?: boolean;
 };
 
-export async function getProjects(
-  url: string,
-  privateToken: string,
-  params: GetProjectParams,
-): Promise<GitLabProject[]> {
-  const link = normalizeUrl(url, API_SUFFIX) + `/projects`;
-  const config: RawAxiosRequestConfig = {
-    headers: {
-      'PRIVATE-TOKEN': privateToken,
-    },
-    params,
-  };
-  return getWithKeysetPagination(link, config);
-}
-
 export async function getProjectsForGroup(
   url: string,
   privateToken: string,
@@ -223,13 +130,7 @@ export async function getProjectsForGroup(
   params?: GetProjectParams,
 ): Promise<GitLabProject[]> {
   const link = normalizeUrl(url, API_SUFFIX) + `/groups/${groupId}/projects`;
-  const config: RawAxiosRequestConfig = {
-    headers: {
-      'PRIVATE-TOKEN': privateToken,
-    },
-    params,
-  };
-  return getWithKeysetPagination(link, config);
+  return getWithKeysetPagination(link, gitlabConfig(params, privateToken));
 }
 
 export async function getProject(
@@ -240,11 +141,7 @@ export async function getProject(
   try {
     const response = await axios.get<GitLabProject>(
       normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}`,
-      {
-        headers: {
-          'PRIVATE-TOKEN': privateToken,
-        },
-      },
+      gitlabConfig({}, privateToken),
     );
     return response.data;
   } catch (error) {
@@ -261,79 +158,43 @@ export async function getPipelineJobs(
   const link =
     normalizeUrl(url, API_SUFFIX) +
     `/projects/${projectId}/pipelines/${pipelineId}/jobs`;
-  const config: RawAxiosRequestConfig = {
-    headers: {
-      'PRIVATE-TOKEN': privateToken,
-    },
-  };
-  return getWithKeysetPagination(link, config);
+  return getWithKeysetPagination(link, gitlabConfig({}, privateToken));
 }
-
-type GetPipelinesParams = {
-  updated_after?: string;
-  yaml_errors?: boolean;
-};
 
 export async function getPipelines(
   url: string,
   privateToken: string,
   projectId: number,
-  params?: GetPipelinesParams,
+  mrs: GitLabMR[],
 ): Promise<GitLabPipeline[]> {
-  const link =
+  const projectPipelinesUrl =
     normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}/pipelines`;
-  const config: RawAxiosRequestConfig = {
-    headers: {
-      'PRIVATE-TOKEN': privateToken,
-    },
-    params: {
-      yaml_errors: false,
-      ...params,
-      order_by: 'updated_at',
-      sort: 'desc',
-    },
+
+  // Get all available pipelines for branches
+  const branchPipelines = await getWithKeysetPagination<GitLabPipeline>(
+    projectPipelinesUrl,
+    gitlabConfig({ scope: 'branches' }, privateToken),
+  );
+
+  // For each MR get the latest pipeline
+  const mrPipelinesConfig = {
+    order_by: 'updated_at',
+    sort: 'desc',
+    per_page: 1,
   };
-  // Get all branches for project
-  const branches = await getBranches(url, privateToken, projectId);
-
-  // Get mrs for these projects
-  const mrs = await getProjectMergeRequests(url, privateToken, projectId);
-
-  // Combine them to ref parameters
-  const refs = branches
-    .map(branch => branch.name)
-    .concat(mrs.map(mr => `refs/merge-requests/${mr.iid}/head`));
-
-  // Get pipelines for these refs
+  const refs = mrs.map(mr => `refs/merge-requests/${mr.iid}/head`);
   const pipelinePromises = refs.map(ref =>
-    getWithKeysetPagination(link, {
-      ...config,
-      params: { ...config.params, ref },
-    }),
+    axios.get<GitLabPipeline[]>(
+      projectPipelinesUrl,
+      gitlabConfig({ ...mrPipelinesConfig, ref }, privateToken),
+    ),
   );
-  const arrayOfPipelines: GitLabPipeline[][] = await Promise.all(
-    pipelinePromises,
-  );
+  const mrPipelines: GitLabPipeline[] = (await Promise.all(pipelinePromises))
+    .map(response => response.data)
+    .flat(); // Each response must contain exactly one response
 
-  const isPipeline = (
-    item: GitLabPipeline | undefined,
-  ): item is GitLabPipeline => {
-    return !!item;
-  };
-
-  const sortByLatestActivity = (x: GitLabPipeline, y: GitLabPipeline) => {
-    const xTimestamp: any = x.updated_at;
-    const yTimestamp: any = y.updated_at;
-    return yTimestamp - xTimestamp;
-  };
-
-  // only select latest pipeline for each ref
-  const pipelines = arrayOfPipelines
-    .map(innerPipelines => {
-      if (innerPipelines.length <= 0) return undefined;
-      return innerPipelines.sort(sortByLatestActivity)[0];
-    })
-    .filter(isPipeline);
+  // Combine both lists
+  const pipelines = branchPipelines.concat(mrPipelines);
 
   // Get Jobs for each pipeline
   const jobPromises = pipelines.map(pipeline =>
@@ -360,22 +221,6 @@ export async function getPipelines(
   });
 }
 
-export async function getBranches(
-  url: string,
-  privateToken: string,
-  projectId: number,
-): Promise<GitLabBranch[]> {
-  const link =
-    normalizeUrl(url, API_SUFFIX) +
-    `/projects/${projectId}/repository/branches`;
-  const config: RawAxiosRequestConfig = {
-    headers: {
-      'PRIVATE-TOKEN': privateToken,
-    },
-  };
-  return getWithKeysetPagination(link, config);
-}
-
 export async function rerunPipeline(
   url: string,
   privateToken: string,
@@ -389,11 +234,7 @@ export async function rerunPipeline(
     normalizeUrl(url, API_SUFFIX) +
     `/projects/${projectId}/merge_requests/${mrIid}`;
 
-  const config: RawAxiosRequestConfig = {
-    headers: {
-      'PRIVATE-TOKEN': privateToken,
-    },
-  };
+  const config = gitlabConfig({}, privateToken);
 
   // Rerun pipeline
   let pipelineData;
@@ -440,13 +281,9 @@ export async function createPipelineForRef(
     normalizeUrl(url, API_SUFFIX) +
     `/projects/${projectId}/pipeline?ref=${ref}`;
 
-  const config: RawAxiosRequestConfig = {
-    headers: {
-      'PRIVATE-TOKEN': privateToken,
-    },
-  };
+  const config = gitlabConfig({}, privateToken);
 
-  // Get data for single pipeline
+  // Trigger Pipeline
   let pipelineData;
   try {
     const pipelineDataResponse = await axios.post(pipelineLink, null, config);
@@ -455,6 +292,7 @@ export async function createPipelineForRef(
     throw new Error(getGitLabErrorMessage(error));
   }
 
+  // Get jobs for that Pipeline
   const jobs = await getPipelineJobs(
     url,
     privateToken,
@@ -479,11 +317,7 @@ export async function playJob(
   const playLink =
     normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}/jobs/${jobId}/play`;
 
-  const config: RawAxiosRequestConfig = {
-    headers: {
-      'PRIVATE-TOKEN': privateToken,
-    },
-  };
+  const config = gitlabConfig({}, privateToken);
 
   // Play job that is in manual status
   try {
@@ -504,11 +338,7 @@ export async function loadPipelineForMr(
     normalizeUrl(url, API_SUFFIX) +
     `/projects/${projectId}/merge_requests/${mrIid}`;
 
-  const config: RawAxiosRequestConfig = {
-    headers: {
-      'PRIVATE-TOKEN': privateToken,
-    },
-  };
+  const config = gitlabConfig({}, privateToken);
 
   // get data the associated MR
   let mrData: GitLabMR;
@@ -560,13 +390,9 @@ export async function getEvents(
   const params = {
     after,
   };
+  if (!projectId) return [];
   const link = normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}/events`;
-  const config = {
-    headers: {
-      'PRIVATE-TOKEN': privateToken,
-    },
-    params,
-  };
+  const config = gitlabConfig(params, privateToken);
   try {
     const response = await axios.get<GitLabEvent[]>(link, config);
     return response.data;

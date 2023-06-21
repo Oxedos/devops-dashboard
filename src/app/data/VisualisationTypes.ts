@@ -40,14 +40,8 @@ export const getAfterVisualisationUpdatedActions = (
   switch (type) {
     case VisualisationType.GITLAB_READY_MR_TABLE:
     case VisualisationType.GITLAB_MR_ASSIGNED_TABLE:
-    case VisualisationType.GITLAB_EVENTS:
-      return [
-        gitLabActions.addListenedGroup({
-          groupName: props.group,
-          visId,
-        }),
-      ];
     case VisualisationType.GITLAB_PIPELINES_TABLE:
+    case VisualisationType.GITLAB_EVENTS:
       return [
         gitLabActions.addListenedGroup({
           groupName: props.group,
@@ -101,8 +95,10 @@ export const getAfterVisualisationRemovedActions = (
   props: any,
 ) => {
   switch (type) {
-    case VisualisationType.GITLAB_EVENTS:
+    case VisualisationType.GITLAB_READY_MR_TABLE:
+    case VisualisationType.GITLAB_MR_ASSIGNED_TABLE:
     case VisualisationType.GITLAB_PIPELINES_TABLE:
+    case VisualisationType.GITLAB_EVENTS:
       return [
         gitLabActions.removeListenedGroup({
           visId,

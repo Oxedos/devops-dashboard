@@ -1,4 +1,8 @@
-import axios, { RawAxiosRequestConfig } from 'axios';
+import axios, {
+  AxiosRequestConfig,
+  AxiosResponse,
+  RawAxiosRequestConfig,
+} from 'axios';
 const DEV = process.env.NODE_ENV !== 'production';
 
 export function getGitLabErrorMessage(error) {
@@ -56,27 +60,29 @@ function getLinks(links): any {
   return parsed;
 }
 
-export async function getWithKeysetPagination(
+export async function getWithKeysetPagination<T>(
   initialLink,
   config?: RawAxiosRequestConfig | undefined,
-) {
-  const pageSize = 20;
+): Promise<T[]> {
+  const pageSize = 100;
   try {
-    const responseData: any[] = [];
+    const responseData: T[] = [];
     let link = initialLink;
     let paginationCall = false;
     do {
-      const requestConfig: any = paginationCall
+      const requestConfig: RawAxiosRequestConfig = paginationCall
         ? { headers: config?.headers }
         : {
             ...config,
-            headers: {
-              pagination: 'keyset',
+            params: {
               per_page: pageSize,
-              ...config?.headers,
+              ...config?.params,
             },
           };
-      let response: any = await axios.get(link, requestConfig);
+      let response: AxiosResponse<T[]> = await axios.get<T[]>(
+        link,
+        requestConfig,
+      );
       responseData.push(...response.data);
       if (response.data && response.data.length >= pageSize) {
         link = getLinks(response.headers['link']).next;
@@ -89,4 +95,14 @@ export async function getWithKeysetPagination(
   } catch (error) {
     throw new Error(getGitLabErrorMessage(error));
   }
+}
+
+export function gitlabConfig(params: any, token: string): AxiosRequestConfig {
+  const config: AxiosRequestConfig = {
+    headers: {
+      'PRIVATE-TOKEN': token,
+    },
+    params,
+  };
+  return config;
 }

@@ -2,6 +2,7 @@ import React from 'react';
 import { useSelector } from 'react-redux';
 import {
   selectEvents,
+  selectEventsByProject,
   selectProjectsByGroup,
 } from 'app/data/gitLabSlice/selectors';
 import SimpleMessage from '../../components/SimpleMessage';
@@ -17,6 +18,7 @@ type PropTypes = {
 const withEventsLoadingByGroup = (WrappedComponent: React.FC<any>) => {
   const WrapperComponent: React.FC<PropTypes> = props => {
     const allEvents = useSelector(selectEvents);
+    const eventsByProject = useSelector(selectEventsByProject);
     const projectsByGroup = useSelector(selectProjectsByGroup);
 
     if (!props.group) {
@@ -38,8 +40,8 @@ const withEventsLoadingByGroup = (WrappedComponent: React.FC<any>) => {
     }
 
     const events = projects
-      .flatMap(project => allEvents.get(project.id))
-      .filter(event => event !== undefined)
+      .flatMap(project => eventsByProject.get(project))
+      .map(eventId => allEvents.find(event => event.id === eventId))
       .sort((a, b) => {
         if (!a || !b) return 0;
         const momentA: any = Moment(a.created_at);

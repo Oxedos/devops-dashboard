@@ -1,18 +1,30 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import {
+  EventId,
   GitLabEvent,
   GitLabGroup,
   GitLabMR,
   GitLabPipeline,
   GitLabProject,
   GitLabUserData,
+  GroupName,
+  MrId,
+  PipelineId,
+  ProjectId,
 } from 'app/apis/gitlab/types';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer, useInjectSaga } from 'utils/redux-injectors';
 import { gitLabSaga } from './saga';
 import { GitLabState } from './types';
 import * as PersistanceAPI from 'app/apis/persistance';
-import { remove, upsert } from '../helper';
+import {
+  createSettingReducer,
+  equalByAttribute,
+  getIdByAttribute,
+  remove,
+  updateState,
+  upsert,
+} from '../helper';
 
 export const LOCALSTORAGE_KEY = 'gitlab-state';
 
@@ -23,35 +35,25 @@ const loadInitialState = (): GitLabState => {
     configured: persistedState?.configured || false,
     url: persistedState?.url,
     token: persistedState?.token,
-    userData: persistedState?.userData,
     userId: persistedState?.userId,
-    groups: persistedState?.groups || [],
-    mrsByGroup: persistedState?.mrsByGroup || new Map(),
-    mrs: persistedState?.mrs || [],
-    mrsUserAssigned: persistedState?.mrsUserAssigned || [],
-    projects: persistedState?.projects || [],
-    projectsByGroup: persistedState?.projectsByGroup || new Map(),
+    userData: persistedState?.userData,
     listenedGroups: persistedState?.listenedGroups || [],
+    groups: persistedState?.groups || [],
+    mrs: persistedState?.mrs || [],
+    projects: persistedState?.projects || [],
+    events: persistedState?.events || [],
+    pipelines: persistedState?.pipelines || [],
+    mrsUserAssigned: persistedState?.mrsUserAssigned || [],
+    mrsByGroup: persistedState?.mrsByGroup || new Map(),
+    projectsByGroup: persistedState?.projectsByGroup || new Map(),
     pipelinesByGroup: persistedState?.pipelinesByGroup || new Map(),
+    eventsByProject: persistedState?.eventsByProject || new Map(),
     pipelinesToReload: [],
     jobsToPlay: [],
-    events: persistedState?.events || new Map(),
   };
 };
 
 export const initialState = loadInitialState();
-
-const isEqualbyId = (arg1: { id: number }, arg2: { id: number }) => {
-  return arg1.id === arg2.id;
-};
-
-const isEqualbyVisId = (arg1: { visId: number }, arg2: { visId: number }) => {
-  return arg1.visId === arg2.visId;
-};
-
-const isEqualPipeline = (arg1: GitLabPipeline, arg2: GitLabPipeline) => {
-  return arg1.project_id === arg2.project_id && arg1.ref === arg2.ref;
-};
 
 // returns a list of distinct groups that are listened to
 export const uniqueGroupListeners = (state: GitLabState): string[] => {
@@ -101,45 +103,33 @@ const slice = createSlice({
     setUserData(state, action: PayloadAction<GitLabUserData>) {
       state.userData = action.payload;
     },
+    reload(state, action: PayloadAction<void>) {},
+    deleteConfiguration(state, action: PayloadAction<void>) {
+      state = {
+        configured: false,
+        url: undefined,
+        token: undefined,
+        userId: undefined,
+        userData: undefined,
+        listenedGroups: [],
+        groups: [],
+        mrs: [],
+        projects: [],
+        events: [],
+        pipelines: [],
+        mrsUserAssigned: [],
+        mrsByGroup: new Map(),
+        projectsByGroup: new Map(),
+        pipelinesByGroup: new Map(),
+        eventsByProject: new Map(),
+        pipelinesToReload: [],
+        jobsToPlay: [],
+      };
+    },
+    // groups
     setGroups(state, action: PayloadAction<GitLabGroup[]>) {
       if (!checkAllAreObject(action.payload)) return;
       state.groups = action.payload;
-    },
-    setMrs(
-      state,
-      action: PayloadAction<{ groupName: string; mrs: GitLabMR[] }>,
-    ) {
-      const {
-        payload: { groupName, mrs: newMrs },
-      } = action;
-      if (!checkAllAreObject(newMrs)) {
-        const oldGroupMrs = state.mrsByGroup.get(groupName) || [];
-        state.mrs = remove(state.mrs, oldGroupMrs, isEqualbyId);
-        state.mrsByGroup.set(groupName, []);
-        return;
-      }
-      state.mrsByGroup.set(groupName, newMrs);
-      state.mrs = upsert(state.mrs, newMrs, isEqualbyId);
-    },
-    setMrsUserAssigned(state, action: PayloadAction<GitLabMR[]>) {
-      if (!checkAllAreObject(action.payload)) {
-        state.mrsUserAssigned = [];
-        return;
-      }
-      state.mrsUserAssigned = action.payload;
-    },
-    setProjects(
-      state,
-      action: PayloadAction<{ groupName: string; projects: GitLabProject[] }>,
-    ) {
-      const {
-        payload: { groupName, projects: newProjects },
-      } = action;
-      if (!checkAllAreObject(newProjects)) {
-        return;
-      }
-      state.projectsByGroup.set(groupName, newProjects);
-      state.projects = upsert(state.projects, newProjects, isEqualbyId);
     },
     addListenedGroup(
       state,
@@ -156,10 +146,27 @@ const slice = createSlice({
       state.listenedGroups = upsert(
         state.listenedGroups,
         [action.payload],
-        isEqualbyVisId,
+        equalByAttribute('visId'),
       );
       // clean up state if we changed the listener to a group and that group is no longer listened to
       if (currentListener && !hasListener(state, currentListener.groupName)) {
+        // mrs
+        state.mrs = remove(
+          state.mrs,
+          state.mrsByGroup.get(currentListener.groupName) || [],
+          equalByAttribute('id'),
+        );
+        // mrsByGroup
+        state.mrsByGroup.delete(currentListener.groupName);
+        // projects
+        state.projects = remove(
+          state.projects,
+          state.projectsByGroup.get(currentListener.groupName) || [],
+          equalByAttribute('id'),
+        );
+        // projectsByGroup
+        state.projectsByGroup.delete(currentListener.groupName);
+        // pipelinesByGroup
         state.pipelinesByGroup.delete(currentListener.groupName);
       }
     },
@@ -167,6 +174,7 @@ const slice = createSlice({
       state,
       action: PayloadAction<{ visId: string; groupName: string }>,
     ) {
+      // TODO: Das scheint nicht zu funktionieren
       const {
         payload: { visId, groupName },
       } = action;
@@ -182,7 +190,7 @@ const slice = createSlice({
         state.mrs = remove(
           state.mrs,
           state.mrsByGroup.get(groupName) || [],
-          isEqualbyId,
+          equalByAttribute('id'),
         );
         // mrsByGroup
         state.mrsByGroup.delete(groupName);
@@ -190,7 +198,7 @@ const slice = createSlice({
         state.projects = remove(
           state.projects,
           state.projectsByGroup.get(groupName) || [],
-          isEqualbyId,
+          equalByAttribute('id'),
         );
         // projectsByGroup
         state.projectsByGroup.delete(groupName);
@@ -198,31 +206,58 @@ const slice = createSlice({
         state.pipelinesByGroup.delete(groupName);
       }
     },
-    setPipelines(
+    // mrs
+    setMrs(
       state,
-      action: PayloadAction<{ groupName: string; pipelines: GitLabPipeline[] }>,
+      action: PayloadAction<{ mrs: GitLabMR[]; groupName?: GroupName }>,
     ) {
-      const {
-        payload: { groupName, pipelines },
-      } = action;
-      if (!checkAllAreObject(action.payload.pipelines)) {
-        state.pipelinesByGroup.set(groupName, []);
-        return;
+      const { mrs, groupName } = action.payload;
+      if (groupName) {
+        updateState<GitLabMR, MrId, GroupName>(
+          mrs,
+          state.mrs,
+          groupName,
+          state.mrsByGroup,
+          getIdByAttribute('id'),
+          equalByAttribute('id'),
+        );
+      } else {
+        // If the MRs aren't associated to a group, they must be assigned to the user
+        state.mrs = upsert(state.mrs, mrs, equalByAttribute('id'));
+        state.mrsUserAssigned = upsert(
+          state.mrsUserAssigned,
+          mrs.map(getIdByAttribute('id')),
+          equalByAttribute('id'),
+        );
       }
-      state.pipelinesByGroup.set(groupName, pipelines);
     },
-    updatePipeline(
-      state,
-      action: PayloadAction<{ groupName: string; pipeline: GitLabPipeline }>,
-    ) {
+    // projects
+    setProjects: createSettingReducer<GitLabProject, ProjectId, GroupName>(
+      'projects',
+      'projectsByGroup',
+      'id',
+    ),
+    // events
+    setEvents: createSettingReducer<GitLabEvent, EventId, ProjectId>(
+      'events',
+      'eventsByProject',
+      'id',
+    ),
+    // pipelines
+    setPipelines: createSettingReducer<GitLabPipeline, PipelineId, GroupName>(
+      'pipelines',
+      'pipelinesByGroup',
+      'id',
+    ),
+    updatePipeline(state, action: PayloadAction<{ pipeline: GitLabPipeline }>) {
       const {
-        payload: { groupName, pipeline },
+        payload: { pipeline },
       } = action;
-      const pipelinesByGroup = state.pipelinesByGroup.get(groupName);
-      if (!pipelinesByGroup) return;
-      state.pipelinesByGroup.set(
-        groupName,
-        upsert(pipelinesByGroup, [pipeline], isEqualPipeline),
+      // upsert pipeline
+      state.pipelines = upsert(
+        state.pipelines,
+        [pipeline],
+        equalByAttribute('id'),
       );
     },
     reloadPipeline(
@@ -308,39 +343,6 @@ const slice = createSlice({
           o.groupName !== groupName,
       );
       state.jobsToPlay = newList;
-    },
-    setEvents(
-      state,
-      action: PayloadAction<{
-        projectId: number;
-        events: GitLabEvent[];
-      }>,
-    ) {
-      const {
-        payload: { projectId, events },
-      } = action;
-      state.events.set(projectId, events);
-    },
-    reload(state, action: PayloadAction<void>) {},
-    deleteConfiguration(state, action: PayloadAction<void>) {
-      return {
-        configured: false,
-        url: undefined,
-        token: undefined,
-        userData: undefined,
-        userId: undefined,
-        groups: [],
-        mrsByGroup: new Map(),
-        mrs: [],
-        mrsUserAssigned: [],
-        projects: [],
-        projectsByGroup: new Map(),
-        listenedGroups: [],
-        pipelinesByGroup: new Map(),
-        pipelinesToReload: [],
-        jobsToPlay: [],
-        events: new Map(),
-      };
     },
   },
 });

@@ -38,6 +38,10 @@ export const selectProjectsByGroup = createSelector(
   selectGitLab,
   state => state.projectsByGroup,
 );
+export const selectPipelines = createSelector(
+  selectGitLab,
+  state => state.pipelines,
+);
 export const selectPipelinesByGroup = createSelector(
   selectGitLab,
   state => state.pipelinesByGroup,
@@ -51,3 +55,7 @@ export const selectJobsToPlay = createSelector(
   state => state.jobsToPlay,
 );
 export const selectEvents = createSelector(selectGitLab, state => state.events);
+export const selectEventsByProject = createSelector(
+  selectGitLab,
+  state => state.eventsByProject,
+);
