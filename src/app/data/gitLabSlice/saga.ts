@@ -38,6 +38,7 @@ import {
   takeLeading,
 } from 'redux-saga/effects';
 import moment from 'moment';
+import { GitLabState } from './types';
 
 const { select, call, put, delay } = Effects;
 
@@ -634,7 +635,10 @@ function* loadAll() {
 
 function* persist() {
   const state = yield select(selectGitLab);
-  yield call(PersistanceAPI.saveToLocalStorage, LOCALSTORAGE_KEY, state);
+  const stateCopy: GitLabState = { ...state };
+  // state can become quite large...
+  stateCopy.events = [];
+  yield call(PersistanceAPI.saveToLocalStorage, LOCALSTORAGE_KEY, stateCopy);
 }
 
 function* clear() {
