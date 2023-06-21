@@ -11,6 +11,8 @@ import moment from 'moment';
 import GitLabUser from 'app/components/GitLab/GitLabUser';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { GlobalColours } from 'styles/global-styles';
+import { useSelector } from 'react-redux';
+import { selectProjects } from 'app/data/gitLabSlice/selectors';
 
 type PropTypes = {
   id: string;
@@ -46,6 +48,7 @@ const getIcon = (
 };
 
 const EventsVisualisation: React.FC<PropTypesAfterHoc> = props => {
+  const projects = useSelector(selectProjects);
   return (
     <VisualisationContainer
       id={props.id}
@@ -58,6 +61,9 @@ const EventsVisualisation: React.FC<PropTypesAfterHoc> = props => {
           if (!item) {
             return null;
           }
+          const project = projects.find(
+            project => project.id === item.project_id,
+          );
           let content: (string | undefined)[] = [item.author.name];
           content.push(item.action_name);
           content.push(
@@ -74,23 +80,47 @@ const EventsVisualisation: React.FC<PropTypesAfterHoc> = props => {
             item.action_name,
             item.target_type || item.push_data?.ref_type || undefined,
           );
-          return (
+          const card = (
             <CardWrapper key={`eventCard ${item.id}`}>
-              <div className="flex-row">
-                <div className="float-left">
-                  <GitLabUser
-                    user={item.author}
-                    imgOnly
-                    iconProps={iconProps}
-                  />
-                </div>
-                <div className="content">{content.join(' ')}</div>
+              <div className="float-left">
+                <GitLabUser user={item.author} imgOnly iconProps={iconProps} />
+              </div>
+              <div className="container">
                 <div className="float-right">
                   <span>{moment(item.created_at).fromNow()}</span>
+                </div>
+                <div className="content">
+                  {item.author.name} {item.action_name}{' '}
+                  {item.target_type || item.push_data?.ref_type || undefined}{' '}
+                  <div className="gray">
+                    {item.target_title ||
+                      item.push_data?.ref ||
+                      item.push_data?.commit_title}
+                  </div>
+                  {project && (
+                    <>
+                      {' in '}
+                      {project.name}
+                    </>
+                  )}
                 </div>
               </div>
             </CardWrapper>
           );
+          if (project && project.web_url) {
+            return (
+              <UnstyledA
+                key={`eventCard ${item.id} a`}
+                href={project.web_url}
+                target="_blank"
+                rel="noreferrer"
+              >
+                {card}
+              </UnstyledA>
+            );
+          } else {
+            return card;
+          }
         })}
       </Wrapper>
     </VisualisationContainer>
@@ -102,6 +132,14 @@ const Wrapper = styled.div`
   flex-flow: column;
 `;
 
+const UnstyledA = styled.a`
+  color: inherit;
+  text-decoration: inherit;
+  &:hover {
+    color: inherit;
+  }
+`;
+
 const CardWrapper = styled.div`
   display: flex;
   flex-flow: row;
@@ -109,26 +147,37 @@ const CardWrapper = styled.div`
   margin: 0.5em 1em;
   border-radius: 0.5em;
   color: var(--clr-white);
+  overflow-wrap: anywhere;
 
   :hover {
     background: rgba(0, 0, 0, 0.05);
   }
 
+  .gray {
+    display: inline !important;
+    color: var(--clr-gray);
+  }
+
+  .container {
+    display: flex;
+    flex-flow: column;
+    padding: 1em;
+  }
+
   .flex-row {
     display: flex;
-    flex-flow: row;
+    flex-flow: column;
     width: 100%;
+    height: 100%;
     align-items: flex-start;
     justify-content: space-between;
   }
 
   .float-left {
     display: flex;
-    flex-flow: row;
-    height: 100%;
-    padding: 1em;
+    padding: 1em 0.5em 1em 1em;
     border-right: 3px solid rgba(0, 0, 0, 0.1);
-    justify-content: start;
+    justify-content: center;
     align-items: center;
   }
 
@@ -136,21 +185,14 @@ const CardWrapper = styled.div`
     display: flex;
     flex-flow: row;
     justify-content: end;
-    padding: 1em;
     span {
-      white-space: nowrap;
+      min-width: 3em;
       color: var(--clr-gray);
     }
   }
 
   .content {
-    display: flex;
-    flex-flow: row;
-    justify-content: start;
-    align-items: center;
-    width: 100%;
-    height: 100%;
-    padding: 1em;
+    display: inline;
   }
 `;
 
