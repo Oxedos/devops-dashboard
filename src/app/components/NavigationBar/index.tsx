@@ -157,11 +157,13 @@ const FlexColumn = styled.div`
 
 const SideBarButton = styled.button`
   all: unset;
+  display: flex;
   flex-flow: row nowrap;
-
-  /* border: 1px solid black; */
+  max-width: 10em;
+  align-items: center;
+  justify-content: end;
   padding: 5px 10px;
-  border-radius: 10%;
+  border-radius: 0.5em;
 
   &:hover {
     background: var(--clr-background);
@@ -176,6 +178,8 @@ const SideBarButton = styled.button`
     font-size: large;
     text-overflow: ellipsis;
     overflow: hidden;
+    white-space: nowrap;
+    max-width: 100%;
   }
 `;
 
