@@ -130,3 +130,5 @@ template
 
 # husky
 .husky
+
+.vscode

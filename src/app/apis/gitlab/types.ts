@@ -103,6 +103,7 @@ export type GitLabPipeline = {
   title: string | undefined; // Title of associated MR if present
   mr_web_url: string | undefined; // Web URL of associated MR if present
   labels: String[];
+  associatedMr: GitLabMR;
 } & GitLabPipelineBasic;
 
 export type GitLabSimpleMr = {
