@@ -1,5 +1,5 @@
 import { normalizeUrl } from 'app/apis/apiHelper';
-import axios, { RawAxiosRequestConfig } from 'axios';
+import axios from 'axios';
 import {
   getGitLabErrorMessage,
   getWithKeysetPagination,
@@ -28,13 +28,7 @@ export async function getGroups(
   params?: GetGroupParams,
 ): Promise<GitLabGroup[]> {
   const link = normalizeUrl(url, API_SUFFIX) + '/groups';
-  const config: RawAxiosRequestConfig = {
-    headers: {
-      'PRIVATE-TOKEN': privateToken,
-    },
-    params,
-  };
-  return getWithKeysetPagination(link, config);
+  return getWithKeysetPagination(link, gitlabConfig(params, privateToken));
 }
 
 type GetMergeRequestParams = {
@@ -56,19 +50,16 @@ export async function getGroupMergeRequests(
 ): Promise<GitLabSimpleMr[]> {
   const mrListLink =
     normalizeUrl(url, API_SUFFIX) + `/groups/${groupId}/merge_requests`;
-  const mrListConfig: RawAxiosRequestConfig = {
-    headers: {
-      'PRIVATE-TOKEN': privateToken,
-    },
-    params: {
-      scope: 'all',
-      state: 'opened',
-      ...params,
-    },
-  };
   const mrList: GitLabSimpleMr[] = await getWithKeysetPagination(
     mrListLink,
-    mrListConfig,
+    gitlabConfig(
+      {
+        scope: 'all',
+        state: 'opened',
+        ...params,
+      },
+      privateToken,
+    ),
   );
   return mrList;
 }
@@ -78,22 +69,17 @@ export async function getMergeRequests(
   privateToken: string,
   params: GetMergeRequestParams = {},
 ): Promise<GitLabSimpleMr[]> {
-  // Set defaults
-  const allParams = {
-    scope: 'all',
-    state: 'opened',
-    ...params,
-  };
   const mrListLink = normalizeUrl(url, API_SUFFIX) + `/merge_requests`;
-  const mrListConfig: RawAxiosRequestConfig = {
-    headers: {
-      'PRIVATE-TOKEN': privateToken,
-    },
-    params: allParams,
-  };
   const mrList = await getWithKeysetPagination<GitLabSimpleMr>(
     mrListLink,
-    mrListConfig,
+    gitlabConfig(
+      {
+        scope: 'all',
+        state: 'opened',
+        ...params,
+      },
+      privateToken,
+    ),
   );
   return mrList;
 }
@@ -105,11 +91,7 @@ export async function getUserInfo(
   try {
     const response = await axios.get<GitLabUserData>(
       normalizeUrl(url, API_SUFFIX) + `/user`,
-      {
-        headers: {
-          'PRIVATE-TOKEN': privateToken,
-        },
-      },
+      gitlabConfig({}, privateToken),
     );
     return response.data;
   } catch (error) {
