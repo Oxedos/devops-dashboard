@@ -1,12 +1,11 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
+import { selectAllMrs, selectMrsByGroup } from 'app/data/gitLabSlice/selectors';
+import { GitLabPipeline } from 'app/apis/gitlab/types';
 import {
-  selectAllMrs,
-  selectMrsByGroup,
   selectPipelines,
   selectPipelinesByGroup,
-} from 'app/data/gitLabSlice/selectors';
-import { GitLabPipeline } from 'app/apis/gitlab/types';
+} from 'app/data/gitLabSlice/pipelineSelectors';
 
 type PropTypes = {
   id: string;

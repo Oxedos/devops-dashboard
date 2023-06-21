@@ -5,7 +5,6 @@ import {
   selectProjects,
   selectMrsUserAssigned,
   selectAllMrs,
-  selectPipelines,
 } from 'app/data/gitLabSlice/selectors';
 import GitLabUser from 'app/components/GitLab/GitLabUser';
 import TableVisualisation from '../../components/TableVisualisation';
@@ -16,6 +15,7 @@ import SimpleMessage from '../../components/SimpleMessage';
 import withWidgetConfigurationModal from '../../components/withWidgetConfigurationModal';
 import { PipelineStatus, StatusStyle } from 'app/components/GitLab/Status';
 import styled from 'styled-components/macro';
+import { selectPipelines } from 'app/data/gitLabSlice/pipelineSelectors';
 
 type PropTypes = {
   id: string;

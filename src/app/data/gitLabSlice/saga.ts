@@ -25,7 +25,6 @@ import {
   selectProjects,
   selectMrsUserAssigned,
   selectProjectsByGroup,
-  selectPipelinesToReload,
   selectJobsToPlay,
   selectMrsByGroup,
 } from './selectors';
@@ -39,6 +38,7 @@ import {
 } from 'redux-saga/effects';
 import moment from 'moment';
 import { GitLabState } from './types';
+import { selectPipelinesToReload } from './pipelineSelectors';
 
 const { select, call, put, delay } = Effects;
 
