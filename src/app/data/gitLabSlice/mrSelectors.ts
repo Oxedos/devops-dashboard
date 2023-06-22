@@ -1,11 +1,10 @@
 import { createSelector } from 'reselect';
-import { selectPipelineByProjectIdAndMrIid } from './pipelineSelectors';
-import { selectProjectByProjectId } from './projectSelectors';
 import {
   createParameterSelector,
   selectGitlabSlice,
   selectUserData,
 } from './selectors';
+import { GitLabMR } from 'app/apis/gitlab/types';
 
 export const selectMrIdsByGroup = createSelector(
   selectGitlabSlice,
@@ -16,38 +15,6 @@ export const selectAllMrs = createSelector(selectGitlabSlice, state => {
   if (!state || !state.mrs || state.mrs.length <= 0) return [];
   return state.mrs;
 });
-
-export const selectMrsUserAssigned = createSelector(
-  selectUserData,
-  selectAllMrs,
-  (userData, allMrs) => {
-    if (!userData || !userData.id) return [];
-    if (!allMrs || allMrs.length <= 0) return [];
-    return allMrs
-      .filter(
-        mr =>
-          (mr.assignee && mr.assignee.id === userData.id) ||
-          (mr.assignees &&
-            mr.assignees.length > 1 &&
-            mr.assignees.map(assignee => assignee.id).includes(userData.id)),
-      )
-      .sort((x, y) => {
-        const dateX: any = new Date(x.updated_at || x.created_at);
-        const dateY: any = new Date(y.updated_at || y.created_at);
-        return dateY - dateX;
-      })
-      .map(mr => ({
-        ...mr,
-        pipeline: selectPipelineByProjectIdAndMrIid(selectGitlabSlice, {
-          projectId: mr.project_id,
-          mrIid: mr.iid,
-        }),
-        project: selectProjectByProjectId(selectGitlabSlice, {
-          projectId: mr.project_id,
-        }),
-      }));
-  },
-);
 
 export const selectMrsByGroup = createSelector(
   selectGitlabSlice,
@@ -64,11 +31,38 @@ export const selectMrsByGroup = createSelector(
 );
 
 export const selectMrsByGroupFiltered = createSelector(
+  selectAllMrs,
   selectMrsByGroup,
+  selectUserData,
   createParameterSelector(p => p.includeWIP),
   createParameterSelector(p => p.includeReady),
-  (groupMrs, includeWIP, includeReady) => {
-    return groupMrs
+  createParameterSelector(p => p.assignedToUserOnly),
+  (
+    allMrs,
+    groupMrs,
+    userData,
+    includeWIP,
+    includeReady,
+    assignedToUserOnly,
+  ) => {
+    let mrs: GitLabMR[] = [];
+    if (assignedToUserOnly) {
+      mrs = allMrs.filter(
+        mr =>
+          (mr.assignee &&
+            userData &&
+            userData.id &&
+            mr.assignee.id === userData.id) ||
+          (mr.assignees &&
+            userData &&
+            userData.id &&
+            mr.assignees.length > 1 &&
+            mr.assignees.map(assignee => assignee.id).includes(userData.id)),
+      );
+    } else {
+      mrs = groupMrs;
+    }
+    return mrs
       .filter(
         mr =>
           (includeWIP && includeReady) ||

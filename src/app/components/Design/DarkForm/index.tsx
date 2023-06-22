@@ -11,9 +11,23 @@ export default styled(Form)`
     color: var(--clr-white);
   }
 
+  select:disabled {
+    color: var(--clr-gray);
+    border-color: var(--clr-gray);
+  }
+
+  .form-check-input {
+    background: var(--clr-background);
+    border-color: var(--clr-white);
+  }
+
   label,
   .form-check-label {
     font-family: Arial, Helvetica, sans-serif;
+  }
+
+  .form-text {
+    color: var(--clr-white);
   }
 `;
 

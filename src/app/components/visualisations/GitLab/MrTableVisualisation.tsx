@@ -7,24 +7,26 @@ import compose from 'app/components/compose';
 import withGitLabConfiguredCheck from './components/withGitLabConfiguredCheck';
 import SimpleMessage from '../components/SimpleMessage';
 import withWidgetConfigurationModal from '../components/withWidgetConfigurationModal';
-import withGroupFieldsProvider from './components/withGroupFieldsProvider';
+import withGroupFieldsProvider from './components/withMrTableFieldsProvider';
 import { PipelineStatus, StatusStyle } from 'app/components/GitLab/Status';
 import styled from 'styled-components/macro';
 import { selectMrsByGroupFiltered } from 'app/data/gitLabSlice/mrSelectors';
 import { selectPipelinesByGroup } from 'app/data/gitLabSlice/pipelineSelectors';
 import { selectProjectsByGroup } from 'app/data/gitLabSlice/projectSelectors';
 
-type PropTypesNoHoc = {
+type OuterPropTypes = {
   id: string;
-  group?: string;
 };
 
-type PropTypes = {
+type innerPropTypes = {
+  group?: string;
   onSettingsClick: Function;
   afterVisRemoved: Function;
   mrs: GitLabMR[];
   pipelines?: GitLabPipeline[];
-} & PropTypesNoHoc;
+  assignedToUserOnly?: boolean;
+  includeWIP?: boolean;
+} & OuterPropTypes;
 
 function getMrTable(
   mrs: GitLabMR[],
@@ -69,16 +71,16 @@ function getMrTable(
   return { header, values };
 }
 
-const MrTableVisualisation: React.FC<PropTypes> = props => {
+const MrTableVisualisation: React.FC<innerPropTypes> = props => {
   const mrs = useSelector(state =>
     selectMrsByGroupFiltered(state, {
       groupName: props.group,
       includeReady: true,
-      includeWIP: false,
+      includeWIP: props.includeWIP,
+      assignedToUserOnly: props.assignedToUserOnly,
     }),
   );
-  // selectPipelinesByGroup,
-  // selectProjectsByGroup,
+
   const pipelines = useSelector(state =>
     selectPipelinesByGroup(state, { groupName: props.group }),
   );
@@ -86,7 +88,10 @@ const MrTableVisualisation: React.FC<PropTypes> = props => {
     selectProjectsByGroup(state, { groupName: props.group }),
   );
   const visProps = getMrTable(mrs, pipelines, projects);
-  const title = `Ready MRs in ${props.group || 'all Groups'}`;
+  const groupTitle = props.group ? `in ${props.group}` : '';
+  const title = `MRs ${
+    props.assignedToUserOnly ? 'assigned to you' : groupTitle
+  }`.trim();
 
   if (visProps.values.length <= 0) {
     return (
@@ -94,7 +99,9 @@ const MrTableVisualisation: React.FC<PropTypes> = props => {
         id={props.id}
         title={title}
         onSettingsClick={props.onSettingsClick}
-        message={`No MRs in ${props.group || 'all Groups'} are currently ready`}
+        message={`No MRs ${
+          props.assignedToUserOnly ? 'assigned to you' : groupTitle
+        } to display`}
       />
     );
   }
@@ -121,7 +128,7 @@ MrTableVisualisation.defaultProps = {
   group: '[All Groups]',
 };
 
-export default compose<ComponentType<PropTypesNoHoc>>(
+export default compose<ComponentType<OuterPropTypes>>(
   withGitLabConfiguredCheck,
   withGroupFieldsProvider,
   withWidgetConfigurationModal(), // takes fields from withGroupFieldsProvider,

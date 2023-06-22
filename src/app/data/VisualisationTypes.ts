@@ -7,8 +7,8 @@ import { rssActions } from './rssSlice';
 export enum VisualisationType {
   DP_9,
   DP_10,
-  GITLAB_READY_MR_TABLE,
-  GITLAB_MR_ASSIGNED_TABLE,
+  GITLAB_MR_TABLE,
+  DP_11, // Deprecated
   DP_1, // Deprecated
   DP_2, // Deprecated
   GITLAB_PIPELINES_TABLE,
@@ -38,15 +38,19 @@ export const getAfterVisualisationUpdatedActions = (
   props: any,
 ) => {
   switch (type) {
-    case VisualisationType.GITLAB_READY_MR_TABLE:
-    case VisualisationType.GITLAB_MR_ASSIGNED_TABLE:
+    case VisualisationType.GITLAB_MR_TABLE:
     case VisualisationType.GITLAB_PIPELINES_TABLE:
     case VisualisationType.GITLAB_EVENTS:
       return [
-        gitLabActions.addListenedGroup({
-          groupName: props.group,
-          visId,
-        }),
+        props.assignedToUserOnly
+          ? gitLabActions.removeListenedGroup({
+              visId,
+              groupName: props.group,
+            })
+          : gitLabActions.addListenedGroup({
+              groupName: props.group,
+              visId,
+            }),
       ];
     case VisualisationType.RSS_FEED_VISUALISATION: {
       // update props to base64-encode username and password
@@ -95,8 +99,7 @@ export const getAfterVisualisationRemovedActions = (
   props: any,
 ) => {
   switch (type) {
-    case VisualisationType.GITLAB_READY_MR_TABLE:
-    case VisualisationType.GITLAB_MR_ASSIGNED_TABLE:
+    case VisualisationType.GITLAB_MR_TABLE:
     case VisualisationType.GITLAB_PIPELINES_TABLE:
     case VisualisationType.GITLAB_EVENTS:
       return [
@@ -122,11 +125,16 @@ export const getDefaultSize = (type: VisualisationType) => {
         w: 18,
         h: 5,
       };
+    case VisualisationType.GITLAB_MR_TABLE:
+      return {
+        minW: 1,
+        minH: 1,
+        w: 20,
+        h: 10,
+      };
     case VisualisationType.WS_VULNERABLE_SERVICES_TABLE:
     case VisualisationType.WS_VULNERABLE_DEPENDENCIES_TABLE:
     case VisualisationType.RSS_FEED_VISUALISATION:
-    case VisualisationType.GITLAB_READY_MR_TABLE:
-    case VisualisationType.GITLAB_MR_ASSIGNED_TABLE:
     case VisualisationType.WS_VULNERABILITIES_TABLE:
       return {
         minW: 1,
@@ -172,14 +180,8 @@ export const AllVisualisations = [
   {
     group: 'gitlab',
     icon: 'table',
-    type: VisualisationType.GITLAB_READY_MR_TABLE,
+    type: VisualisationType.GITLAB_MR_TABLE,
     label: 'Ready MRs',
-  },
-  {
-    group: 'gitlab',
-    icon: 'table',
-    type: VisualisationType.GITLAB_MR_ASSIGNED_TABLE,
-    label: 'MRs Assigned to you',
   },
   {
     group: 'gitlab',

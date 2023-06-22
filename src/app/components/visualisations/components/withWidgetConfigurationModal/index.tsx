@@ -18,36 +18,59 @@ import {
   getAfterVisualisationUpdatedActions,
   VisualisationType,
 } from 'app/data/VisualisationTypes';
+import styled from 'styled-components/macro';
 
 export type FieldType = {
   name: string; // unique. Used as key in props
   label?: string; // Optional label to display
-  type?: 'password' | 'checkbox' | 'select';
+  type?: 'password' | 'checkbox' | 'select' | 'toggle';
   options?: string[]; // If type is select, the options must be provided
   prepend?: string | JSX.Element; // Text or Element to prepend before input field
   append?: string | JSX.Element; // Text or Element to append before input field
   required?: boolean; // Will display a * after label. If true this field will be checked for presence on submit
   text?: string; // Highest precedence. If text is set, a Form.Text will be displayed
-  hr?: boolean; // Second highest precedende. If hr is provided, a <hr /> will be displayed
+  hr?: boolean | string; // Second highest precedende. If hr is provided, a <hr /> will be displayed
+  space?: boolean; // just an invisible spacer
+  disables?: string; // A checkbox can disable another input
 };
 
 const FormField: React.FC<{
   field: FieldType;
   value: any;
   onChange: (name: string, value: string | boolean) => void;
+  disabled: boolean;
 }> = props => {
   const {
-    field: { name, label, type, options, text, prepend, append, required, hr },
+    field: {
+      name,
+      label,
+      type,
+      options,
+      text,
+      prepend,
+      append,
+      required,
+      hr,
+      space,
+    },
     value,
+    disabled,
     onChange,
   } = props;
 
   if (text) {
-    return <Form.Text className="mb-3">{text}</Form.Text>;
+    return <Form.Text>{text}</Form.Text>;
   }
 
   if (hr) {
+    if (typeof hr === 'string') {
+      return <Seperator>{hr}</Seperator>;
+    }
     return <hr />;
+  }
+
+  if (space) {
+    return <Spacer />;
   }
 
   if (type === 'checkbox') {
@@ -57,6 +80,20 @@ const FormField: React.FC<{
           type="checkbox"
           label={label}
           checked={value || false}
+          disabled={disabled || false}
+          onChange={e => onChange(name, e.target.checked)}
+        />
+      </Form.Group>
+    );
+  }
+
+  if (type === 'toggle') {
+    return (
+      <Form.Group>
+        <Form.Switch
+          label={label}
+          checked={value || false}
+          disabled={disabled || false}
           onChange={e => onChange(name, e.target.checked)}
         />
       </Form.Group>
@@ -71,6 +108,7 @@ const FormField: React.FC<{
           as="select"
           onChange={({ target: { value } }) => onChange(name, value)}
           value={value || options[0]}
+          disabled={disabled || false}
         >
           {(options || []).map(option => (
             <option key={option}>{option}</option>
@@ -101,6 +139,56 @@ type InnerProps = {
   id: string;
   fields?: FieldType[];
   type: VisualisationType;
+};
+
+const submit = (fieldsToUse, dispatch, props, newProps, setModalOpen) => {
+  // Find required fields that are not filled
+  const requiredUnfilledFileds = fieldsToUse
+    .filter(field => field.required && !newProps[field.name])
+    .map(field => (field.label ? field.label : field.name));
+
+  if (requiredUnfilledFileds.length > 0) {
+    dispatch(
+      globalActions.addErrorNotification(
+        `The following fields cannot be empty: ${requiredUnfilledFileds.join(
+          ', ',
+        )}`,
+      ),
+    );
+    return;
+  }
+
+  // Trim values
+  const trimmedProps = Object.fromEntries(
+    Object.keys(newProps).map(key => {
+      const associatedField = fieldsToUse.find(field => field.name === key);
+      if (
+        !associatedField ||
+        associatedField.type === 'password' ||
+        associatedField.type === 'checkbox' ||
+        !newProps[key]
+      ) {
+        return [key, newProps[key]];
+      }
+      return [key, newProps[key].trim()];
+    }),
+  );
+
+  dispatch(
+    globalActions.setVisualisationProps({
+      id: props.id,
+      props: trimmedProps,
+    }),
+  );
+
+  // Execute actions that need to be executed after a visualisation was updated
+  getAfterVisualisationUpdatedActions(
+    props.type,
+    props.id,
+    trimmedProps,
+  ).forEach(action => dispatch(action));
+
+  setModalOpen(false);
 };
 
 const withWidgetConfigurationModal =
@@ -147,58 +235,6 @@ const withWidgetConfigurationModal =
         setNewProps(newState);
       };
 
-      const submit = () => {
-        // Find required fields that are not filled
-        const requiredUnfilledFileds = fieldsToUse
-          .filter(field => field.required && !newProps[field.name])
-          .map(field => (field.label ? field.label : field.name));
-
-        if (requiredUnfilledFileds.length > 0) {
-          dispatch(
-            globalActions.addErrorNotification(
-              `The following fields cannot be empty: ${requiredUnfilledFileds.join(
-                ', ',
-              )}`,
-            ),
-          );
-          return;
-        }
-
-        // Trim values
-        const trimmedProps = Object.fromEntries(
-          Object.keys(newProps).map(key => {
-            const associatedField = fieldsToUse.find(
-              field => field.name === key,
-            );
-            if (
-              !associatedField ||
-              associatedField.type === 'password' ||
-              associatedField.type === 'checkbox' ||
-              !newProps[key]
-            ) {
-              return [key, newProps[key]];
-            }
-            return [key, newProps[key].trim()];
-          }),
-        );
-
-        dispatch(
-          globalActions.setVisualisationProps({
-            id: props.id,
-            props: trimmedProps,
-          }),
-        );
-
-        // Execute actions that need to be executed after a visualisation was updated
-        getAfterVisualisationUpdatedActions(
-          props.type,
-          props.id,
-          trimmedProps,
-        ).forEach(action => dispatch(action));
-
-        setModalOpen(false);
-      };
-
       const afterVisRemove = () => {
         getAfterVisualisationRemovedActions(
           props.type,
@@ -224,16 +260,29 @@ const withWidgetConfigurationModal =
             </Modal.Header>
             <Modal.Body>
               <DarkForm>
-                {fieldsToUse.map((field, idx) => (
-                  <FormField
-                    key={`field ${idx}`}
-                    field={field}
-                    onChange={onFieldChange}
-                    value={newProps[field.name]}
-                  />
-                ))}
+                {fieldsToUse.map((field, idx) => {
+                  const disabled = fieldsToUse
+                    .filter(f => f.disables === field.name)
+                    .filter(f => !!newProps[f.name]);
+
+                  return (
+                    <FormField
+                      key={`field ${idx}`}
+                      field={field}
+                      onChange={onFieldChange}
+                      value={newProps[field.name]}
+                      disabled={disabled.length > 0}
+                    />
+                  );
+                })}
                 <hr />
-                <BlueButton onClick={() => submit()}>Save</BlueButton>
+                <BlueButton
+                  onClick={() =>
+                    submit(fieldsToUse, dispatch, props, newProps, setModalOpen)
+                  }
+                >
+                  Save
+                </BlueButton>
               </DarkForm>
             </Modal.Body>
           </DarkModal>
@@ -241,5 +290,39 @@ const withWidgetConfigurationModal =
       );
     };
   };
+
+const Spacer = styled.div`
+  margin: 0.5em 0;
+`;
+
+const Seperator = styled.div`
+  display: flex;
+  margin: 1em 0em;
+  align-items: center;
+  text-align: center;
+
+  &:before,
+  &:after {
+    content: '';
+    flex: 1;
+    border-bottom: 2px solid var(--clr-dark-gray);
+  }
+
+  &:before {
+    margin-left: 3em;
+  }
+
+  &:not(:empty)::before {
+    margin-right: 0.25em;
+  }
+
+  &:after {
+    margin-right: 3em;
+  }
+
+  &:not(:empty)::after {
+    margin-left: 0.25em;
+  }
+`;
 
 export default withWidgetConfigurationModal;

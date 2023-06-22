@@ -18,10 +18,41 @@ const withGroupFieldsProvider = (WrappedComponent: React.FC<any>) => {
 
     const fields: FieldType[] = [
       {
+        name: 'source-text',
+        text: 'You can choose between displaying Merge Requests from a group, or all Merge Requests that are assigned to you',
+      },
+      {
+        name: 'space1',
+        space: true,
+      },
+      {
         name: 'group',
         label: 'Group',
         type: 'select',
         options: availableGroups,
+      },
+      {
+        name: 'hr-1',
+        hr: 'or',
+      },
+      {
+        name: 'assignedToUserOnly',
+        label: 'Merge Requests assigned to you',
+        type: 'checkbox',
+        disables: 'group',
+      },
+      {
+        name: 'hr-2',
+        hr: true,
+      },
+      {
+        name: 'space2',
+        space: true,
+      },
+      {
+        name: 'includeWIP',
+        label: 'Include WIP / Draft MRs',
+        type: 'checkbox',
       },
     ];
 
