@@ -1,12 +1,6 @@
 import { createSelector } from 'reselect';
-import {
-  selectPipelineByProjectIdAndMrIid,
-  selectPipelinesByGroup,
-} from './pipelineSelectors';
-import {
-  selectProjectByProjectId,
-  selectProjectsByGroup,
-} from './projectSelectors';
+import { selectPipelineByProjectIdAndMrIid } from './pipelineSelectors';
+import { selectProjectByProjectId } from './projectSelectors';
 import {
   createParameterSelector,
   selectGitlabSlice,
