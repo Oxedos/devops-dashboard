@@ -269,9 +269,6 @@ export type GitLabMR = {
   has_conflicts: boolean;
   blocking_discussions_resolved: boolean;
   head_pipeline: GitLabPipelineBasic;
-  // Own Type Additions
-  pipeline: GitLabPipeline | undefined;
-  project: GitLabProject | undefined;
 };
 
 export type GitLabEvent = {

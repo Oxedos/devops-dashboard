@@ -1,4 +1,4 @@
-import { GitLabMR } from 'app/apis/gitlab/types';
+import { GitLabMR, GitLabPipeline, GitLabProject } from 'app/apis/gitlab/types';
 import GitLabUser from 'app/components/GitLab/GitLabUser';
 import { PipelineStatus, StatusStyle } from 'app/components/GitLab/Status';
 import compose from 'app/components/compose';
@@ -11,24 +11,35 @@ import SimpleMessage from '../components/SimpleMessage';
 import TableVisualisation from '../components/TableVisualisation';
 import withWidgetConfigurationModal from '../components/withWidgetConfigurationModal';
 import withGitLabConfiguredCheck from './components/withGitLabConfiguredCheck';
+import { selectPipelines } from 'app/data/gitLabSlice/pipelineSelectors';
+import { selectProjects } from 'app/data/gitLabSlice/projectSelectors';
 
 type PropTypes = {
   id: string;
   onSettingsClick?: Function;
 };
 
-function getUserAssignedMrs(mrs: GitLabMR[]) {
+function getUserAssignedMrs(
+  mrs: GitLabMR[],
+  pipelines: GitLabPipeline[],
+  projects: GitLabProject[],
+) {
   const header = ['Project', 'Pipeline', 'Title', 'Author', 'Reviewer'];
   const values = mrs.map(mr => {
+    const project =
+      projects && projects.find(project => mr.project_id === project.id);
+    const pipeline =
+      pipelines &&
+      pipelines.find(pipeline => pipeline.ref.includes(`${mr.iid}`));
     return {
-      project: mr.project?.name,
-      pipeline: mr.pipeline && (
+      project: project?.name,
+      pipeline: pipeline && (
         <Centered>
           <PipelineStatus
-            pipeline={mr.pipeline}
+            pipeline={pipeline}
             simple
-            tooltip={mr.pipeline?.status || 'unkown'}
-            url={mr.pipeline?.web_url || undefined}
+            tooltip={pipeline?.status || 'unkown'}
+            url={pipeline?.web_url || undefined}
             style={StatusStyle.simple}
           />
         </Centered>
@@ -49,7 +60,9 @@ function getUserAssignedMrs(mrs: GitLabMR[]) {
 const UserAssignedMrTable: React.FC<PropTypes> = props => {
   const mrsUserAssigned = useSelector(selectMrsUserAssigned);
   const configured = useSelector(selectConfigured);
-  const visProps = getUserAssignedMrs(mrsUserAssigned);
+  const pipelines = useSelector(selectPipelines);
+  const projects = useSelector(selectProjects);
+  const visProps = getUserAssignedMrs(mrsUserAssigned, pipelines, projects);
   const title = 'MRs Assigned To You';
 
   let error = '';

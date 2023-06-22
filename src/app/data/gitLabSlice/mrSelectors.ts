@@ -1,6 +1,12 @@
 import { createSelector } from 'reselect';
-import { selectPipelineByProjectIdAndMrIid } from './pipelineSelectors';
-import { selectProjectByProjectId } from './projectSelectors';
+import {
+  selectPipelineByProjectIdAndMrIid,
+  selectPipelinesByGroup,
+} from './pipelineSelectors';
+import {
+  selectProjectByProjectId,
+  selectProjectsByGroup,
+} from './projectSelectors';
 import {
   createParameterSelector,
   selectGitlabSlice,
@@ -63,12 +69,12 @@ export const selectMrsByGroup = createSelector(
   },
 );
 
-export const selectMrsByGroupWithProjectsAndPipelines = createSelector(
+export const selectMrsByGroupFiltered = createSelector(
   selectMrsByGroup,
   createParameterSelector(p => p.includeWIP),
   createParameterSelector(p => p.includeReady),
-  (mrsByGroup, includeWIP, includeReady) => {
-    return mrsByGroup
+  (groupMrs, includeWIP, includeReady) => {
+    return groupMrs
       .filter(
         mr =>
           (includeWIP && includeReady) ||
@@ -79,16 +85,6 @@ export const selectMrsByGroupWithProjectsAndPipelines = createSelector(
         const dateX: any = new Date(x.updated_at || x.created_at);
         const dateY: any = new Date(y.updated_at || y.created_at);
         return dateY - dateX;
-      })
-      .map(mr => ({
-        ...mr,
-        pipeline: selectPipelineByProjectIdAndMrIid(selectGitlabSlice, {
-          projectId: mr.project_id,
-          mrIid: mr.iid,
-        }),
-        project: selectProjectByProjectId(selectGitlabSlice, {
-          projectId: mr.project_id,
-        }),
-      }));
+      });
   },
 );
