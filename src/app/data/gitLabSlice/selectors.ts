@@ -25,11 +25,6 @@ export const selectJobsToPlay = createSelector(
   selectGitLab,
   state => state.jobsToPlay,
 );
-export const selectEvents = createSelector(selectGitLab, state => state.events);
-export const selectEventsByProject = createSelector(
-  selectGitLab,
-  state => state.eventsByProject,
-);
 
 export function createParameterSelector(selector) {
   return (_, params) => selector(params);

@@ -1,12 +1,12 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import {
-  selectEvents,
-  selectEventsByProject,
-} from 'app/data/gitLabSlice/selectors';
 import SimpleMessage from '../../components/SimpleMessage';
 import Moment from 'moment';
 import { selectAllProjectIdsByGroup } from 'app/data/gitLabSlice/projectSelectors';
+import {
+  selectEvents,
+  selectEventIdsByProject,
+} from 'app/data/gitLabSlice/eventSelectors';
 
 type PropTypes = {
   id: string;
@@ -18,7 +18,7 @@ type PropTypes = {
 const withEventsLoadingByGroup = (WrappedComponent: React.FC<any>) => {
   const WrapperComponent: React.FC<PropTypes> = props => {
     const allEvents = useSelector(selectEvents);
-    const eventsByProject = useSelector(selectEventsByProject);
+    const eventsByProject = useSelector(selectEventIdsByProject);
     const projectsByGroup = useSelector(selectAllProjectIdsByGroup);
 
     if (!props.group) {
