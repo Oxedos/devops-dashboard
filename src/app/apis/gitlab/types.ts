@@ -56,6 +56,7 @@ export type GitLabProject = {
   star_count: number;
   archived: boolean;
   jobs_enabled: boolean;
+  mrs: GitLabMR[];
 };
 
 export type GitLabJob = {

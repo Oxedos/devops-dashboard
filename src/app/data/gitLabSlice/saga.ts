@@ -1,6 +1,3 @@
-import * as Effects from 'redux-saga/effects';
-import { gitLabActions as actions, gitLabActions, LOCALSTORAGE_KEY } from '.';
-import { globalActions } from 'app/data/globalSlice';
 import * as API from 'app/apis/gitlab';
 import {
   GitLabEvent,
@@ -10,19 +7,11 @@ import {
   GitLabProject,
   GitLabUserData,
   GroupName,
-  MrId,
-  ProjectId,
 } from 'app/apis/gitlab/types';
 import * as PersistanceAPI from 'app/apis/persistance';
-import {
-  selectGitlabSlice,
-  selectGroups,
-  selectToken,
-  selectConfigured,
-  selectUrl,
-  selectListenedGroups,
-  selectJobsToPlay,
-} from './selectors';
+import { globalActions } from 'app/data/globalSlice';
+import moment from 'moment';
+import * as Effects from 'redux-saga/effects';
 import {
   all,
   fork,
@@ -31,15 +20,27 @@ import {
   takeEvery,
   takeLeading,
 } from 'redux-saga/effects';
-import moment from 'moment';
-import { GitLabState } from './types';
+import { LOCALSTORAGE_KEY, gitLabActions as actions, gitLabActions } from '.';
+import {
+  selectGroupByGroupName,
+  selectListenedGroups,
+  selectListenedGroupsFull,
+} from './groupSelectors';
 import { selectPipelinesToReload } from './pipelineSelectors';
 import {
-  selectAllMrs,
-  selectMrIdsByGroup,
-  selectMrsUserAssigned,
-} from './mrSelectors';
-import { selectAllProjectIdsByGroup, selectProjects } from './projectSelectors';
+  selectListenedProjectIds,
+  selectProjects,
+  selectProjectsByGroup,
+} from './projectSelectors';
+import {
+  selectConfigured,
+  selectGitlabSlice,
+  selectJobsToPlay,
+  selectToken,
+  selectUrl,
+} from './selectors';
+import { GitLabState } from './types';
+import { selectAllMrs, selectMrsByGroup } from './mrSelectors';
 
 const { select, call, put, delay } = Effects;
 
@@ -94,14 +95,10 @@ function* getGroups() {
   }
 }
 
-function* loadProjectsForGroup(
-  groups: GitLabGroup[],
-  groupName: string,
-  url: string,
-  token: string,
-) {
-  if (!groupName || !groups || groups.length <= 0) return;
-  const group = groups.find(group => group.full_name === groupName);
+function* loadProjectsForGroup(groupName: string, url: string, token: string) {
+  const group = yield select(state =>
+    selectGroupByGroupName(state, { groupName }),
+  );
   if (!group) return;
   try {
     const projects: GitLabProject[] = yield call(
@@ -132,23 +129,15 @@ function* getProjects() {
   const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
   const listenedGroups: string[] = yield select(selectListenedGroups);
-  let groups: GitLabGroup[] = yield select(selectGroups);
 
   if (listenedGroups.length <= 0) return;
-  if (groups.length <= 0) return;
 
   const loadingId = '[GitLab] getProjects';
   yield put(globalActions.addLoader({ id: loadingId }));
 
   const tasks: any[] = [];
   for (let groupName of listenedGroups) {
-    const task = yield fork(
-      loadProjectsForGroup,
-      groups,
-      groupName,
-      url,
-      token,
-    );
+    const task = yield fork(loadProjectsForGroup, groupName, url, token);
     tasks.push(task);
   }
   yield join(tasks); // wait for all tasks to finish
@@ -177,28 +166,16 @@ function* loadPipelinesForProject(
 
 function* loadPipelinesForGroup(
   groupName: GroupName,
-  mrs: GitLabMR[],
-  projects: GitLabProject[],
-  projectsByGroup: Map<GroupName, ProjectId[]>,
-  mrsByGroup: Map<GroupName, MrId[]>,
   url: string,
   token: string,
 ) {
-  // Get all projects in the current group
-  const projectIds = projectsByGroup.get(groupName);
-  if (!projectIds || projectIds.length <= 0) return [];
-  const groupProjects = projects.filter(project =>
-    projectIds.includes(project.id),
+  const groupProjects: GitLabProject[] = yield select(state =>
+    selectProjectsByGroup(state, { groupName }),
   );
-  if (!groupProjects || groupProjects.length <= 0) return [];
+  const groupMrs: GitLabMR[] = yield select(state =>
+    selectMrsByGroup(state, { groupName }),
+  );
 
-  // Get all MRs for the current group
-  const mrIds = mrsByGroup.get(groupName);
-  if (!mrIds || mrIds.length <= 0) return;
-  const groupMrs = mrs.filter(mr => mrIds.includes(mr.id));
-  if (!groupMrs || groupMrs.length <= 0) return [];
-
-  // call loadPipelinesForProject
   const loadingId = `[GitLab] getPipelines ${groupName}`;
   yield put(globalActions.addLoader({ id: loadingId }));
 
@@ -233,25 +210,10 @@ function* getPipelines() {
 
   const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
-  const projectsByGroup: Map<GroupName, ProjectId[]> = yield select(
-    selectAllProjectIdsByGroup,
-  );
-  const mrsByGroup: Map<GroupName, MrId[]> = yield select(selectMrIdsByGroup);
-  const mrs: GitLabMR[] = yield select(selectAllMrs);
-  const projects: GitLabProject[] = yield select(selectProjects);
 
   for (let groupName of listenedGroups) {
     if (!groupName) continue;
-    yield fork(
-      loadPipelinesForGroup,
-      groupName,
-      mrs,
-      projects,
-      projectsByGroup,
-      mrsByGroup,
-      url,
-      token,
-    );
+    yield fork(loadPipelinesForGroup, groupName, url, token);
   }
 }
 
@@ -287,11 +249,9 @@ function* getMissingProjects() {
   const loadingId = '[GitLab] getMissingProjects';
 
   // Check for MRs where there's no project loaded for
-  const allMrs: GitLabMR[] = yield select(selectAllMrs);
-  const userAssignedMrs: GitLabMR[] = yield select(selectMrsUserAssigned);
+  const mrs = yield select(selectAllMrs);
   const projects: GitLabProject[] = yield select(selectProjects);
-  const unloadedProjectIds = allMrs
-    .concat(userAssignedMrs)
+  const unloadedProjectIds = mrs
     .filter(mr => !projects.find(project => project.id === mr.project_id))
     .map(mr => mr.project_id);
 
@@ -332,19 +292,19 @@ function* getMissingProjects() {
 function* getMergeRequests() {
   const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
-  const listenedGroups: string[] = yield select(selectListenedGroups);
-  let groups: GitLabGroup[] = yield select(selectGroups);
+  const listenedGroupsFull: GitLabGroup[] = yield select(
+    selectListenedGroupsFull,
+  );
 
-  if (listenedGroups.length <= 0 || groups.length <= 0) return;
+  if (!listenedGroupsFull || listenedGroupsFull.length <= 0) return;
 
   const loadingId = '[GitLab] getMergeRequests';
   yield put(globalActions.addLoader({ id: loadingId }));
 
   // Get all MRs for listened groups
-  for (let groupName of listenedGroups) {
+  for (let group of listenedGroupsFull) {
+    if (!group) continue;
     try {
-      const group = groups.find(g => g.full_name === groupName);
-      if (!group) continue;
       const groupsMrs = yield call(
         API.getGroupMergeRequests,
         url,
@@ -530,21 +490,10 @@ function* loadEventsForProject(projectId: number, url: string, token: string) {
 function* getEvents() {
   const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
-  const projectsByGroup: Map<string, ProjectId[]> = yield select(
-    selectAllProjectIdsByGroup,
-  );
-  const listenedGroups: string[] = yield select(selectListenedGroups);
-
-  if (listenedGroups.length <= 0) return;
-
-  for (let groupName of listenedGroups) {
-    if (!groupName) continue;
-    const projectIds = projectsByGroup.get(groupName);
-    if (!projectIds) continue;
-    for (let projectId of projectIds) {
-      if (!projectId) continue;
-      yield fork(loadEventsForProject, projectId, url, token);
-    }
+  const listenedProjectsIds = yield select(selectListenedProjectIds);
+  for (let projectId of listenedProjectsIds) {
+    if (!projectId) continue;
+    yield fork(loadEventsForProject, projectId, url, token);
   }
 }
 
@@ -582,7 +531,7 @@ function* testConnection() {
   }
   yield put(globalActions.addNotification('[GitLab] sucessfully connected'));
   yield call(persist);
-  yield call(loadAll);
+  // yield call(loadAll);
 }
 
 function* pollLong() {

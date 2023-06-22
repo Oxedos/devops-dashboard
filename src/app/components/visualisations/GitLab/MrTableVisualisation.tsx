@@ -10,7 +10,7 @@ import withWidgetConfigurationModal from '../components/withWidgetConfigurationM
 import withGroupFieldsProvider from './components/withGroupFieldsProvider';
 import { PipelineStatus, StatusStyle } from 'app/components/GitLab/Status';
 import styled from 'styled-components/macro';
-import { selectMrsByGroup } from 'app/data/gitLabSlice/mrSelectors';
+import { selectMrsByGroupWithProjectsAndPipelines } from 'app/data/gitLabSlice/mrSelectors';
 
 type PropTypesNoHoc = {
   id: string;
@@ -59,7 +59,7 @@ function getMrTable(mrs: GitLabMR[]) {
 
 const MrTableVisualisation: React.FC<PropTypes> = props => {
   const mrsNew = useSelector(state =>
-    selectMrsByGroup(state, {
+    selectMrsByGroupWithProjectsAndPipelines(state, {
       groupName: props.group,
       includeReady: true,
       includeWIP: false,

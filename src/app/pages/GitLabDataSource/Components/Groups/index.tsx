@@ -3,12 +3,12 @@ import { GitLabGroup } from 'app/apis/gitlab/types';
 import styled from 'styled-components/macro';
 import ContentElement from '../../../../components/Design/ContentElement';
 import Figure from 'react-bootstrap/Figure';
+import { useSelector } from 'react-redux';
+import DarkTable from 'app/components/Design/DarkTable';
 import {
   selectGroups,
   selectListenedGroups,
-} from 'app/data/gitLabSlice/selectors';
-import { useSelector } from 'react-redux';
-import DarkTable from 'app/components/Design/DarkTable';
+} from 'app/data/gitLabSlice/groupSelectors';
 
 type GroupRowPropTypes = {
   group: GitLabGroup;

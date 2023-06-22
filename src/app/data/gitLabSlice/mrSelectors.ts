@@ -1,20 +1,21 @@
 import { createSelector } from 'reselect';
+import { selectPipelineByProjectIdAndMrIid } from './pipelineSelectors';
+import { selectProjectByProjectId } from './projectSelectors';
 import {
   createParameterSelector,
   selectGitlabSlice,
   selectUserData,
 } from './selectors';
-import { selectPipelineByProjectIdAndMrIid } from './pipelineSelectors';
-import { selectProjectByProjectId } from './projectSelectors';
 
 export const selectMrIdsByGroup = createSelector(
   selectGitlabSlice,
   state => state.mrsByGroup,
 );
-export const selectAllMrs = createSelector(
-  selectGitlabSlice,
-  state => state.mrs,
-);
+
+export const selectAllMrs = createSelector(selectGitlabSlice, state => {
+  if (!state || !state.mrs || state.mrs.length <= 0) return [];
+  return state.mrs;
+});
 
 export const selectMrsUserAssigned = createSelector(
   selectUserData,
@@ -49,17 +50,25 @@ export const selectMrsUserAssigned = createSelector(
 );
 
 export const selectMrsByGroup = createSelector(
-  selectAllMrs,
+  selectGitlabSlice,
   selectMrIdsByGroup,
   createParameterSelector(p => p.groupName),
-  createParameterSelector(p => p.includeWIP),
-  createParameterSelector(p => p.includeReady),
-  (mrs, mrsByGroup, groupName, includeWIP, includeReady) => {
+  (state, mrsByGroup, groupName) => {
     if (!groupName) return [];
+    if (!mrsByGroup) return [];
+    if (!state.mrs || state.mrs.length <= 0) return [];
     const mrIds = mrsByGroup.get(groupName);
     if (!mrIds || mrIds.length <= 0) return [];
-    return mrs
-      .filter(mr => mrIds.includes(mr.id))
+    return state.mrs.filter(mr => mrIds.includes(mr.id));
+  },
+);
+
+export const selectMrsByGroupWithProjectsAndPipelines = createSelector(
+  selectMrsByGroup,
+  createParameterSelector(p => p.includeWIP),
+  createParameterSelector(p => p.includeReady),
+  (mrsByGroup, includeWIP, includeReady) => {
+    return mrsByGroup
       .filter(
         mr =>
           (includeWIP && includeReady) ||

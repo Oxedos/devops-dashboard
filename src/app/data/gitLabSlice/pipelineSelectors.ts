@@ -106,11 +106,13 @@ export const selectPipelinesFiltered = createSelector(
 
     sortedPipelines = sortedPipelines.map(pipeline => {
       if (!pipeline.ref.startsWith('refs/merge-requests')) return pipeline;
-      const associatedMr = mrs.find(
-        mr =>
-          mr.project_id === pipeline.project_id &&
-          pipeline.ref.includes(`${mr.iid}`),
-      );
+      const associatedMr =
+        mrs &&
+        mrs.find(
+          mr =>
+            mr.project_id === pipeline.project_id &&
+            pipeline.ref.includes(`${mr.iid}`),
+        );
       if (!associatedMr) return pipeline;
       return { ...pipeline, labels: associatedMr.labels, associatedMr };
     });

@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { selectGroups } from 'app/data/gitLabSlice/selectors';
 import { FieldType } from 'app/components/visualisations/components/withWidgetConfigurationModal';
+import { selectGroupNames } from 'app/data/gitLabSlice/groupSelectors';
 
 type PropTypes = {
   id: string;
@@ -12,9 +12,7 @@ const withGroupFieldsProviderForPipelines = (
   WrappedComponent: React.FC<any>,
 ) => {
   return (props: PropTypes) => {
-    const availableGroups = ['']
-      .concat(useSelector(selectGroups).map(group => group.full_name))
-      .sort();
+    const availableGroups = [''].concat(useSelector(selectGroupNames));
 
     const fields: FieldType[] = [
       {
