@@ -21,8 +21,6 @@ import {
   selectConfigured,
   selectUrl,
   selectListenedGroups,
-  selectProjects,
-  selectAllProjectIdsByGroup,
   selectJobsToPlay,
 } from './selectors';
 import {
@@ -41,6 +39,7 @@ import {
   selectMrIdsByGroup,
   selectMrsUserAssigned,
 } from './mrSelectors';
+import { selectAllProjectIdsByGroup, selectProjects } from './projectSelectors';
 
 const { select, call, put, delay } = Effects;
 

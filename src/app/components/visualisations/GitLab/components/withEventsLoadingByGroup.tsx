@@ -3,10 +3,10 @@ import { useSelector } from 'react-redux';
 import {
   selectEvents,
   selectEventsByProject,
-  selectAllProjectIdsByGroup,
 } from 'app/data/gitLabSlice/selectors';
 import SimpleMessage from '../../components/SimpleMessage';
 import Moment from 'moment';
+import { selectAllProjectIdsByGroup } from 'app/data/gitLabSlice/projectSelectors';
 
 type PropTypes = {
   id: string;

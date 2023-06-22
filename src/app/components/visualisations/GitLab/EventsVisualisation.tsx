@@ -12,7 +12,7 @@ import GitLabUser from 'app/components/GitLab/GitLabUser';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { GlobalColours } from 'styles/global-styles';
 import { useSelector } from 'react-redux';
-import { selectProjects } from 'app/data/gitLabSlice/selectors';
+import { selectProjects } from 'app/data/gitLabSlice/projectSelectors';
 
 type PropTypes = {
   id: string;

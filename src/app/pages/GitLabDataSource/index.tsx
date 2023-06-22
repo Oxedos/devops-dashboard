@@ -6,7 +6,6 @@ import {
   selectToken,
   selectUserData,
   selectGroups,
-  selectProjects,
   selectConfigured,
   selectUrl,
 } from 'app/data/gitLabSlice/selectors';
@@ -15,6 +14,7 @@ import GitLabData from './Components/GitLabData';
 import ContentWrapper from 'app/components/Design/ContentWrapper';
 import NavigationBar from 'app/components/NavigationBar';
 import { selectAllMrs } from 'app/data/gitLabSlice/mrSelectors';
+import { selectProjects } from 'app/data/gitLabSlice/projectSelectors';
 
 export function GitLabDataSource() {
   const { actions: gitLabActions } = useGitLabSlice();

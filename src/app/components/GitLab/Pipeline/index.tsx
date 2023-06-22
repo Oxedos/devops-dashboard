@@ -3,7 +3,6 @@ import styled from 'styled-components/macro';
 import { GitLabJob, GitLabMR, GitLabPipeline } from 'app/apis/gitlab/types';
 import Job from '../Job';
 import { useSelector } from 'react-redux';
-import { selectProjects } from 'app/data/gitLabSlice/selectors';
 import GitLabUser from 'app/components/GitLab/GitLabUser';
 import moment from 'moment';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
@@ -12,6 +11,7 @@ import Stage from '../Stage';
 import { GlobalColours } from 'styles/global-styles';
 import Badge from 'react-bootstrap/Badge';
 import { PipelineStatus, StatusStyle } from '../Status';
+import { selectProjects } from 'app/data/gitLabSlice/projectSelectors';
 
 type PropTypes = {
   pipeline: GitLabPipeline;

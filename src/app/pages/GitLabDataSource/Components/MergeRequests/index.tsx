@@ -3,10 +3,10 @@ import ContentElement from '../../../../components/Design/ContentElement';
 import { GitLabMR, GitLabProject } from 'app/apis/gitlab/types';
 import GitLabUser from '../../../../components/GitLab/GitLabUser';
 import { useSelector } from 'react-redux';
-import { selectProjects } from 'app/data/gitLabSlice/selectors';
 import styled from 'styled-components/macro';
 import DarkTable from 'app/components/Design/DarkTable';
 import { selectAllMrs } from 'app/data/gitLabSlice/mrSelectors';
+import { selectProjects } from 'app/data/gitLabSlice/projectSelectors';
 
 type GetMrRowPropTypes = {
   mrs: GitLabMR[];
