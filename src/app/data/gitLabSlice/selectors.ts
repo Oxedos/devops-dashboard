@@ -3,9 +3,9 @@ import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from 'types';
 import { initialState, uniqueGroupListeners } from '.';
 
-const selectSlice = (state: RootState) => state.gitLab || initialState;
+export const selectGitlabSlice = (state: RootState) => state.gitLab || initialState;
 
-export const selectGitLab = createSelector([selectSlice], state => state);
+export const selectGitLab = createSelector([selectGitlabSlice], state => state);
 export const selectConfigured = createSelector(
   selectGitLab,
   state => state.configured,

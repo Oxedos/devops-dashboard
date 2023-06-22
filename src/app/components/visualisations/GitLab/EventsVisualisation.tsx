@@ -1,18 +1,17 @@
-import { GitLabEvent } from 'app/apis/gitlab/types';
+import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import GitLabUser from 'app/components/GitLab/GitLabUser';
 import compose from 'app/components/compose';
+import { selectEventsByGroup } from 'app/data/gitLabSlice/eventSelectors';
+import moment from 'moment';
 import React, { ComponentType } from 'react';
+import { useSelector } from 'react-redux';
+import styled from 'styled-components/macro';
+import { GlobalColours } from 'styles/global-styles';
+import SimpleMessage from '../components/SimpleMessage';
+import VisualisationContainer from '../components/VisualisationContainer';
 import withWidgetConfigurationModal from '../components/withWidgetConfigurationModal';
-import withEventsLoadingByGroup from './components/withEventsLoadingByGroup';
 import withGitLabConfiguredCheck from './components/withGitLabConfiguredCheck';
 import withGroupFieldsProvider from './components/withGroupFieldsProvider';
-import VisualisationContainer from '../components/VisualisationContainer';
-import styled from 'styled-components/macro';
-import moment from 'moment';
-import GitLabUser from 'app/components/GitLab/GitLabUser';
-import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import { GlobalColours } from 'styles/global-styles';
-import { useSelector } from 'react-redux';
-import { selectProjects } from 'app/data/gitLabSlice/projectSelectors';
 
 type PropTypes = {
   id: string;
@@ -22,7 +21,6 @@ type PropTypes = {
 
 type PropTypesAfterHoc = {
   group: string;
-  events: (GitLabEvent | undefined)[];
 } & PropTypes;
 
 const getIcon = (
@@ -48,7 +46,22 @@ const getIcon = (
 };
 
 const EventsVisualisation: React.FC<PropTypesAfterHoc> = props => {
-  const projects = useSelector(selectProjects);
+  const events = useSelector(state =>
+    selectEventsByGroup(state, { groupName: props.group, maxCount: 15 }),
+  );
+
+  if (!props.group) {
+    return (
+      <SimpleMessage
+        id={props.id}
+        title="Events Widget"
+        onSettingsClick={props.onSettingsClick}
+        afterVisRemove={props.afterVisRemove}
+        message="No Group Selected. Please use the setting menu to select one"
+      />
+    );
+  }
+
   return (
     <VisualisationContainer
       id={props.id}
@@ -57,25 +70,10 @@ const EventsVisualisation: React.FC<PropTypesAfterHoc> = props => {
       afterVisRemove={props.afterVisRemove}
     >
       <Wrapper>
-        {props.events.map((item, idx) => {
+        {events.map(item => {
           if (!item) {
             return null;
           }
-          const project = projects.find(
-            project => project.id === item.project_id,
-          );
-          let content: (string | undefined)[] = [item.author.name];
-          content.push(item.action_name);
-          content.push(
-            item.target_type || item.push_data?.ref_type || undefined,
-          );
-          content.push(
-            item.target_title ||
-              item.push_data?.ref ||
-              item.push_data?.commit_title ||
-              'missing info',
-          );
-          content = content.filter(item => !!item);
           const iconProps = getIcon(
             item.action_name,
             item.target_type || item.push_data?.ref_type || undefined,
@@ -97,21 +95,21 @@ const EventsVisualisation: React.FC<PropTypesAfterHoc> = props => {
                       item.push_data?.ref ||
                       item.push_data?.commit_title}
                   </div>
-                  {project && (
+                  {item.project && (
                     <>
                       {' in '}
-                      {project.name}
+                      {item.project.name}
                     </>
                   )}
                 </div>
               </div>
             </CardWrapper>
           );
-          if (project && project.web_url) {
+          if (item.project && item.project.web_url) {
             return (
               <UnstyledA
                 key={`eventCard ${item.id} a`}
-                href={project.web_url}
+                href={item.project.web_url}
                 target="_blank"
                 rel="noreferrer"
               >
@@ -200,5 +198,4 @@ export default compose<ComponentType<PropTypes>>(
   withGitLabConfiguredCheck,
   withGroupFieldsProvider,
   withWidgetConfigurationModal(),
-  withEventsLoadingByGroup,
 )(EventsVisualisation);

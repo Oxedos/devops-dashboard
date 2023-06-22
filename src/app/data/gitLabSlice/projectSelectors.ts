@@ -19,3 +19,12 @@ export const selectProjectByProjectId = createSelector(
     return projects.find(project => project.id === projectId);
   },
 );
+
+export const selectProjectIdsByGroup = createSelector(
+  selectAllProjectIdsByGroup,
+  createParameterSelector(p => p.groupName),
+  (allProjectIdsByGroup, groupName) => {
+    if (!groupName) return [];
+    return allProjectIdsByGroup.get(groupName) || [];
+  },
+);

@@ -296,6 +296,8 @@ export type GitLabEvent = {
     commit_title?: string;
     ref_count: number;
   };
+  // Added types
+  project: GitLabProject | undefined;
 };
 
 export enum GitLabEventTargetType {
