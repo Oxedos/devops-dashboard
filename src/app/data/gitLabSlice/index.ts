@@ -43,7 +43,6 @@ const loadInitialState = (): GitLabState => {
     projects: persistedState?.projects || [],
     events: persistedState?.events || [],
     pipelines: persistedState?.pipelines || [],
-    mrsUserAssigned: persistedState?.mrsUserAssigned || [],
     mrsByGroup: persistedState?.mrsByGroup || new Map(),
     projectsByGroup: persistedState?.projectsByGroup || new Map(),
     pipelinesByGroup: persistedState?.pipelinesByGroup || new Map(),
@@ -117,7 +116,6 @@ const slice = createSlice({
         projects: [],
         events: [],
         pipelines: [],
-        mrsUserAssigned: [],
         mrsByGroup: new Map(),
         projectsByGroup: new Map(),
         pipelinesByGroup: new Map(),
@@ -224,11 +222,6 @@ const slice = createSlice({
       } else {
         // If the MRs aren't associated to a group, they must be assigned to the user
         state.mrs = upsert(state.mrs, mrs, equalByAttribute('id'));
-        state.mrsUserAssigned = upsert(
-          state.mrsUserAssigned,
-          mrs.map(getIdByAttribute('id')),
-          equalByAttribute('id'),
-        );
       }
     },
     // projects

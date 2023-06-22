@@ -21,12 +21,9 @@ import {
   selectConfigured,
   selectUrl,
   selectListenedGroups,
-  selectAllMrs,
   selectProjects,
-  selectMrsUserAssigned,
-  selectProjectsByGroup,
+  selectAllProjectIdsByGroup,
   selectJobsToPlay,
-  selectMrsByGroup,
 } from './selectors';
 import {
   all,
@@ -39,6 +36,11 @@ import {
 import moment from 'moment';
 import { GitLabState } from './types';
 import { selectPipelinesToReload } from './pipelineSelectors';
+import {
+  selectAllMrs,
+  selectMrIdsByGroup,
+  selectMrsUserAssigned,
+} from './mrSelectors';
 
 const { select, call, put, delay } = Effects;
 
@@ -233,9 +235,9 @@ function* getPipelines() {
   const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
   const projectsByGroup: Map<GroupName, ProjectId[]> = yield select(
-    selectProjectsByGroup,
+    selectAllProjectIdsByGroup,
   );
-  const mrsByGroup: Map<GroupName, MrId[]> = yield select(selectMrsByGroup);
+  const mrsByGroup: Map<GroupName, MrId[]> = yield select(selectMrIdsByGroup);
   const mrs: GitLabMR[] = yield select(selectAllMrs);
   const projects: GitLabProject[] = yield select(selectProjects);
 
@@ -530,7 +532,7 @@ function* getEvents() {
   const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
   const projectsByGroup: Map<string, ProjectId[]> = yield select(
-    selectProjectsByGroup,
+    selectAllProjectIdsByGroup,
   );
   const listenedGroups: string[] = yield select(selectListenedGroups);
 

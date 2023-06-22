@@ -1,7 +1,7 @@
 import { VisualisationType } from 'app/data/VisualisationTypes';
 import React from 'react';
-import ReadyMrsVisualisation from './GitLab/LatestMrsVisualisation';
-import MrsAssignedToYouVisualisation from './GitLab/MrsAssignedToYouVisualisation';
+import MrTableVisualisation from './GitLab/MrTableVisualisation';
+import MrsAssignedToYouVisualisation from './GitLab/UserAssignedMrTableVisualisation';
 import PipelineVisualisation from './GitLab/PipelineVisualisation';
 import VulnerabilitesTable from './Whitesource/VulnerabilitesTable';
 import RssFeedVisualisation from './RSS/RssFeedVisualisation';
@@ -24,7 +24,7 @@ const Visualisation: React.FC<PropTypes> = props => {
   };
   switch (props.type) {
     case VisualisationType.GITLAB_READY_MR_TABLE:
-      return <ReadyMrsVisualisation {...visulisationProps} />;
+      return <MrTableVisualisation {...visulisationProps} />;
     case VisualisationType.GITLAB_MR_ASSIGNED_TABLE:
       return <MrsAssignedToYouVisualisation {...visulisationProps} />;
     case VisualisationType.GITLAB_PIPELINES_TABLE:

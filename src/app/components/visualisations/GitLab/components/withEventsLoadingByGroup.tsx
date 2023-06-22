@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import {
   selectEvents,
   selectEventsByProject,
-  selectProjectsByGroup,
+  selectAllProjectIdsByGroup,
 } from 'app/data/gitLabSlice/selectors';
 import SimpleMessage from '../../components/SimpleMessage';
 import Moment from 'moment';
@@ -19,7 +19,7 @@ const withEventsLoadingByGroup = (WrappedComponent: React.FC<any>) => {
   const WrapperComponent: React.FC<PropTypes> = props => {
     const allEvents = useSelector(selectEvents);
     const eventsByProject = useSelector(selectEventsByProject);
-    const projectsByGroup = useSelector(selectProjectsByGroup);
+    const projectsByGroup = useSelector(selectAllProjectIdsByGroup);
 
     if (!props.group) {
       return (

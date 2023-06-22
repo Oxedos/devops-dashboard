@@ -18,15 +18,6 @@ export const selectUserData = createSelector(
   state => state.userData,
 );
 export const selectGroups = createSelector(selectGitLab, state => state.groups);
-export const selectMrsByGroup = createSelector(
-  selectGitLab,
-  state => state.mrsByGroup,
-);
-export const selectAllMrs = createSelector(selectGitLab, state => state.mrs);
-export const selectMrsUserAssigned = createSelector(
-  selectGitLab,
-  state => state.mrsUserAssigned,
-);
 export const selectProjects = createSelector(
   selectGitLab,
   state => state.projects,
@@ -34,7 +25,7 @@ export const selectProjects = createSelector(
 export const selectListenedGroups = createSelector(selectGitLab, state =>
   uniqueGroupListeners(state),
 );
-export const selectProjectsByGroup = createSelector(
+export const selectAllProjectIdsByGroup = createSelector(
   selectGitLab,
   state => state.projectsByGroup,
 );

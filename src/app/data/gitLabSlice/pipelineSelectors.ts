@@ -1,17 +1,14 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { GitLabPipeline } from 'app/apis/gitlab/types';
 import moment from 'moment';
-import {
-  createParameterSelector,
-  selectAllMrs,
-  selectGitLab,
-} from './selectors';
+import { createParameterSelector, selectGitLab } from './selectors';
+import { selectAllMrs } from './mrSelectors';
 
 export const selectPipelines = createSelector(
   selectGitLab,
   state => state.pipelines,
 );
-export const selectPipelinesByGroup = createSelector(
+export const selectPipelineIdsByGroup = createSelector(
   selectGitLab,
   state => state.pipelinesByGroup,
 );
@@ -20,12 +17,46 @@ export const selectPipelinesToReload = createSelector(
   state => state.pipelinesToReload,
 );
 
+export const selectPipelinesByProject = createSelector(
+  selectPipelines,
+  createParameterSelector(p => p.projectId),
+  (pipelines, projectId) => {
+    if (!projectId) return [];
+    return pipelines.filter(pipeline => pipeline.project_id === projectId);
+  },
+);
+
+export const selectPipelineByProjectIdAndMrIid = createSelector(
+  selectPipelinesByProject,
+  createParameterSelector(p => p.mrIid),
+  (pipelinesByProject, mrIid) => {
+    if (!mrIid) return undefined;
+    return pipelinesByProject.find(
+      pipeline => pipeline.ref && pipeline.ref.includes(`${mrIid}`),
+    );
+  },
+);
+
+export const selectPipelinesByGroup = createSelector(
+  selectGitLab,
+  createParameterSelector(p => p.groupName),
+  (gitlabState, groupName) => {
+    if (!groupName) return [];
+    // Get all pipelineIds for the selected group
+    const pipelineIds = gitlabState.pipelinesByGroup.get(groupName);
+    if (!pipelineIds || pipelineIds.length <= 0) return [];
+    // find the proper pipelines in the state
+    return gitlabState.pipelines.filter(pipeline =>
+      pipelineIds.includes(pipeline.id),
+    );
+  },
+);
+
 export const selectPipelinesFiltered = createSelector(
   [
-    selectPipelines,
     selectPipelinesByGroup,
     selectAllMrs,
-    createParameterSelector(p => p.groupName),
+    // createParameterSelector(p => p.groupName),
     createParameterSelector(p => p.includeBranchPipelines),
     createParameterSelector(p => p.includeMrPipelines),
     createParameterSelector(p => p.includeCancelled),
@@ -36,10 +67,8 @@ export const selectPipelinesFiltered = createSelector(
     createParameterSelector(p => p.includeManual),
   ],
   (
-    pipelines,
-    pipelinesByGroup,
+    pipelinesInGroup,
     mrs,
-    groupName,
     includeBranchPipelines,
     includeMrPipelines,
     includeCancelled,
@@ -49,14 +78,6 @@ export const selectPipelinesFiltered = createSelector(
     includeSuccess,
     includeManual,
   ) => {
-    if (!groupName) return [];
-    // Get all pipelineIds for the selected group
-    const pipelineIds = pipelinesByGroup.get(groupName);
-    if (!pipelineIds || pipelineIds.length <= 0) return [];
-    // find the proper pipelines in the state
-    const pipelinesInGroup = pipelines.filter(pipeline =>
-      pipelineIds.includes(pipeline.id),
-    );
     // Figure out which status the user wants to see
     const selectedStatus = getSelectedPipelineStatus(
       includeCancelled,

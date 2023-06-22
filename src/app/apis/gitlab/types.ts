@@ -253,7 +253,6 @@ export type GitLabMR = {
   latest_build_started_at: string;
   latest_build_finished_at: string;
   first_deployed_to_production_at: string;
-  pipeline: GitLabPipelineBasic;
   diff_refs: {
     base_sha: string;
     head_sha: string;
@@ -269,6 +268,9 @@ export type GitLabMR = {
   has_conflicts: boolean;
   blocking_discussions_resolved: boolean;
   head_pipeline: GitLabPipelineBasic;
+  // Own Type Additions
+  pipeline: GitLabPipeline | undefined;
+  project: GitLabProject | undefined;
 };
 
 export type GitLabEvent = {

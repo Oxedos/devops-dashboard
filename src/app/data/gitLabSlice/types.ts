@@ -31,7 +31,6 @@ export interface GitLabState {
   events: GitLabEvent[];
   pipelines: GitLabPipeline[];
   // Data Associations
-  mrsUserAssigned: MrId[];
   mrsByGroup: Map<GroupName, MrId[]>;
   projectsByGroup: Map<GroupName, ProjectId[]>;
   pipelinesByGroup: Map<GroupName, PipelineId[]>;

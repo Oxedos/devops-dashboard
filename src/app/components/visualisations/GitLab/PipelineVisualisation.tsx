@@ -1,4 +1,4 @@
-import { GitLabMR, GitLabPipeline } from 'app/apis/gitlab/types';
+import { GitLabPipeline } from 'app/apis/gitlab/types';
 import Pipeline from 'app/components/GitLab/Pipeline';
 import compose from 'app/components/compose';
 import { selectPipelinesFiltered } from 'app/data/gitLabSlice/pipelineSelectors';
@@ -9,7 +9,6 @@ import VisualisationContainer from '../components/VisualisationContainer';
 import withWidgetConfigurationModal from '../components/withWidgetConfigurationModal';
 import withGitLabConfiguredCheck from './components/withGitLabConfiguredCheck';
 import withGroupFieldsProviderForPipelines from './components/withGroupFieldsProviderForPipelines';
-import withMrLoadingByGroup from './components/withMrLoadingByGroup';
 import withPipelineConfigurationCheck from './components/withPipelineConfigurationCheck';
 
 type PropTypesNoHoc = {
@@ -30,7 +29,6 @@ type PropTypes = {
   onSettingsClick: Function;
   afterVisRemove: Function;
   pipelines: GitLabPipeline[];
-  mrs: GitLabMR[];
 } & PropTypesNoHoc;
 
 const PipelineVisualisation: React.FC<PropTypes> = props => {
@@ -93,5 +91,4 @@ export default compose<ComponentType<PropTypesNoHoc>>(
   withGroupFieldsProviderForPipelines,
   withWidgetConfigurationModal(),
   withPipelineConfigurationCheck,
-  withMrLoadingByGroup,
 )(PipelineVisualisation);
