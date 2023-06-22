@@ -1,19 +1,19 @@
 import { createSelector } from '@reduxjs/toolkit';
 import { GitLabPipeline } from 'app/apis/gitlab/types';
 import moment from 'moment';
-import { createParameterSelector, selectGitLab } from './selectors';
+import { createParameterSelector, selectGitlabSlice } from './selectors';
 import { selectAllMrs } from './mrSelectors';
 
 export const selectPipelines = createSelector(
-  selectGitLab,
+  selectGitlabSlice,
   state => state.pipelines,
 );
 export const selectPipelineIdsByGroup = createSelector(
-  selectGitLab,
+  selectGitlabSlice,
   state => state.pipelinesByGroup,
 );
 export const selectPipelinesToReload = createSelector(
-  selectGitLab,
+  selectGitlabSlice,
   state => state.pipelinesToReload,
 );
 
@@ -38,7 +38,7 @@ export const selectPipelineByProjectIdAndMrIid = createSelector(
 );
 
 export const selectPipelinesByGroup = createSelector(
-  selectGitLab,
+  selectGitlabSlice,
   createParameterSelector(p => p.groupName),
   (gitlabState, groupName) => {
     if (!groupName) return [];

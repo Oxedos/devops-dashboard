@@ -3,26 +3,35 @@ import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from 'types';
 import { initialState, uniqueGroupListeners } from '.';
 
-export const selectGitlabSlice = (state: RootState) => state.gitLab || initialState;
+export const selectGitlabSlice = (state: RootState) =>
+  state.gitLab || initialState;
 
-export const selectGitLab = createSelector([selectGitlabSlice], state => state);
 export const selectConfigured = createSelector(
-  selectGitLab,
+  selectGitlabSlice,
   state => state.configured,
 );
-export const selectUrl = createSelector(selectGitLab, state => state.url);
-export const selectToken = createSelector(selectGitLab, state => state.token);
-export const selectUserId = createSelector(selectGitLab, state => state.userId);
+export const selectUrl = createSelector(selectGitlabSlice, state => state.url);
+export const selectToken = createSelector(
+  selectGitlabSlice,
+  state => state.token,
+);
+export const selectUserId = createSelector(
+  selectGitlabSlice,
+  state => state.userId,
+);
 export const selectUserData = createSelector(
-  selectGitLab,
+  selectGitlabSlice,
   state => state.userData,
 );
-export const selectGroups = createSelector(selectGitLab, state => state.groups);
-export const selectListenedGroups = createSelector(selectGitLab, state =>
+export const selectGroups = createSelector(
+  selectGitlabSlice,
+  state => state.groups,
+);
+export const selectListenedGroups = createSelector(selectGitlabSlice, state =>
   uniqueGroupListeners(state),
 );
 export const selectJobsToPlay = createSelector(
-  selectGitLab,
+  selectGitlabSlice,
   state => state.jobsToPlay,
 );
 

@@ -1,13 +1,13 @@
 import { createSelector } from '@reduxjs/toolkit';
-import { createParameterSelector, selectGitLab } from './selectors';
+import { createParameterSelector, selectGitlabSlice } from './selectors';
 
 export const selectProjects = createSelector(
-  selectGitLab,
+  selectGitlabSlice,
   state => state.projects,
 );
 
 export const selectAllProjectIdsByGroup = createSelector(
-  selectGitLab,
+  selectGitlabSlice,
   state => state.projectsByGroup,
 );
 

@@ -1,17 +1,20 @@
 import { createSelector } from 'reselect';
 import {
   createParameterSelector,
-  selectGitLab,
+  selectGitlabSlice,
   selectUserData,
 } from './selectors';
 import { selectPipelineByProjectIdAndMrIid } from './pipelineSelectors';
 import { selectProjectByProjectId } from './projectSelectors';
 
 export const selectMrIdsByGroup = createSelector(
-  selectGitLab,
+  selectGitlabSlice,
   state => state.mrsByGroup,
 );
-export const selectAllMrs = createSelector(selectGitLab, state => state.mrs);
+export const selectAllMrs = createSelector(
+  selectGitlabSlice,
+  state => state.mrs,
+);
 
 export const selectMrsUserAssigned = createSelector(
   selectUserData,
@@ -34,11 +37,11 @@ export const selectMrsUserAssigned = createSelector(
       })
       .map(mr => ({
         ...mr,
-        pipeline: selectPipelineByProjectIdAndMrIid(selectGitLab, {
+        pipeline: selectPipelineByProjectIdAndMrIid(selectGitlabSlice, {
           projectId: mr.project_id,
           mrIid: mr.iid,
         }),
-        project: selectProjectByProjectId(selectGitLab, {
+        project: selectProjectByProjectId(selectGitlabSlice, {
           projectId: mr.project_id,
         }),
       }));
@@ -70,11 +73,11 @@ export const selectMrsByGroup = createSelector(
       })
       .map(mr => ({
         ...mr,
-        pipeline: selectPipelineByProjectIdAndMrIid(selectGitLab, {
+        pipeline: selectPipelineByProjectIdAndMrIid(selectGitlabSlice, {
           projectId: mr.project_id,
           mrIid: mr.iid,
         }),
-        project: selectProjectByProjectId(selectGitLab, {
+        project: selectProjectByProjectId(selectGitlabSlice, {
           projectId: mr.project_id,
         }),
       }));

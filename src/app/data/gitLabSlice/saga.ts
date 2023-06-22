@@ -15,7 +15,7 @@ import {
 } from 'app/apis/gitlab/types';
 import * as PersistanceAPI from 'app/apis/persistance';
 import {
-  selectGitLab,
+  selectGitlabSlice,
   selectGroups,
   selectToken,
   selectConfigured,
@@ -635,7 +635,7 @@ function* loadAll() {
 }
 
 function* persist() {
-  const state = yield select(selectGitLab);
+  const state = yield select(selectGitlabSlice);
   const stateCopy: GitLabState = { ...state };
   // state can become quite large...
   stateCopy.events = [];
