@@ -130,7 +130,7 @@
     "react-dev-utils": "12.0.1",
     "resolve-url-loader": "5.0.0",
     "sass-loader": "13.3.2",
-    "semver": "7.5.2",
+    "semver": "7.5.3",
     "source-map-loader": "4.0.1",
     "style-loader": "3.3.3",
     "stylelint": "15.8.0",
