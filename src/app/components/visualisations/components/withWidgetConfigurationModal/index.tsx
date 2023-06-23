@@ -211,7 +211,7 @@ const withWidgetConfigurationModal =
         <>
           <WrappedComponent
             onSettingsClick={() => setModalOpen(true)}
-            afterVisRemove={afterVisRemove}
+            afterVisRemoved={afterVisRemove}
             {...props}
           />
           <DarkModal

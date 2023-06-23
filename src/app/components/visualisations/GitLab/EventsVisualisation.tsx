@@ -13,15 +13,15 @@ import withWidgetConfigurationModal from '../components/withWidgetConfigurationM
 import withGitLabConfiguredCheck from './components/withGitLabConfiguredCheck';
 import withGroupFieldsProvider from './components/withGroupFieldsProvider';
 
-type PropTypes = {
+type OuterPropTypes = {
   id: string;
-  onSettingsClick?: Function;
-  afterVisRemove?: Function;
 };
 
-type PropTypesAfterHoc = {
+type InnerPropTypes = {
   group: string;
-} & PropTypes;
+  onSettingsClick: Function;
+  afterVisRemoved: Function;
+} & OuterPropTypes;
 
 const getIcon = (
   actionName: string,
@@ -45,7 +45,7 @@ const getIcon = (
   return { color: GlobalColours.gray, icon: 'circle' };
 };
 
-const EventsVisualisation: React.FC<PropTypesAfterHoc> = props => {
+const EventsVisualisation: React.FC<InnerPropTypes> = props => {
   const events = useSelector(state =>
     selectEventsByGroup(state, { groupName: props.group, maxCount: 15 }),
   );
@@ -56,7 +56,7 @@ const EventsVisualisation: React.FC<PropTypesAfterHoc> = props => {
         id={props.id}
         title="Events Widget"
         onSettingsClick={props.onSettingsClick}
-        afterVisRemove={props.afterVisRemove}
+        afterVisRemoved={props.afterVisRemoved}
         message="No Group Selected. Please use the setting menu to select one"
       />
     );
@@ -67,7 +67,7 @@ const EventsVisualisation: React.FC<PropTypesAfterHoc> = props => {
       id={props.id}
       title={`Events in ${props.group}`}
       onSettingsClick={props.onSettingsClick}
-      afterVisRemove={props.afterVisRemove}
+      afterVisRemoved={props.afterVisRemoved}
     >
       <Wrapper>
         {events.map(item => {
@@ -194,7 +194,7 @@ const CardWrapper = styled.div`
   }
 `;
 
-export default compose<ComponentType<PropTypes>>(
+export default compose<ComponentType<OuterPropTypes>>(
   withGitLabConfiguredCheck,
   withGroupFieldsProvider,
   withWidgetConfigurationModal(),

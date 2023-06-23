@@ -15,11 +15,14 @@ import Badge from 'react-bootstrap/Badge';
 import TableVisualisation from '../../components/TableVisualisation';
 import withWidgetConfigurationModal from '../../components/withWidgetConfigurationModal';
 
-type PropTypes = {
+type OuterPropTypes = {
   id: string;
   aggregation?: 'project' | 'vulnerability';
-  onSettingsClick?: Function;
 };
+
+type InnerPropTypes = {
+  onSettingsClick: Function;
+} & OuterPropTypes;
 
 const getWebUrl = (whitesourceUrl: string) => {
   const parser = document.createElement('a');
@@ -139,7 +142,7 @@ function getUniqueVulnerabilities(
   return { header, values };
 }
 
-const VulnerabilitiesTable: React.FC<PropTypes> = props => {
+const VulnerabilitiesTable: React.FC<InnerPropTypes> = props => {
   const vulnerabilities = useSelector(selectVulnerabilities) || [];
   const url = useSelector(selectUrl);
   let visProps;
@@ -186,7 +189,7 @@ const VulnerabilitiesTable: React.FC<PropTypes> = props => {
   return <>{component}</>;
 };
 
-export default compose<ComponentType<PropTypes>>(
+export default compose<ComponentType<OuterPropTypes>>(
   withWhitesourceConfiguredCheck,
   withWidgetConfigurationModal(),
 )(VulnerabilitiesTable);

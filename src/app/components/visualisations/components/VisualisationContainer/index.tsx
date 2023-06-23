@@ -12,8 +12,8 @@ import {
 type PropTypes = {
   id: string;
   title?: string;
-  onSettingsClick?: Function;
-  afterVisRemove?: Function;
+  onSettingsClick: Function;
+  afterVisRemoved: Function;
 };
 
 const VisualisationContainer: React.FC<
@@ -54,8 +54,8 @@ const VisualisationContainer: React.FC<
           size="xs"
           onClick={() => {
             dispatch(globalActions.removeVisualisation(props.id));
-            if (props.afterVisRemove) {
-              props.afterVisRemove();
+            if (props.afterVisRemoved) {
+              props.afterVisRemoved();
             }
           }}
         />

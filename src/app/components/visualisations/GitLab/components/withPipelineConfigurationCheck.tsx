@@ -5,7 +5,7 @@ type PropTypes = {
   id: string;
   group?: string;
   onSettingsClick: Function;
-  afterVisRemove: Function;
+  afterVisRemoved: Function;
   pipelines_canceled?: boolean;
   pipelines_created?: boolean;
   pipelines_failed?: boolean;
@@ -26,7 +26,7 @@ const withPipelineConfigurationCheck = (WrappedComponent: React.FC<any>) => {
           id={props.id}
           title="Pipelines Widget"
           onSettingsClick={props.onSettingsClick}
-          afterVisRemove={props.afterVisRemove}
+          afterVisRemoved={props.afterVisRemoved}
           message="No Group Selected"
         />
       );
@@ -47,7 +47,7 @@ const withPipelineConfigurationCheck = (WrappedComponent: React.FC<any>) => {
       return (
         <SimpleMessage
           onSettingsClick={props.onSettingsClick}
-          afterVisRemove={props.afterVisRemove}
+          afterVisRemoved={props.afterVisRemoved}
           id={props.id}
           title={title}
           message="Please select at least one pipeline status to display. Use the configuation dialog for this setting"
@@ -61,7 +61,7 @@ const withPipelineConfigurationCheck = (WrappedComponent: React.FC<any>) => {
       return (
         <SimpleMessage
           onSettingsClick={props.onSettingsClick}
-          afterVisRemove={props.afterVisRemove}
+          afterVisRemoved={props.afterVisRemoved}
           id={props.id}
           title={title}
           message="Please select at least one source for pipelines. Use the configuation dialog for this setting"
@@ -73,7 +73,7 @@ const withPipelineConfigurationCheck = (WrappedComponent: React.FC<any>) => {
       <WrappedComponent
         {...props}
         onSettingsClick={props.onSettingsClick}
-        afterVisRemove={props.afterVisRemove}
+        afterVisRemoved={props.afterVisRemoved}
         pipelines={[]}
       />
     );

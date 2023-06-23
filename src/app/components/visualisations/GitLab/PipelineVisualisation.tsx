@@ -27,7 +27,7 @@ type PropTypesNoHoc = {
 
 type PropTypes = {
   onSettingsClick: Function;
-  afterVisRemove: Function;
+  afterVisRemoved: Function;
   pipelines: GitLabPipeline[];
 } & PropTypesNoHoc;
 
@@ -50,7 +50,7 @@ const PipelineVisualisation: React.FC<PropTypes> = props => {
   return (
     <VisualisationContainer
       onSettingsClick={props.onSettingsClick}
-      afterVisRemove={props.afterVisRemove}
+      afterVisRemoved={props.afterVisRemoved}
       id={props.id}
       title={title}
     >

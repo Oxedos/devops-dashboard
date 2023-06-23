@@ -173,6 +173,7 @@ const slice = createSlice({
       action: PayloadAction<{ visId: string; groupName: string }>,
     ) {
       // TODO: Das scheint nicht zu funktionieren
+      console.log('IN HERE');
       const {
         payload: { visId, groupName },
       } = action;

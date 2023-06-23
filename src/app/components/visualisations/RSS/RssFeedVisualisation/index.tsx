@@ -11,15 +11,15 @@ import Figure from 'react-bootstrap/Figure';
 import moment from 'moment';
 import withWidgetConfigurationModal from '../../components/withWidgetConfigurationModal';
 
-type PropTypesNoHoc = {
+type OuterPropTypes = {
   id: string;
   compactView?: boolean;
 };
 
-type PropTypes = {
+type InnerPropTypes = {
   onSettingsClick: Function;
-  afterVisRemove: Function;
-} & PropTypesNoHoc;
+  afterVisRemoved: Function;
+} & OuterPropTypes;
 
 const htmlContent = s => {
   if (!s) return undefined;
@@ -28,7 +28,7 @@ const htmlContent = s => {
   return span.textContent || span.innerText;
 };
 
-const RssFeedVisualisation: React.FC<PropTypes> = props => {
+const RssFeedVisualisation: React.FC<InnerPropTypes> = props => {
   const feeds = useSelector(selectFeeds);
   const configuredFeed = feeds.get(props.id);
   const title = 'RSS Feed';
@@ -38,7 +38,7 @@ const RssFeedVisualisation: React.FC<PropTypes> = props => {
       <SimpleMessage
         id={props.id}
         onSettingsClick={props.onSettingsClick}
-        afterVisRemove={props.afterVisRemove}
+        afterVisRemoved={props.afterVisRemoved}
         title={title}
         message="Widget not configured"
       />
@@ -50,7 +50,7 @@ const RssFeedVisualisation: React.FC<PropTypes> = props => {
       <SimpleMessage
         id={props.id}
         onSettingsClick={props.onSettingsClick}
-        afterVisRemove={props.afterVisRemove}
+        afterVisRemoved={props.afterVisRemoved}
         title={title}
         message={configuredFeed.error}
       />
@@ -66,7 +66,7 @@ const RssFeedVisualisation: React.FC<PropTypes> = props => {
       <SimpleMessage
         id={props.id}
         onSettingsClick={props.onSettingsClick}
-        afterVisRemove={props.afterVisRemove}
+        afterVisRemoved={props.afterVisRemoved}
         title={title}
         message="No Information to Display"
       />
@@ -78,7 +78,7 @@ const RssFeedVisualisation: React.FC<PropTypes> = props => {
       id={props.id}
       title={configuredFeed.feed.title}
       onSettingsClick={props.onSettingsClick}
-      afterVisRemove={props.afterVisRemove}
+      afterVisRemoved={props.afterVisRemoved}
     >
       <Wrapper>
         {configuredFeed.feed.items.map((item, idx) => {
@@ -193,7 +193,7 @@ const StyledFigure = styled(Figure)`
   }
 `;
 
-export default compose<ComponentType<PropTypesNoHoc>>(
+export default compose<ComponentType<OuterPropTypes>>(
   withFieldProvider,
   withWidgetConfigurationModal(),
   withUrlConfiguredCheck,

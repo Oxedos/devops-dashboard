@@ -19,7 +19,7 @@ const withUrlConfiguredCheck = (WrappedComponent: React.FC<any>) => {
           title="RSS Widget"
           message="Widget not configured"
           onSettingsClick={props.onSettingsClick}
-          afterVisRemove={props.afterVisRemove}
+          afterVisRemoved={props.afterVisRemove}
         />
       );
     }

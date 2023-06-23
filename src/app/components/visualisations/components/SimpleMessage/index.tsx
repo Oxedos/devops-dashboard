@@ -4,7 +4,7 @@ import VisualisationContainer from '../VisualisationContainer';
 
 type PropTypes = {
   onSettingsClick?: Function;
-  afterVisRemove?: Function;
+  afterVisRemoved?: Function;
   id: string;
   title: string;
   message: string;
@@ -13,8 +13,8 @@ type PropTypes = {
 const SimpleMessage: React.FC<PropTypes> = props => {
   return (
     <VisualisationContainer
-      onSettingsClick={props.onSettingsClick}
-      afterVisRemove={props.afterVisRemove}
+      onSettingsClick={props.onSettingsClick ? props.onSettingsClick : () => {}}
+      afterVisRemoved={props.afterVisRemoved ? props.afterVisRemoved : () => {}}
       id={props.id}
       title={props.title}
     >

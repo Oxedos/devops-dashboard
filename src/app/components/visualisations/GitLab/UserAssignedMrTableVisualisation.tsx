@@ -16,8 +16,11 @@ import { selectProjects } from 'app/data/gitLabSlice/projectSelectors';
 
 type PropTypes = {
   id: string;
-  onSettingsClick?: Function;
 };
+
+type InnerPropTypes = {
+  onSettingsClick: Function;
+} & PropTypes;
 
 function getUserAssignedMrs(
   mrs: GitLabMR[],
@@ -57,7 +60,7 @@ function getUserAssignedMrs(
   return { header, values };
 }
 
-const UserAssignedMrTable: React.FC<PropTypes> = props => {
+const UserAssignedMrTable: React.FC<InnerPropTypes> = props => {
   const mrsUserAssigned = useSelector(selectMrsUserAssigned);
   const configured = useSelector(selectConfigured);
   const pipelines = useSelector(selectPipelines);
@@ -86,6 +89,7 @@ const UserAssignedMrTable: React.FC<PropTypes> = props => {
   return (
     <TableVisualisation
       onSettingsClick={props.onSettingsClick}
+      afterVisRemoved={() => {}}
       hover
       id={props.id}
       title={title}

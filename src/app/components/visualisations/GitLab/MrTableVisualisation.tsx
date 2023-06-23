@@ -21,6 +21,7 @@ type PropTypesNoHoc = {
 
 type PropTypes = {
   onSettingsClick: Function;
+  afterVisRemoved: Function;
   mrs: GitLabMR[];
   pipelines?: GitLabPipeline[];
 } & PropTypesNoHoc;
@@ -101,6 +102,7 @@ const MrTableVisualisation: React.FC<PropTypes> = props => {
   return (
     <TableVisualisation
       onSettingsClick={props.onSettingsClick}
+      afterVisRemoved={props.afterVisRemoved}
       id={props.id}
       title={title}
       hover

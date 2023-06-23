@@ -8,8 +8,8 @@ type PropTypes = {
   title: string;
   header?: string[];
   values: object[]; // objects with key clickHandler will add call clickHandler for event onClick
-  onSettingsClick?: Function;
-  afterVisRemove?: Function;
+  onSettingsClick: Function;
+  afterVisRemoved: Function;
   hover?: boolean;
 };
 
@@ -17,7 +17,7 @@ const TableVisualisation: FunctionComponent<PropTypes> = props => {
   return (
     <VisualisationContainer
       onSettingsClick={props.onSettingsClick}
-      afterVisRemove={props.afterVisRemove}
+      afterVisRemoved={props.afterVisRemoved}
       id={props.id}
       title={props.title}
     >
