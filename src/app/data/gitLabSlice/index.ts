@@ -12,19 +12,19 @@ import {
   PipelineId,
   ProjectId,
 } from 'app/apis/gitlab/types';
+import * as PersistanceAPI from 'app/apis/persistance';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer, useInjectSaga } from 'utils/redux-injectors';
-import { gitLabSaga } from './saga';
-import { GitLabState } from './types';
-import * as PersistanceAPI from 'app/apis/persistance';
 import {
   createSettingReducer,
   equalByAttribute,
   getIdByAttribute,
-  remove,
+  removeFromStateByIdentifier,
   updateState,
   upsert,
 } from '../helper';
+import { gitLabSaga } from './saga';
+import { GitLabState } from './types';
 
 export const LOCALSTORAGE_KEY = 'gitlab-state';
 
@@ -81,6 +81,53 @@ function checkAllAreObject(objs: any[]) {
     if (!(obj instanceof Object)) return false;
   }
   return true;
+}
+
+function clearStateByGroupName(state, groupName) {
+  state.mrs = removeFromStateByIdentifier<GitLabMR, MrId, GroupName>(
+    state.mrs,
+    state.mrsByGroup,
+    groupName,
+    mr => mr && mr.id,
+    mr => {
+      // except user assigned MRs
+      if (!mr || !mr.assignee || !state.userData || !state.userData.id) {
+        return false;
+      }
+      return mr.assignee.id === state.userData.id;
+    },
+  );
+
+  // This needs to happen before we clean up the projects
+  if (state.projectsByGroup.has(groupName)) {
+    const projectIds = state.projectsByGroup.get(groupName);
+    if (projectIds && projectIds.length > 0) {
+      for (const projectId of projectIds) {
+        state.events = removeFromStateByIdentifier<
+          GitLabEvent,
+          EventId,
+          ProjectId
+        >(state.events, state.eventsByProject, projectId, event => event.id);
+      }
+    }
+  }
+
+  state.projects = removeFromStateByIdentifier<
+    GitLabProject,
+    ProjectId,
+    GroupName
+  >(state.projects, state.projectsByGroup, groupName, project => project.id);
+
+  state.pipelines = removeFromStateByIdentifier<
+    GitLabPipeline,
+    PipelineId,
+    GroupName
+  >(
+    state.pipelines,
+    state.pipelinesByGroup,
+    groupName,
+    pipeline => pipeline.id,
+  );
 }
 
 const slice = createSlice({
@@ -148,32 +195,13 @@ const slice = createSlice({
       );
       // clean up state if we changed the listener to a group and that group is no longer listened to
       if (currentListener && !hasListener(state, currentListener.groupName)) {
-        // mrs
-        state.mrs = remove(
-          state.mrs,
-          state.mrsByGroup.get(currentListener.groupName) || [],
-          equalByAttribute('id'),
-        );
-        // mrsByGroup
-        state.mrsByGroup.delete(currentListener.groupName);
-        // projects
-        state.projects = remove(
-          state.projects,
-          state.projectsByGroup.get(currentListener.groupName) || [],
-          equalByAttribute('id'),
-        );
-        // projectsByGroup
-        state.projectsByGroup.delete(currentListener.groupName);
-        // pipelinesByGroup
-        state.pipelinesByGroup.delete(currentListener.groupName);
+        clearStateByGroupName(state, currentListener.groupName);
       }
     },
     removeListenedGroup(
       state,
       action: PayloadAction<{ visId: string; groupName: string }>,
     ) {
-      // TODO: Das scheint nicht zu funktionieren
-      console.log('IN HERE');
       const {
         payload: { visId, groupName },
       } = action;
@@ -185,24 +213,7 @@ const slice = createSlice({
 
       // if we do not have any listeners left, remove the data
       if (!hasListener(state, groupName)) {
-        // mrs
-        state.mrs = remove(
-          state.mrs,
-          state.mrsByGroup.get(groupName) || [],
-          equalByAttribute('id'),
-        );
-        // mrsByGroup
-        state.mrsByGroup.delete(groupName);
-        // projects
-        state.projects = remove(
-          state.projects,
-          state.projectsByGroup.get(groupName) || [],
-          equalByAttribute('id'),
-        );
-        // projectsByGroup
-        state.projectsByGroup.delete(groupName);
-        // pipelinesByGroup
-        state.pipelinesByGroup.delete(groupName);
+        clearStateByGroupName(state, groupName);
       }
     },
     // mrs

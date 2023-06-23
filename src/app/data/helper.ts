@@ -101,6 +101,36 @@ export function removeFromState<IdType, DataType>(
   associationMap.delete(associationId);
 }
 
+export function removeFromStateByIdentifier<
+  DataType,
+  DataIdType,
+  AssociatedIdType,
+>(
+  items: DataType[],
+  associationMap: Map<AssociatedIdType, DataIdType[]>,
+  associatedId: AssociatedIdType,
+  getId: GetIdFunctionType<DataType, DataIdType>,
+  except?: (item: DataType) => boolean,
+): DataType[] {
+  if (!associationMap.has(associatedId)) return items; // can't do anything if we don't know what to remove
+  if (!items || items.length <= 0) {
+    associationMap.delete(associatedId);
+    return [];
+  }
+  // get a list of all items to remove via the associatedMap
+  const itemIdsToRemove = associationMap.get(associatedId);
+  if (!itemIdsToRemove || itemIdsToRemove.length <= 0) {
+    associationMap.delete(associatedId);
+    return items;
+  }
+  // Remove them from the list and from the map
+  items = items.filter(
+    item => (except && except(item)) || !itemIdsToRemove.includes(getId(item)),
+  );
+  associationMap.delete(associatedId);
+  return items;
+}
+
 export type EqualFunctionType<DataType> = (a: DataType, b: DataType) => boolean;
 export type GetIdFunctionType<DataType, DataIdType> = (
   a: DataType,
