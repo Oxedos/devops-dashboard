@@ -31,8 +31,8 @@ const Job: React.FC<PropTypes> = props => {
                 <PlayButton
                   job={job}
                   groupName={groupName}
-                  mrIid={mr?.id || 1}
-                  projectId={mr?.project_id || 1}
+                  mrIid={mr.iid}
+                  projectId={mr.project_id}
                 />
               </FloatRight>
             )}

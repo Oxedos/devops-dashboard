@@ -84,7 +84,7 @@ const Stage: React.FC<PropTypes> = props => {
                   <PlayButton
                     job={job}
                     groupName={props.groupName}
-                    mrIid={props.mr.id}
+                    mrIid={props.mr.iid}
                     projectId={props.mr.project_id}
                   />
                 </FloatRight>
