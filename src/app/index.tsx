@@ -131,7 +131,7 @@ export const App: React.FC = props => {
   useEffect(() => {
     setInterval(function () {
       fetch(`${PUBLIC_URL}/favicon.ico`);
-    }, 5 * 1000);
+    }, 20 * 1000);
   }, []);
 
   useEffect(() => {
