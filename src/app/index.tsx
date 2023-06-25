@@ -122,6 +122,13 @@ export const App: React.FC = props => {
   enableMapSet();
   const dispatch = useDispatch();
 
+  // Keep the service worker alive
+  useEffect(() => {
+    setInterval(function () {
+      fetch('/favicon.ico');
+    }, 5 * 1000);
+  }, []);
+
   useEffect(() => {
     navigator.serviceWorker.addEventListener('message', event => {
       if (!event || !event.data || !event.data.type) return;
