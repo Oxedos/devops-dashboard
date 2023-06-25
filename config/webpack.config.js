@@ -577,6 +577,7 @@ module.exports = function (webpackEnv) {
         'process.env.NODE_DEBUG': JSON.stringify(process.env.NODE_DEBUG),
         'process.type': JSON.stringify(process.type),
         'process.version': JSON.stringify(process.version),
+        'process.env.HOMEPAGE': JSON.stringify(paths.homepage),
       }),
       new webpack.ProvidePlugin({
         Buffer: ['buffer', 'Buffer'],

@@ -17,7 +17,7 @@ import ContentElement from '../../../../components/Design/ContentElement';
 const REDIRECT_URI =
   process.env.PUBLIC_URL.startsWith('.') || !process.env.PUBLIC_URL
     ? 'http://localhost:3000/data/gitlab/oauth'
-    : `${process.env.PUBLIC_URL}/data/gitlab/oauth`;
+    : `${process.env.HOMEPAGE}/data/gitlab/oauth`;
 
 const generatePkceValues = async () => {
   const dec2hex = dec => {
