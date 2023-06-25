@@ -30,15 +30,22 @@ const generatePkceValues = async () => {
     return Array.from(arr, dec2hex).join('');
   };
 
-  const codeVerifier = generateRandomString(128);
+  const codeVerifier = generateRandomString(128)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
   const encoder = new TextEncoder();
   const data = encoder.encode(codeVerifier);
   const digest = await window.crypto.subtle.digest('SHA-256', data);
-  const base64Digest = btoa(String.fromCharCode(...new Uint8Array(digest)));
+  const base64Digest = window
+    .btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=/g, '');
   return {
     state: generateRandomString(10),
     codeVerifier,
-    codeChallenge: encodeURIComponent(base64Digest),
+    codeChallenge: base64Digest,
     code: undefined,
   };
 };

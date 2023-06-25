@@ -58,6 +58,8 @@ export const OAuth: React.FC = props => {
       return;
     }
     setMessage('State correct! Requesting Token Pair');
+    console.log('state', state);
+    console.log('code', code);
     navigator.serviceWorker.controller.postMessage({
       type: SW_MESSAGE_TYPES.SAVE_AUTHORIZATION_CODE,
       payload: { code },
