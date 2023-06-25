@@ -105,7 +105,11 @@ const Pipeline: React.FC<PropTypes> = props => {
 
   const labels =
     pipeline.labels &&
-    pipeline.labels.map(label => <Badge pill>{label}</Badge>);
+    pipeline.labels.map((label, idx) => (
+      <Badge pill key={`${label}-${idx}`}>
+        {label}
+      </Badge>
+    ));
 
   return (
     <Wrapper backgroundColor={backgroundColour}>
