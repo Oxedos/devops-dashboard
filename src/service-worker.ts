@@ -92,8 +92,9 @@ const REDIRECT_URI =
           return;
         }
         case SW_MESSAGE_TYPES.LOG_STATE: {
-          // Add a console log here if you want
-          // For debug only
+          if (process.env.NODE_ENV === 'development') {
+            console.log(state);
+          }
           return;
         }
         case SW_MESSAGE_TYPES.RECEIVE_PKCE_STATE: {
