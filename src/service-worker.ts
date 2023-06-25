@@ -243,8 +243,8 @@ async function requestAccessTokenWithCode(
   url: string,
   clientID: string,
   code: string,
-  redirectUri: string,
   codeVerifier: string,
+  redirectUri: string,
 ): Promise<OAuthToken> {
   const link =
     normalizeUrl(url, '/oauth/token?') +
