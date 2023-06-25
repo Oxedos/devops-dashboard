@@ -11,7 +11,7 @@ import SimpleMessage from '../components/SimpleMessage';
 import VisualisationContainer from '../components/VisualisationContainer';
 import withWidgetConfigurationModal from '../components/withWidgetConfigurationModal';
 import withGitLabConfiguredCheck from './components/withGitLabConfiguredCheck';
-import withGroupFieldsProvider from './components/withMrTableFieldsProvider';
+import withGroupFieldsProvider from './components/withEventFieldsProvider';
 
 type OuterPropTypes = {
   id: string;
