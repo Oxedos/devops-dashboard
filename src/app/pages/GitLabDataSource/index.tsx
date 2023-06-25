@@ -113,15 +113,13 @@ export function GitLabDataSource() {
     dispatch(gitLabActions.setUrl(newUrl));
     dispatch(gitLabActions.setApplicationId(clientID));
     sendOAuthDataToServiceWorker(pkceValues, newUrl, clientID);
-    window.open(
-      `${newUrl}/oauth/authorize?redirect_uri=${encodeURIComponent(
-        REDIRECT_URI,
-      )}&client_id=${clientID}&response_type=code&state=${
-        pkceValues.state
-      }&scope=api&code_challenge=${
-        pkceValues.codeChallenge
-      }&code_challenge_method=S256`,
-    );
+    document.location.href = `${newUrl}/oauth/authorize?redirect_uri=${encodeURIComponent(
+      REDIRECT_URI,
+    )}&client_id=${clientID}&response_type=code&state=${
+      pkceValues.state
+    }&scope=api&code_challenge=${
+      pkceValues.codeChallenge
+    }&code_challenge_method=S256`;
   };
 
   return (
