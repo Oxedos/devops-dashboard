@@ -1,6 +1,6 @@
 {
   "name": "devops-dashboard",
-  "homepage": "http://marvin-kaiser.dev/devops-dashboard",
+  "homepage": "https://marvin-kaiser.dev/devops-dashboard",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
