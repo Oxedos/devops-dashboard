@@ -32,40 +32,42 @@ export const OAuth: React.FC = props => {
       return;
     }
     setMessage('Requesting PKCE State from ServiceWorker');
+    // Setup eventListener
+    const eventListener = event => {
+      if (!event || !event.data || !event.data.type) return;
+      if (event.data.type !== SW_MESSAGE_TYPES.RECEIVE_PKCE_STATE) return;
+      const storedState = event.data.payload.state;
+      if (!storedState) {
+        setMessage('No state stored');
+        return;
+      }
+      if (state !== storedState) {
+        setMessage('Received incorrect state');
+        return;
+      }
+      if (
+        !navigator ||
+        !navigator.serviceWorker ||
+        !navigator.serviceWorker.controller
+      ) {
+        setMessage('No ServiceWorker found');
+        return;
+      }
+      setMessage('State correct! Requesting Token Pair');
+      navigator.serviceWorker.controller.postMessage({
+        type: SW_MESSAGE_TYPES.SAVE_AUTHORIZATION_CODE,
+        payload: { code },
+      });
+      // we don't need ourselves anymore
+      navigator.serviceWorker.removeEventListener('message', eventListener);
+      navigate(path('/data/gitlab'));
+    };
+    navigator.serviceWorker.addEventListener('message', eventListener);
+    // Request PKCE state
     navigator.serviceWorker.controller.postMessage({
       type: SW_MESSAGE_TYPES.RECEIVE_PKCE_STATE,
     });
-  }, [code, state]);
-
-  navigator.serviceWorker.addEventListener('message', event => {
-    if (!event || !event.data || !event.data.type) return;
-    if (event.data.type !== SW_MESSAGE_TYPES.RECEIVE_PKCE_STATE) return;
-    const storedState = event.data.payload.state;
-    if (!storedState) {
-      setMessage('No state stored');
-      return;
-    }
-    if (state !== storedState) {
-      setMessage('Received incorrect state');
-      return;
-    }
-    if (
-      !navigator ||
-      !navigator.serviceWorker ||
-      !navigator.serviceWorker.controller
-    ) {
-      setMessage('No ServiceWorker found');
-      return;
-    }
-    setMessage('State correct! Requesting Token Pair');
-    console.log('state', state);
-    console.log('code', code);
-    navigator.serviceWorker.controller.postMessage({
-      type: SW_MESSAGE_TYPES.SAVE_AUTHORIZATION_CODE,
-      payload: { code },
-    });
-    navigate(path('/data/gitlab'));
-  });
+  }, [code, state, navigate]);
 
   return (
     <>

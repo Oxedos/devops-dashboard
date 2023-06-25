@@ -54,99 +54,108 @@ const REDIRECT_URI =
 
   // This allows the web app to trigger skipWaiting via
   // registration.waiting.postMessage({type: 'SKIP_WAITING'})
-  self.addEventListener('message', async event => {
+  self.addEventListener('message', async (event: ExtendableMessageEvent) => {
     if (event.data && event.data.type === 'SKIP_WAITING') {
       event.waitUntil(self.skipWaiting());
       return;
     }
-    if (!event.data || !event.data.type) {
-      return;
-    }
-    if (!event.source) return;
+    const handleMessage = async () => {
+      if (!event.data || !event.data.type) {
+        return;
+      }
+      if (!event.source) return;
 
-    switch (event.data.type) {
-      case SW_MESSAGE_TYPES.SAVE_OAUTH_DATA: {
-        const { url, pkce, applicationId } = event.data.payload;
-        state.gitlabUrl = url;
-        state.pkceValues = pkce;
-        state.applicationId = applicationId;
-        return;
-      }
-      case SW_MESSAGE_TYPES.SAVE_AUTHORIZATION_CODE: {
-        const { code } = event.data.payload;
-        state.authorizationCode = code;
-        if (!state.gitlabUrl) return;
-        if (!state.applicationId) return;
-        if (!state.authorizationCode) return;
-        if (!state.pkceValues) return;
-        const initialToken = await getTokenWithCode(
-          state.gitlabUrl,
-          state.applicationId,
-          state.authorizationCode,
-          state.pkceValues?.codeVerifier,
-          undefined,
-        );
-        if (!initialToken) return;
-        state.oauth = initialToken;
-        return;
-      }
-      case SW_MESSAGE_TYPES.LOG_STATE: {
-        // TODO: For debugging
-        console.log(state);
-        return;
-      }
-      case SW_MESSAGE_TYPES.RECEIVE_PKCE_STATE: {
-        event.source.postMessage({
-          type: SW_MESSAGE_TYPES.RECEIVE_PKCE_STATE,
-          payload: { state: state.pkceValues?.state },
-        });
-        return;
-      }
-      default: {
-        return;
-      }
-    }
-  });
-
-  self.addEventListener('fetch', async event => {
-    console.log('fetch');
-    event.waitUntil(
-      (async () => {
-        if (!isConfigured(state)) return;
-        if (!state.gitlabUrl) return;
-        if (!state.authorizationCode) return;
-        if (!state.pkceValues || !state.pkceValues.codeVerifier) return;
-        if (!state.applicationId) return;
-        if (!isGitlabFetch(state, event)) return;
-        if (!isAuthenticated(state)) return;
-        if (!isTokenAvailable(state)) {
-          // Get initial token with authorizationCode
+      switch (event.data.type) {
+        case SW_MESSAGE_TYPES.SAVE_OAUTH_DATA: {
+          const { url, pkce, applicationId } = event.data.payload;
+          state.gitlabUrl = url;
+          state.pkceValues = pkce;
+          state.applicationId = applicationId;
+          return;
+        }
+        case SW_MESSAGE_TYPES.SAVE_AUTHORIZATION_CODE: {
+          const { code } = event.data.payload;
+          state.authorizationCode = code;
+          if (!state.gitlabUrl) return;
+          if (!state.applicationId) return;
+          if (!state.authorizationCode) return;
+          if (!state.pkceValues) return;
           const initialToken = await getTokenWithCode(
             state.gitlabUrl,
             state.applicationId,
             state.authorizationCode,
             state.pkceValues?.codeVerifier,
-            event.clientId,
+            undefined,
           );
           if (!initialToken) return;
           state.oauth = initialToken;
+          return;
         }
-        if (!state.oauth) return; // Can't happen, but makes TS happy :)
-        if (isTokenExpired(state)) {
-          // refresh token with state.oauth.refreshToken
-          const newToken = await getTokenWithRefreshToken(
-            state.gitlabUrl,
-            state.applicationId,
-            state.oauth?.refreshToken,
-            state.pkceValues.codeVerifier,
-            event.clientId,
-          );
-          if (!newToken) return;
-          state.oauth = newToken;
+        case SW_MESSAGE_TYPES.LOG_STATE: {
+          // TODO: For debugging
+          console.log(state);
+          return;
         }
-        event.respondWith(fetchInitialRequestWithTokens(state.oauth, event));
-      })(),
-    );
+        case SW_MESSAGE_TYPES.RECEIVE_PKCE_STATE: {
+          event.source.postMessage({
+            type: SW_MESSAGE_TYPES.RECEIVE_PKCE_STATE,
+            payload: { state: state.pkceValues?.state },
+          });
+          return;
+        }
+        default: {
+          return;
+        }
+      }
+    };
+    if (!!event.waitUntil) {
+      event.waitUntil(handleMessage());
+    } else {
+      handleMessage();
+    }
+  });
+
+  self.addEventListener('fetch', async event => {
+    console.log('fetch');
+    const fetchHandler = async () => {
+      if (!isConfigured(state)) return fetch(event.request);
+      if (!state.gitlabUrl) return fetch(event.request);
+      if (!state.authorizationCode) return fetch(event.request);
+      if (!state.pkceValues || !state.pkceValues.codeVerifier)
+        return fetch(event.request);
+      if (!state.applicationId) return fetch(event.request);
+      if (!isGitlabFetch(state, event)) return fetch(event.request);
+      console.log(event.request.url);
+      if (!isAuthenticated(state)) return fetch(event.request);
+      if (!isTokenAvailable(state)) {
+        // Get initial token with authorizationCode
+        const initialToken = await getTokenWithCode(
+          state.gitlabUrl,
+          state.applicationId,
+          state.authorizationCode,
+          state.pkceValues?.codeVerifier,
+          event.clientId,
+        );
+        if (!initialToken) return fetch(event.request);
+        state.oauth = initialToken;
+      }
+      if (!state.oauth) return fetch(event.request); // Can't happen, but makes TS happy :)
+      if (isTokenExpired(state)) {
+        // refresh token with state.oauth.refreshToken
+        const newToken = await getTokenWithRefreshToken(
+          state.gitlabUrl,
+          state.applicationId,
+          state.oauth?.refreshToken,
+          state.pkceValues.codeVerifier,
+          event.clientId,
+        );
+        if (!newToken) return fetch(event.request);
+        state.oauth = newToken;
+      }
+      return fetchInitialRequestWithTokens(state.oauth, event);
+    };
+
+    event.respondWith(fetchHandler());
   });
 
   const isConfigured = (state: SW_STATE) =>
