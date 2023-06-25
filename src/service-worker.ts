@@ -124,6 +124,7 @@ const REDIRECT_URI =
         return fetch(event.request);
       if (!state.applicationId) return fetch(event.request);
       if (!isGitlabFetch(state, event)) return fetch(event.request);
+      if (isPictureFech(event)) return fetch(event.request);
       if (!isAuthenticated(state)) return fetch(event.request);
       if (!isTokenAvailable(state)) {
         // Get initial token with authorizationCode
@@ -161,6 +162,9 @@ const REDIRECT_URI =
 
   const isGitlabFetch = (state: SW_STATE, event: FetchEvent) =>
     state.gitlabUrl && event.request.url.startsWith(state.gitlabUrl);
+
+  const isPictureFech = (event: FetchEvent) =>
+    event.request.url.endsWith('.png');
 
   const isAuthenticated = (state: SW_STATE) => !!state.authorizationCode;
 
