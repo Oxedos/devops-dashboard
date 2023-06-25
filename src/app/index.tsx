@@ -116,6 +116,11 @@ const withDashboardIdCheckpoint = (WrappedComponent: React.FC<any>) => {
   };
 };
 
+const PUBLIC_URL =
+  process.env.PUBLIC_URL.startsWith('.') || !process.env.PUBLIC_URL
+    ? 'http://localhost:3000'
+    : process.env.HOMEPAGE;
+
 export const App: React.FC = props => {
   useWhitesourceSlice();
   useRssSlice();
@@ -125,7 +130,7 @@ export const App: React.FC = props => {
   // Keep the service worker alive
   useEffect(() => {
     setInterval(function () {
-      fetch('/favicon.ico');
+      fetch(`${PUBLIC_URL}/favicon.ico`);
     }, 5 * 1000);
   }, []);
 
