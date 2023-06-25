@@ -92,8 +92,8 @@ const REDIRECT_URI =
           return;
         }
         case SW_MESSAGE_TYPES.LOG_STATE: {
-          // TODO: For debugging
-          console.log(state);
+          // Add a console log here if you want
+          // For debug only
           return;
         }
         case SW_MESSAGE_TYPES.RECEIVE_PKCE_STATE: {
@@ -116,7 +116,6 @@ const REDIRECT_URI =
   });
 
   self.addEventListener('fetch', async event => {
-    console.log('fetch');
     const fetchHandler = async () => {
       if (!isConfigured(state)) return fetch(event.request);
       if (!state.gitlabUrl) return fetch(event.request);
@@ -125,7 +124,6 @@ const REDIRECT_URI =
         return fetch(event.request);
       if (!state.applicationId) return fetch(event.request);
       if (!isGitlabFetch(state, event)) return fetch(event.request);
-      console.log(event.request.url);
       if (!isAuthenticated(state)) return fetch(event.request);
       if (!isTokenAvailable(state)) {
         // Get initial token with authorizationCode

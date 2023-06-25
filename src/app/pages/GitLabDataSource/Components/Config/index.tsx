@@ -60,7 +60,6 @@ const sendOAuthDataToServiceWorker = (
     !navigator.serviceWorker ||
     !navigator.serviceWorker.controller
   ) {
-    console.log('no service worker found');
     return;
   }
   navigator.serviceWorker.controller.postMessage({
@@ -153,7 +152,6 @@ const Config: React.FC = props => {
               !navigator.serviceWorker ||
               !navigator.serviceWorker.controller
             ) {
-              console.log('no service worker found');
               return;
             }
             navigator.serviceWorker.controller.postMessage({

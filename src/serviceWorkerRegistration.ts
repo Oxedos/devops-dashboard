@@ -29,12 +29,6 @@ export function register(config?: Config) {
   // The URL constructor is available in all browsers that support SW.
   const publicUrl = new URL(process.env.PUBLIC_URL, window.location.href);
   if (publicUrl.origin !== window.location.origin) {
-    // Our service worker won't work if PUBLIC_URL is on a different origin
-    // from what our page is served on. This might happen if a CDN is used to
-    // serve assets; see https://github.com/facebook/create-react-app/issues/2374
-    console.log('public URL incorrect!');
-    console.log(publicUrl.origin);
-    console.log(window.location.origin);
     return;
   }
 
@@ -87,10 +81,9 @@ function checkValidServiceWorker(swUrl: string, config?: Config) {
         registerValidSW(swUrl);
       }
     })
-    .catch(() => {
-      console.log(
-        'No internet connection found. App is running in offline mode.',
-      );
+    .catch(error => {
+      console.log('error setting up service worker');
+      console.log(error);
     });
 }
 
