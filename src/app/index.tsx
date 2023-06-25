@@ -6,75 +6,79 @@
  * contain code that should be seen on all pages. (e.g. navigation bar)
  */
 
+import { enableMapSet } from 'immer';
 import * as React from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
-  Routes,
-  Route,
   BrowserRouter,
+  Route,
+  Routes,
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import { enableMapSet } from 'immer';
-import { GlobalStyle } from 'styles/global-styles';
 import styled from 'styled-components/macro';
+import { GlobalStyle } from 'styles/global-styles';
 
 // Pages
-import { HomePage } from './pages/HomePage/Loadable';
 import { GitLabDataSource } from './pages/GitLabDataSource/Loadable';
+import { GitlabOAuth } from './pages/GitlabOAuth/Loadable';
+import { HomePage } from './pages/HomePage/Loadable';
 import { NotFoundPage } from './pages/NotFoundPage/Loadable';
 
 // Icon stuff
 import { library } from '@fortawesome/fontawesome-svg-core';
 import {
-  faTachometerAlt,
-  faCogs,
-  faCog,
-  faPlus,
-  faTimes,
-  faSync,
-  faExclamationTriangle,
-  faExclamationCircle,
-  faInfoCircle,
-  faTrash,
-  faCircle,
-  faCheck,
-  faForward,
-  faSpinner,
-  faUser,
-  faClock,
-  faBars,
-  faHome,
-  faPause,
-  faTable,
-  faChartPie,
-  faStream,
-  faRssSquare,
-  faExclamation,
-  faLongArrowAltLeft,
-  faLongArrowAltRight,
-  faShareSquare,
-  faSlash,
-  faChevronRight,
-  faChevronLeft,
-  faChartLine,
-  faUpRightFromSquare,
-  faPlay,
-  faCodeMerge,
-  faCodePullRequest,
-  faCodeBranch,
-} from '@fortawesome/free-solid-svg-icons';
-import {
-  faGitlab,
   faAtlassian,
+  faGitlab,
   faRedhat,
 } from '@fortawesome/free-brands-svg-icons';
-import { Whitesource } from './pages/Whitesource/Loadable';
-import { useWhitesourceSlice } from './data/whitesourceSlice';
-import { useRssSlice } from './data/rssSlice';
-import { selectDashboards } from './data/globalSlice/selectors';
+import {
+  faBars,
+  faChartLine,
+  faChartPie,
+  faCheck,
+  faChevronLeft,
+  faChevronRight,
+  faCircle,
+  faClock,
+  faCodeBranch,
+  faCodeMerge,
+  faCodePullRequest,
+  faCog,
+  faCogs,
+  faExclamation,
+  faExclamationCircle,
+  faExclamationTriangle,
+  faForward,
+  faHome,
+  faInfoCircle,
+  faLongArrowAltLeft,
+  faLongArrowAltRight,
+  faPause,
+  faPlay,
+  faPlus,
+  faRssSquare,
+  faShareSquare,
+  faSlash,
+  faSpinner,
+  faStream,
+  faSync,
+  faTable,
+  faTachometerAlt,
+  faTimes,
+  faTrash,
+  faUpRightFromSquare,
+  faUser,
+} from '@fortawesome/free-solid-svg-icons';
 import { useSelector } from 'react-redux';
+import { selectDashboards } from './data/globalSlice/selectors';
+import { useRssSlice } from './data/rssSlice';
+import { useWhitesourceSlice } from './data/whitesourceSlice';
 import { DashboardSettings } from './pages/DashboardsSettings/Loadable';
+import { Whitesource } from './pages/Whitesource/Loadable';
+import { useDispatch } from 'react-redux';
+import { SW_MESSAGE_TYPES } from 'service-worker';
+import { globalActions } from './data/globalSlice';
 
 function path(p) {
   if (process.env.NODE_ENV === 'production') {
@@ -115,6 +119,18 @@ export const App: React.FC = props => {
   useWhitesourceSlice();
   useRssSlice();
   enableMapSet();
+  const dispatch = useDispatch();
+
+  navigator.serviceWorker.addEventListener('message', event => {
+    if (!event || !event.data || !event.data.type) return;
+    if (event.data.type !== SW_MESSAGE_TYPES.SW_ERROR) return;
+    const error = event.data.payload.error;
+    if (error instanceof Error) {
+      dispatch(globalActions.addErrorNotification(`[GitLab] ${error.message}`));
+    } else {
+      dispatch(globalActions.addErrorNotification(`[GitLab] Unknown Error`));
+    }
+  });
 
   // Pre-Load FA Icons
   library.add(
@@ -174,6 +190,10 @@ export const App: React.FC = props => {
       <RootWrapper>
         <ChildWrapper>
           <Routes>
+            <Route
+              path={path('/data/gitlab/oauth')}
+              element={<GitlabOAuth />}
+            />
             <Route path={path('/data/gitlab')} element={<GitLabDataSource />} />
             <Route path={path('/data/whitesource')} element={<Whitesource />} />
             <Route

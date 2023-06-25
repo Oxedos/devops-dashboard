@@ -11,6 +11,7 @@ import 'react-app-polyfill/stable';
 import * as React from 'react';
 import * as ReactDOMClient from 'react-dom/client';
 import { Provider } from 'react-redux';
+import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 // Styling
 import 'sanitize.css/sanitize.css';
@@ -29,9 +30,9 @@ const root = ReactDOMClient.createRoot(MOUNT_NODE);
 root.render(
   <Provider store={store}>
     <HelmetProvider>
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
+      <App />
     </HelmetProvider>
   </Provider>,
 );
+
+serviceWorkerRegistration.register();

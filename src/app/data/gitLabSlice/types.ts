@@ -13,14 +13,26 @@ import {
   EventId,
 } from 'app/apis/gitlab/types';
 
+export type PkceValues = {
+  state: string;
+  codeChallenge: string | undefined;
+  codeVerifier: string;
+};
+
+export type OAuthToken = {
+  authoriationToken: string;
+  refreshToken: string;
+  expiresIn: number;
+  createdAt: number;
+  tokenType: string;
+};
+
 /* --- STATE --- */
 export interface GitLabState {
   // Config Data
-  configured: boolean; // If GitLab DataSource is correctly set up
   url: string | undefined; // baseUrl of API including /api/<version>
-  token: string | undefined; // private token to access API
+  applicationId: string | undefined;
   // Data of current user
-  userId: number | undefined;
   userData: GitLabUserData | undefined; // Data returned from GET /user
   // Which data to regularly fetch
   listenedGroups: { visId: string; groupName: string }[];

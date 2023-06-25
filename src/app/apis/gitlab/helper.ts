@@ -1,8 +1,4 @@
-import axios, {
-  AxiosRequestConfig,
-  AxiosResponse,
-  RawAxiosRequestConfig,
-} from 'axios';
+import axios, { AxiosResponse, RawAxiosRequestConfig } from 'axios';
 const DEV = process.env.NODE_ENV !== 'production';
 
 export function getGitLabErrorMessage(error) {
@@ -95,14 +91,4 @@ export async function getWithKeysetPagination<T>(
   } catch (error) {
     throw new Error(getGitLabErrorMessage(error));
   }
-}
-
-export function gitlabConfig(params: any, token: string): AxiosRequestConfig {
-  const config: AxiosRequestConfig = {
-    headers: {
-      'PRIVATE-TOKEN': token,
-    },
-    params,
-  };
-  return config;
 }

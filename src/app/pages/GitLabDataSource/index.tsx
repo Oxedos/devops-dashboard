@@ -1,31 +1,23 @@
-import React from 'react';
-import { Helmet } from 'react-helmet-async';
-import { useSelector, useDispatch } from 'react-redux';
-import { useGitLabSlice } from 'app/data/gitLabSlice';
-import {
-  selectToken,
-  selectUserData,
-  selectConfigured,
-  selectUrl,
-} from 'app/data/gitLabSlice/selectors';
-import TokenInput from './Components/Config';
-import GitLabData from './Components/GitLabData';
 import ContentWrapper from 'app/components/Design/ContentWrapper';
 import NavigationBar from 'app/components/NavigationBar';
+import { selectGroups } from 'app/data/gitLabSlice/groupSelectors';
 import { selectAllMrs } from 'app/data/gitLabSlice/mrSelectors';
 import { selectProjects } from 'app/data/gitLabSlice/projectSelectors';
-import { selectGroups } from 'app/data/gitLabSlice/groupSelectors';
+import { selectUserData } from 'app/data/gitLabSlice/selectors';
+import { Helmet } from 'react-helmet-async';
+import { useSelector } from 'react-redux';
+import TokenInput from './Components/Config';
+import GitLabData from './Components/GitLabData';
 
 export function GitLabDataSource() {
-  const { actions: gitLabActions } = useGitLabSlice();
-  const dispatch = useDispatch();
-  const configured = useSelector(selectConfigured);
-  const url = useSelector(selectUrl);
-  const token = useSelector(selectToken);
+  // const configured = useSelector(selectConfigured);
   const groups = useSelector(selectGroups);
   const userData = useSelector(selectUserData);
   const mrs = useSelector(selectAllMrs);
   const projects = useSelector(selectProjects);
+
+  // TODO: For Debugging
+  const configured = false; // TODO
 
   return (
     <>
@@ -43,15 +35,7 @@ export function GitLabDataSource() {
         />
       ) : (
         <ContentWrapper>
-          <TokenInput
-            token={token}
-            url={url}
-            saveConfig={({ token, url }) => {
-              dispatch(gitLabActions.setToken(token));
-              dispatch(gitLabActions.setUrl(url));
-              dispatch(gitLabActions.setConfigured(true));
-            }}
-          />
+          <TokenInput />
         </ContentWrapper>
       )}
     </>

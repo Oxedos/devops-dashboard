@@ -13,6 +13,8 @@ import MergeRequests from '../MergeRequests';
 import Manage from '../Manage';
 import ContentWrapper from 'app/components/Design/ContentWrapper';
 import NavBar from '../../../../components/Design/NavBar';
+import { useSelector } from 'react-redux';
+import { selectUserData } from 'app/data/gitLabSlice/selectors';
 
 type PropTypes = {
   userData: GitLabUserData | undefined;
@@ -23,7 +25,7 @@ type PropTypes = {
 
 const GitLabData: React.FC<PropTypes> = props => {
   const [activeMenu, setActiveMenu] = useState('data');
-  const { userData } = props;
+  const userData = useSelector(selectUserData);
 
   if (!userData) {
     return null;

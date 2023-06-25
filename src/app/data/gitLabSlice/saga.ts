@@ -26,6 +26,7 @@ import {
   selectListenedGroups,
   selectListenedGroupsFull,
 } from './groupSelectors';
+import { selectAllMrs, selectMrsByGroup } from './mrSelectors';
 import { selectPipelinesToReload } from './pipelineSelectors';
 import {
   selectListenedProjectIds,
@@ -36,11 +37,9 @@ import {
   selectConfigured,
   selectGitlabSlice,
   selectJobsToPlay,
-  selectToken,
   selectUrl,
 } from './selectors';
 import { GitLabState } from './types';
-import { selectAllMrs, selectMrsByGroup } from './mrSelectors';
 
 const { select, call, put, delay } = Effects;
 
@@ -49,15 +48,13 @@ const { select, call, put, delay } = Effects;
  */
 
 function* getUserInfo() {
-  const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
   const loadingId = '[GitLab] getUserInfo';
   yield put(globalActions.addLoader({ id: loadingId }));
 
   // Get user data
   try {
-    const userInfo: GitLabUserData = yield call(API.getUserInfo, url, token);
-    yield put(actions.setUserId(userInfo.id));
+    const userInfo: GitLabUserData = yield call(API.getUserInfo, url);
     yield put(actions.setUserData(userInfo));
   } catch (error) {
     if (error instanceof Error) {
@@ -73,14 +70,13 @@ function* getUserInfo() {
 }
 
 function* getGroups() {
-  const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
   const loadingId = '[GitLab] getGroups';
   yield put(globalActions.addLoader({ id: loadingId }));
 
   // Get Groups
   try {
-    const groups: GitLabGroup[] = yield call(API.getGroups, url, token);
+    const groups: GitLabGroup[] = yield call(API.getGroups, url);
     yield put(actions.setGroups(groups));
   } catch (error) {
     if (error instanceof Error) {
@@ -95,7 +91,7 @@ function* getGroups() {
   }
 }
 
-function* loadProjectsForGroup(groupName: string, url: string, token: string) {
+function* loadProjectsForGroup(groupName: string, url: string) {
   const group = yield select(state =>
     selectGroupByGroupName(state, { groupName }),
   );
@@ -104,7 +100,6 @@ function* loadProjectsForGroup(groupName: string, url: string, token: string) {
     const projects: GitLabProject[] = yield call(
       API.getProjectsForGroup,
       url,
-      token,
       group.id,
       {
         include_subgroups: true,
@@ -126,7 +121,6 @@ function* loadProjectsForGroup(groupName: string, url: string, token: string) {
 }
 
 function* getProjects() {
-  const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
   const listenedGroups: string[] = yield select(selectListenedGroups);
 
@@ -137,7 +131,7 @@ function* getProjects() {
 
   const tasks: any[] = [];
   for (let groupName of listenedGroups) {
-    const task = yield fork(loadProjectsForGroup, groupName, url, token);
+    const task = yield fork(loadProjectsForGroup, groupName, url);
     tasks.push(task);
   }
   yield join(tasks); // wait for all tasks to finish
@@ -148,13 +142,11 @@ function* loadPipelinesForProject(
   project: GitLabProject,
   mrs: GitLabMR[],
   url: string,
-  token: string,
 ) {
   try {
     const pipelines: GitLabPipeline[] = yield call(
       API.getPipelines,
       url,
-      token,
       project.id,
       mrs,
     );
@@ -164,11 +156,7 @@ function* loadPipelinesForProject(
   }
 }
 
-function* loadPipelinesForGroup(
-  groupName: GroupName,
-  url: string,
-  token: string,
-) {
+function* loadPipelinesForGroup(groupName: GroupName, url: string) {
   const groupProjects: GitLabProject[] = yield select(state =>
     selectProjectsByGroup(state, { groupName }),
   );
@@ -184,13 +172,7 @@ function* loadPipelinesForGroup(
   for (let project of groupProjects) {
     if (project.archived || !project.jobs_enabled) continue;
     const projectMRs = groupMrs.filter(mr => mr.project_id === project.id);
-    const task = yield fork(
-      loadPipelinesForProject,
-      project,
-      projectMRs,
-      url,
-      token,
-    );
+    const task = yield fork(loadPipelinesForProject, project, projectMRs, url);
     tasks.push(task);
   }
   const taskResults: any[] = yield join(tasks);
@@ -208,23 +190,21 @@ function* getPipelines() {
   const listenedGroups: string[] = yield select(selectListenedGroups);
   if (listenedGroups.length <= 0) return;
 
-  const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
 
   for (let groupName of listenedGroups) {
     if (!groupName) continue;
-    yield fork(loadPipelinesForGroup, groupName, url, token);
+    yield fork(loadPipelinesForGroup, groupName, url);
   }
 }
 
 function* getUserAssignedMrs() {
-  const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
   const loadingId = '[GitLab] getUserAssignedMRs';
   yield put(globalActions.addLoader({ id: loadingId }));
 
   try {
-    const mrsUserAssigned = yield call(API.getMergeRequests, url, token, {
+    const mrsUserAssigned = yield call(API.getMergeRequests, url, {
       scope: 'assigned_to_me',
       order_by: 'updated_at',
       sort: 'desc',
@@ -244,7 +224,6 @@ function* getUserAssignedMrs() {
 }
 
 function* getMissingProjects() {
-  const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
   const loadingId = '[GitLab] getMissingProjects';
 
@@ -262,12 +241,7 @@ function* getMissingProjects() {
     const newProjects: GitLabProject[] = [];
     for (let projectId of unloadedProjectIds) {
       if (!projectId) continue;
-      const project: GitLabProject = yield call(
-        API.getProject,
-        url,
-        token,
-        projectId,
-      );
+      const project: GitLabProject = yield call(API.getProject, url, projectId);
       newProjects.push(project);
     }
     yield put(
@@ -290,7 +264,6 @@ function* getMissingProjects() {
 }
 
 function* getMergeRequests() {
-  const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
   const listenedGroupsFull: GitLabGroup[] = yield select(
     selectListenedGroupsFull,
@@ -305,12 +278,7 @@ function* getMergeRequests() {
   for (let group of listenedGroupsFull) {
     if (!group) continue;
     try {
-      const groupsMrs = yield call(
-        API.getGroupMergeRequests,
-        url,
-        token,
-        group.id,
-      );
+      const groupsMrs = yield call(API.getGroupMergeRequests, url, group.id);
       yield put(actions.setMrs({ groupName: group.full_name, mrs: groupsMrs }));
     } catch (error) {
       if (error instanceof Error) {
@@ -327,7 +295,6 @@ function* getMergeRequests() {
 
 function* rerunPipeline(
   url: string,
-  token: string,
   projectId: number,
   ref: string,
   groupName: string,
@@ -346,7 +313,6 @@ function* rerunPipeline(
       const newPipelineData: GitLabPipeline = yield call(
         API.rerunPipeline,
         url,
-        token,
         projectId,
         mrIid,
       );
@@ -359,7 +325,6 @@ function* rerunPipeline(
       const newPipelineData = yield call(
         API.createPipelineForRef,
         url,
-        token,
         projectId,
         ref,
       );
@@ -380,7 +345,6 @@ function* rerunPipeline(
 }
 
 function* rerunPipelines() {
-  const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
   const pipelines: { groupName: string; ref: string; projectId: number }[] =
     yield select(selectPipelinesToReload);
@@ -389,7 +353,6 @@ function* rerunPipelines() {
     yield fork(
       rerunPipeline,
       url,
-      token,
       pipeline.projectId,
       pipeline.ref,
       pipeline.groupName,
@@ -398,7 +361,6 @@ function* rerunPipelines() {
 }
 
 function* playJobs() {
-  const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
   const jobsToPlay: {
     groupName: string;
@@ -411,7 +373,6 @@ function* playJobs() {
     yield fork(
       playJob,
       url,
-      token,
       job.projectId,
       job.jobId,
       job.mrIid,
@@ -422,7 +383,6 @@ function* playJobs() {
 
 function* playJob(
   url: string,
-  token: string,
   projectId: number,
   jobId: number,
   mrIid: number,
@@ -435,12 +395,11 @@ function* playJob(
 
   try {
     // play job
-    yield call(API.playJob, url, token, projectId, jobId);
+    yield call(API.playJob, url, projectId, jobId);
     // reload this Pipeline
     const pipelineData = yield call(
       API.loadPipelineForMr,
       url,
-      token,
       projectId,
       mrIid,
     );
@@ -459,7 +418,7 @@ function* playJob(
   }
 }
 
-function* loadEventsForProject(projectId: number, url: string, token: string) {
+function* loadEventsForProject(projectId: number, url: string) {
   const loadingId = `[GitLab] getEvents ${projectId}`;
   yield put(globalActions.addLoader({ id: loadingId }));
   try {
@@ -467,7 +426,6 @@ function* loadEventsForProject(projectId: number, url: string, token: string) {
     const events: GitLabEvent[] = yield call(
       API.getEvents,
       url,
-      token,
       projectId,
       after,
     );
@@ -488,51 +446,17 @@ function* loadEventsForProject(projectId: number, url: string, token: string) {
 }
 
 function* getEvents() {
-  const token: string = yield select(selectToken);
   const url: string = yield select(selectUrl);
   const listenedProjectsIds = yield select(selectListenedProjectIds);
   for (let projectId of listenedProjectsIds) {
     if (!projectId) continue;
-    yield fork(loadEventsForProject, projectId, url, token);
+    yield fork(loadEventsForProject, projectId, url);
   }
 }
 
 /*
  * Helper functions to manage correct ordering of data loading
  */
-
-function* testConnection() {
-  const configured: boolean = yield select(selectConfigured);
-  if (!configured) return;
-
-  const loadingId = '[GitLab] testConnection';
-  yield put(globalActions.addLoader({ id: loadingId }));
-
-  const token: string = yield select(selectToken);
-  const url: string = yield select(selectUrl);
-
-  // Get user data
-  try {
-    const userInfo: GitLabUserData = yield call(API.getUserInfo, url, token);
-    yield put(actions.setUserId(userInfo.id));
-    yield put(actions.setUserData(userInfo));
-  } catch (error) {
-    if (error instanceof Error) {
-      yield put(
-        globalActions.addErrorNotification(`[GitLab] ${error.message}`),
-      );
-    } else {
-      yield put(globalActions.addErrorNotification(`[GitLab] Unknown Error`));
-    }
-    yield put(gitLabActions.setConfigured(false));
-    return;
-  } finally {
-    yield put(globalActions.removeLoader({ id: loadingId }));
-  }
-  yield put(globalActions.addNotification('[GitLab] sucessfully connected'));
-  yield call(persist);
-  // yield call(loadAll);
-}
 
 function* pollLong() {
   while (true) {
@@ -596,13 +520,14 @@ function* clear() {
 }
 
 export function* gitLabSaga() {
-  yield takeLeading(actions.setConfigured.type, testConnection);
   yield takeLeading(actions.addListenedGroup.type, loadAll);
   yield takeEvery(actions.removeListenedGroup.type, persist);
   yield takeLeading(actions.reload.type, loadAll);
   yield takeLeading(actions.deleteConfiguration.type, clear);
   yield takeEvery(actions.reloadPipeline.type, rerunPipelines);
   yield takeEvery(actions.playJob.type, playJobs);
+  yield takeLeading(actions.setUrl, persist);
+  yield takeLeading(actions.setApplicationId, persist);
   yield spawn(pollLong);
   yield spawn(pollShort);
 }

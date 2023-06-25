@@ -1,10 +1,6 @@
 import { normalizeUrl } from 'app/apis/apiHelper';
 import axios from 'axios';
-import {
-  getGitLabErrorMessage,
-  getWithKeysetPagination,
-  gitlabConfig,
-} from './helper';
+import { getGitLabErrorMessage, getWithKeysetPagination } from './helper';
 import {
   GitLabEvent,
   GitLabGroup,
@@ -18,17 +14,21 @@ import {
 
 export const API_SUFFIX = '/api/v4';
 
+/*
+  GitLab API Methods
+  Authorization is done via Service Worker in src/service-worker.ts with fetch interception
+*/
+
 type GetGroupParams = {
   top_level_only: boolean;
 };
 
 export async function getGroups(
   url: string,
-  privateToken: string,
   params?: GetGroupParams,
 ): Promise<GitLabGroup[]> {
   const link = normalizeUrl(url, API_SUFFIX) + '/groups';
-  return getWithKeysetPagination(link, gitlabConfig(params, privateToken));
+  return getWithKeysetPagination(link, { params });
 }
 
 type GetMergeRequestParams = {
@@ -44,54 +44,40 @@ type GetMergeRequestParams = {
 
 export async function getGroupMergeRequests(
   url: string,
-  privateToken: string,
   groupId: number,
   params: GetMergeRequestParams = {},
 ): Promise<GitLabSimpleMr[]> {
   const mrListLink =
     normalizeUrl(url, API_SUFFIX) + `/groups/${groupId}/merge_requests`;
-  const mrList: GitLabSimpleMr[] = await getWithKeysetPagination(
-    mrListLink,
-    gitlabConfig(
-      {
-        scope: 'all',
-        state: 'opened',
-        ...params,
-      },
-      privateToken,
-    ),
-  );
+  const mrList: GitLabSimpleMr[] = await getWithKeysetPagination(mrListLink, {
+    params: {
+      scope: 'all',
+      state: 'opened',
+      ...params,
+    },
+  });
   return mrList;
 }
 
 export async function getMergeRequests(
   url: string,
-  privateToken: string,
   params: GetMergeRequestParams = {},
 ): Promise<GitLabSimpleMr[]> {
   const mrListLink = normalizeUrl(url, API_SUFFIX) + `/merge_requests`;
-  const mrList = await getWithKeysetPagination<GitLabSimpleMr>(
-    mrListLink,
-    gitlabConfig(
-      {
-        scope: 'all',
-        state: 'opened',
-        ...params,
-      },
-      privateToken,
-    ),
-  );
+  const mrList = await getWithKeysetPagination<GitLabSimpleMr>(mrListLink, {
+    params: {
+      scope: 'all',
+      state: 'opened',
+      ...params,
+    },
+  });
   return mrList;
 }
 
-export async function getUserInfo(
-  url: string,
-  privateToken: string,
-): Promise<GitLabUserData> {
+export async function getUserInfo(url: string): Promise<GitLabUserData> {
   try {
     const response = await axios.get<GitLabUserData>(
       normalizeUrl(url, API_SUFFIX) + `/user`,
-      gitlabConfig({}, privateToken),
     );
     return response.data;
   } catch (error) {
@@ -107,23 +93,20 @@ type GetProjectParams = {
 
 export async function getProjectsForGroup(
   url: string,
-  privateToken: string,
   groupId: number,
   params?: GetProjectParams,
 ): Promise<GitLabProject[]> {
   const link = normalizeUrl(url, API_SUFFIX) + `/groups/${groupId}/projects`;
-  return getWithKeysetPagination(link, gitlabConfig(params, privateToken));
+  return getWithKeysetPagination(link, { params });
 }
 
 export async function getProject(
   url: string,
-  privateToken: string,
   projectId: number,
 ): Promise<GitLabProject> {
   try {
     const response = await axios.get<GitLabProject>(
       normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}`,
-      gitlabConfig({}, privateToken),
     );
     return response.data;
   } catch (error) {
@@ -133,19 +116,17 @@ export async function getProject(
 
 export async function getPipelineJobs(
   url: string,
-  privateToken: string,
   projectId: number,
   pipelineId: number,
 ): Promise<GitLabJob[]> {
   const link =
     normalizeUrl(url, API_SUFFIX) +
     `/projects/${projectId}/pipelines/${pipelineId}/jobs`;
-  return getWithKeysetPagination(link, gitlabConfig({}, privateToken));
+  return getWithKeysetPagination(link);
 }
 
 export async function getPipelines(
   url: string,
-  privateToken: string,
   projectId: number,
   mrs: GitLabMR[],
 ): Promise<GitLabPipeline[]> {
@@ -155,7 +136,7 @@ export async function getPipelines(
   // Get all available pipelines for branches
   const branchPipelines = await getWithKeysetPagination<GitLabPipeline>(
     projectPipelinesUrl,
-    gitlabConfig({ scope: 'branches' }, privateToken),
+    { params: { scope: 'branches' } },
   );
 
   // For each MR get the latest pipeline
@@ -166,10 +147,9 @@ export async function getPipelines(
   };
   const refs = mrs.map(mr => `refs/merge-requests/${mr.iid}/head`);
   const pipelinePromises = refs.map(ref =>
-    axios.get<GitLabPipeline[]>(
-      projectPipelinesUrl,
-      gitlabConfig({ ...mrPipelinesConfig, ref }, privateToken),
-    ),
+    axios.get<GitLabPipeline[]>(projectPipelinesUrl, {
+      params: { ...mrPipelinesConfig, ref },
+    }),
   );
   const mrPipelines: GitLabPipeline[] = (await Promise.all(pipelinePromises))
     .map(response => response.data)
@@ -180,7 +160,7 @@ export async function getPipelines(
 
   // Get Jobs for each pipeline
   const jobPromises = pipelines.map(pipeline =>
-    getPipelineJobs(url, privateToken, projectId, pipeline.id),
+    getPipelineJobs(url, projectId, pipeline.id),
   );
   let jobs = await Promise.all(jobPromises);
 
@@ -205,7 +185,6 @@ export async function getPipelines(
 
 export async function rerunPipeline(
   url: string,
-  privateToken: string,
   projectId: number,
   mrIid: string,
 ): Promise<GitLabPipeline> {
@@ -216,12 +195,10 @@ export async function rerunPipeline(
     normalizeUrl(url, API_SUFFIX) +
     `/projects/${projectId}/merge_requests/${mrIid}`;
 
-  const config = gitlabConfig({}, privateToken);
-
   // Rerun pipeline
   let pipelineData;
   try {
-    const pipelineDataResponse = await axios.post(pipelineLink, null, config);
+    const pipelineDataResponse = await axios.post(pipelineLink);
     pipelineData = pipelineDataResponse.data;
   } catch (error) {
     throw new Error(getGitLabErrorMessage(error));
@@ -230,18 +207,13 @@ export async function rerunPipeline(
   // get data for single MR
   let mrData;
   try {
-    const mrDataResponse = await axios.get(mrLink, config);
+    const mrDataResponse = await axios.get(mrLink);
     mrData = mrDataResponse.data;
   } catch (error) {
     throw new Error(getGitLabErrorMessage(error));
   }
 
-  const jobs = await getPipelineJobs(
-    url,
-    privateToken,
-    projectId,
-    pipelineData.id,
-  );
+  const jobs = await getPipelineJobs(url, projectId, pipelineData.id);
 
   // If it originates from a MR, add title information
   const title = mrData.title;
@@ -255,7 +227,6 @@ export async function rerunPipeline(
 
 export async function createPipelineForRef(
   url: string,
-  privateToken: string,
   projectId: number,
   ref: string,
 ): Promise<GitLabPipeline> {
@@ -263,24 +234,17 @@ export async function createPipelineForRef(
     normalizeUrl(url, API_SUFFIX) +
     `/projects/${projectId}/pipeline?ref=${ref}`;
 
-  const config = gitlabConfig({}, privateToken);
-
   // Trigger Pipeline
   let pipelineData;
   try {
-    const pipelineDataResponse = await axios.post(pipelineLink, null, config);
+    const pipelineDataResponse = await axios.post(pipelineLink);
     pipelineData = pipelineDataResponse.data;
   } catch (error) {
     throw new Error(getGitLabErrorMessage(error));
   }
 
   // Get jobs for that Pipeline
-  const jobs = await getPipelineJobs(
-    url,
-    privateToken,
-    projectId,
-    pipelineData.id,
-  );
+  const jobs = await getPipelineJobs(url, projectId, pipelineData.id);
 
   return {
     ...pipelineData,
@@ -292,18 +256,15 @@ export async function createPipelineForRef(
 
 export async function playJob(
   url: string,
-  privateToken: string,
   projectId: number,
   jobId: number,
 ): Promise<void> {
   const playLink =
     normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}/jobs/${jobId}/play`;
 
-  const config = gitlabConfig({}, privateToken);
-
   // Play job that is in manual status
   try {
-    await axios.post(playLink, null, config);
+    await axios.post(playLink);
   } catch (error) {
     throw new Error(getGitLabErrorMessage(error));
   }
@@ -312,7 +273,6 @@ export async function playJob(
 
 export async function loadPipelineForMr(
   url: string,
-  privateToken: string,
   projectId: number,
   mrIid: number,
 ): Promise<GitLabPipeline> {
@@ -320,12 +280,10 @@ export async function loadPipelineForMr(
     normalizeUrl(url, API_SUFFIX) +
     `/projects/${projectId}/merge_requests/${mrIid}`;
 
-  const config = gitlabConfig({}, privateToken);
-
   // get data the associated MR
   let mrData: GitLabMR;
   try {
-    const mrDataResponse = await axios.get<GitLabMR>(mrLink, config);
+    const mrDataResponse = await axios.get<GitLabMR>(mrLink);
     mrData = mrDataResponse.data;
   } catch (error) {
     throw new Error(getGitLabErrorMessage(error));
@@ -337,22 +295,14 @@ export async function loadPipelineForMr(
     `/projects/${projectId}/pipelines/${mrData.head_pipeline.id}`;
   let pipelineData: GitLabPipeline;
   try {
-    const pipelineDataResponse = await axios.get<GitLabPipeline>(
-      pipelineLink,
-      config,
-    );
+    const pipelineDataResponse = await axios.get<GitLabPipeline>(pipelineLink);
     pipelineData = pipelineDataResponse.data;
   } catch (error) {
     throw new Error(getGitLabErrorMessage(error));
   }
 
   // Load jobs for this pipeline
-  const jobs = await getPipelineJobs(
-    url,
-    privateToken,
-    projectId,
-    pipelineData.id,
-  );
+  const jobs = await getPipelineJobs(url, projectId, pipelineData.id);
 
   const title = mrData.title;
   return {
@@ -365,7 +315,6 @@ export async function loadPipelineForMr(
 
 export async function getEvents(
   url: string,
-  privateToken: string,
   projectId: number,
   after: string,
 ): Promise<GitLabEvent[]> {
@@ -374,9 +323,8 @@ export async function getEvents(
   };
   if (!projectId) return [];
   const link = normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}/events`;
-  const config = gitlabConfig(params, privateToken);
   try {
-    const response = await axios.get<GitLabEvent[]>(link, config);
+    const response = await axios.get<GitLabEvent[]>(link, { params });
     return response.data;
   } catch (error) {
     throw new Error(getGitLabErrorMessage(error));

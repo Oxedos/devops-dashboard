@@ -32,10 +32,8 @@ const loadInitialState = (): GitLabState => {
   const persistedState: GitLabState =
     PersistanceAPI.loadFromLocalStorage(LOCALSTORAGE_KEY);
   return {
-    configured: persistedState?.configured || false,
     url: persistedState?.url,
-    token: persistedState?.token,
-    userId: persistedState?.userId,
+    applicationId: persistedState?.applicationId,
     userData: persistedState?.userData,
     listenedGroups: persistedState?.listenedGroups || [],
     groups: persistedState?.groups || [],
@@ -134,28 +132,20 @@ const slice = createSlice({
   name: 'gitLab',
   initialState,
   reducers: {
-    setConfigured(state, action: PayloadAction<boolean>) {
-      state.configured = action.payload;
-    },
     setUrl(state, action: PayloadAction<string | undefined>) {
       state.url = action.payload;
-    },
-    setToken(state, action: PayloadAction<string | undefined>) {
-      state.token = action.payload;
-    },
-    setUserId(state, action: PayloadAction<number | undefined>) {
-      state.userId = action.payload;
     },
     setUserData(state, action: PayloadAction<GitLabUserData>) {
       state.userData = action.payload;
     },
+    setApplicationId(state, action: PayloadAction<string>) {
+      state.applicationId = action.payload;
+    },
     reload(state, action: PayloadAction<void>) {},
     deleteConfiguration(state, action: PayloadAction<void>) {
-      state = {
-        configured: false,
+      return {
         url: undefined,
-        token: undefined,
-        userId: undefined,
+        applicationId: undefined,
         userData: undefined,
         listenedGroups: [],
         groups: [],

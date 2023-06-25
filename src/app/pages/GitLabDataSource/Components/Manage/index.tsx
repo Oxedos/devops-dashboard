@@ -1,33 +1,34 @@
-import React from 'react';
-import styled from 'styled-components/macro';
+import { RedButton } from 'app/components/Design/Buttons';
 import { useGitLabSlice } from 'app/data/gitLabSlice';
-import { selectToken, selectUrl } from 'app/data/gitLabSlice/selectors';
-import { useDispatch, useSelector } from 'react-redux';
+import React from 'react';
+import { useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router';
+import styled from 'styled-components/macro';
 import ContentElement from '../../../../components/Design/ContentElement';
 import Config from '../Config';
-import { RedButton } from 'app/components/Design/Buttons';
+
+function path(p) {
+  if (process.env.NODE_ENV === 'production') {
+    return process.env.PUBLIC_URL + p;
+  }
+  return p;
+}
 
 const Manage: React.FC = props => {
   const { actions: gitLabActions } = useGitLabSlice();
   const dispatch = useDispatch();
-  const url = useSelector(selectUrl);
-  const token = useSelector(selectToken);
+  const navigate = useNavigate();
 
   return (
     <Wrapper>
-      <Config
-        token={token}
-        url={url}
-        saveConfig={({ token, url }) => {
-          dispatch(gitLabActions.setToken(token));
-          dispatch(gitLabActions.setUrl(url));
-          dispatch(gitLabActions.setConfigured(true));
-        }}
-      />
+      <Config />
       <ContentElement>
         <h2>Manage Configuration</h2>
         <StyledRedButton
-          onClick={() => dispatch(gitLabActions.deleteConfiguration())}
+          onClick={() => {
+            dispatch(gitLabActions.deleteConfiguration());
+            navigate(path('/data/gitlab'));
+          }}
         >
           Delete Configuration
         </StyledRedButton>
