@@ -26,6 +26,7 @@ export enum SW_MESSAGE_TYPES {
   RECEIVE_PKCE_STATE = 'RECEIVE_PKCE_STATE',
   SAVE_AUTHORIZATION_CODE = 'SAVE_AUTHORIZATION_CODE',
   SW_ERROR = 'SW_ERROR',
+  SW_SUCCESS = 'SW_SUCCESS',
 }
 
 const OAUTH_REFRESH_THRESHOLD = 5; // Minutes
@@ -89,6 +90,12 @@ const REDIRECT_URI =
           );
           if (!initialToken) return;
           state.oauth = initialToken;
+          // Tell the FE that we succeeded
+          (await self.clients.matchAll()).forEach(client => {
+            client.postMessage({
+              type: SW_MESSAGE_TYPES.SW_SUCCESS,
+            });
+          });
           return;
         }
         case SW_MESSAGE_TYPES.LOG_STATE: {

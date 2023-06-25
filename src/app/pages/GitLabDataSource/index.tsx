@@ -177,7 +177,7 @@ export function GitLabDataSource() {
               <Form.Group className="mb-4">
                 <Form.Label>Application ID</Form.Label>
                 <Form.Control
-                  placeholder="Client ID"
+                  placeholder="Application ID"
                   value={clientID || ''}
                   onChange={({ target: { value } }) => setNewClientID(value)}
                 />

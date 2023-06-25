@@ -7,7 +7,7 @@
  */
 
 import { enableMapSet } from 'immer';
-import * as React from 'react';
+import { default as React, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   BrowserRouter,
@@ -79,6 +79,7 @@ import { Whitesource } from './pages/Whitesource/Loadable';
 import { useDispatch } from 'react-redux';
 import { SW_MESSAGE_TYPES } from 'service-worker';
 import { globalActions } from './data/globalSlice';
+import { gitLabActions } from './data/gitLabSlice';
 
 function path(p) {
   if (process.env.NODE_ENV === 'production') {
@@ -121,16 +122,32 @@ export const App: React.FC = props => {
   enableMapSet();
   const dispatch = useDispatch();
 
-  navigator.serviceWorker.addEventListener('message', event => {
-    if (!event || !event.data || !event.data.type) return;
-    if (event.data.type !== SW_MESSAGE_TYPES.SW_ERROR) return;
-    const error = event.data.payload.error;
-    if (error instanceof Error) {
-      dispatch(globalActions.addErrorNotification(`[GitLab] ${error.message}`));
-    } else {
-      dispatch(globalActions.addErrorNotification(`[GitLab] Unknown Error`));
-    }
-  });
+  useEffect(() => {
+    navigator.serviceWorker.addEventListener('message', event => {
+      if (!event || !event.data || !event.data.type) return;
+      switch (event.data.type) {
+        case SW_MESSAGE_TYPES.SW_ERROR: {
+          const error = event.data.payload.error;
+          if (error instanceof Error) {
+            dispatch(
+              globalActions.addErrorNotification(`[GitLab] ${error.message}`),
+            );
+          } else {
+            dispatch(
+              globalActions.addErrorNotification(`[GitLab] Unknown Error`),
+            );
+          }
+          break;
+        }
+        case SW_MESSAGE_TYPES.SW_SUCCESS: {
+          dispatch(gitLabActions.reload());
+          break;
+        }
+        default:
+          return;
+      }
+    });
+  }, [dispatch]);
 
   // Pre-Load FA Icons
   library.add(
