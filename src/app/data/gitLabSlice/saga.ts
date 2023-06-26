@@ -232,11 +232,7 @@ function* getUserAssignedMrs() {
   yield put(globalActions.addLoader({ id: loadingId }));
 
   try {
-    const mrsUserAssigned = yield call(API.getMergeRequests, url, {
-      scope: 'assigned_to_me',
-      order_by: 'updated_at',
-      sort: 'desc',
-    });
+    const mrsUserAssigned = yield call(API.getUserAssignedMrs, url);
     yield put(actions.setMrs({ mrs: mrsUserAssigned }));
   } catch (error) {
     if (error instanceof Error) {

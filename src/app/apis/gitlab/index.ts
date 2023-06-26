@@ -31,12 +31,6 @@ export async function getGroups(
   return getWithKeysetPagination(link, { params });
 }
 
-type GetMergeRequestParams = {
-  order_by?: 'created_at' | 'updated_at';
-  sort?: 'asc' | 'desc';
-  scope?: 'created_by_me' | 'assigned_to_me' | 'all';
-};
-
 export async function getGroupMergeRequests(
   url: string,
   groupId: number,
@@ -53,17 +47,15 @@ export async function getGroupMergeRequests(
   return mrList;
 }
 
-export async function getMergeRequests(
+export async function getUserAssignedMrs(
   url: string,
-  params: GetMergeRequestParams = {},
 ): Promise<GitLabSimpleMr[]> {
   const mrListLink = normalizeUrl(url, API_SUFFIX) + `/merge_requests`;
   const mrList = await getWithKeysetPagination<GitLabSimpleMr>(mrListLink, {
     params: {
-      ...params,
-      scope: 'all',
-      state: 'opened',
-      with_labels_details: 'true',
+      scope: 'assigned_to_me',
+      order_by: 'updated_at',
+      sort: 'desc',
     },
   });
   return mrList;
