@@ -7,7 +7,7 @@
  */
 
 import { enableMapSet } from 'immer';
-import { default as React, useEffect } from 'react';
+import { default as React } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   BrowserRouter,
@@ -77,10 +77,6 @@ import { useRssSlice } from './data/rssSlice';
 import { useWhitesourceSlice } from './data/whitesourceSlice';
 import { DashboardSettings } from './pages/DashboardsSettings/Loadable';
 import { Whitesource } from './pages/Whitesource/Loadable';
-import { useDispatch } from 'react-redux';
-import { SW_MESSAGE_TYPES } from 'service-worker';
-import { globalActions } from './data/globalSlice';
-import { gitLabActions } from './data/gitLabSlice';
 
 function path(p) {
   if (process.env.NODE_ENV === 'production') {
@@ -117,50 +113,10 @@ const withDashboardIdCheckpoint = (WrappedComponent: React.FC<any>) => {
   };
 };
 
-const PUBLIC_URL =
-  process.env.PUBLIC_URL.startsWith('.') || !process.env.PUBLIC_URL
-    ? 'http://localhost:3000'
-    : process.env.HOMEPAGE;
-
 export const App: React.FC = props => {
   useWhitesourceSlice();
   useRssSlice();
   enableMapSet();
-  const dispatch = useDispatch();
-
-  // Keep the service worker alive
-  useEffect(() => {
-    setInterval(function () {
-      fetch(`${PUBLIC_URL}/favicon.ico`);
-    }, 10 * 1000);
-  }, []);
-
-  useEffect(() => {
-    navigator.serviceWorker.addEventListener('message', event => {
-      if (!event || !event.data || !event.data.type) return;
-      switch (event.data.type) {
-        case SW_MESSAGE_TYPES.SW_ERROR: {
-          const error = event.data.payload.error;
-          if (error instanceof Error) {
-            dispatch(
-              globalActions.addErrorNotification(`[GitLab] ${error.message}`),
-            );
-          } else {
-            dispatch(
-              globalActions.addErrorNotification(`[GitLab] Unknown Error`),
-            );
-          }
-          break;
-        }
-        case SW_MESSAGE_TYPES.SW_SUCCESS: {
-          dispatch(gitLabActions.reload());
-          break;
-        }
-        default:
-          return;
-      }
-    });
-  }, [dispatch]);
 
   // Pre-Load FA Icons
   library.add(

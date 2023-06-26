@@ -27,6 +27,8 @@ export enum SW_MESSAGE_TYPES {
   SAVE_AUTHORIZATION_CODE = 'SAVE_AUTHORIZATION_CODE',
   SW_ERROR = 'SW_ERROR',
   SW_SUCCESS = 'SW_SUCCESS',
+  IS_AUTHENTICATED = 'IS_AUTHENTICATED',
+  CHECK_AUTHENTICATED = 'CHECK_AUTHENTICATED',
 }
 
 const OAUTH_REFRESH_THRESHOLD = 5; // Minutes
@@ -108,6 +110,17 @@ const REDIRECT_URI =
           event.source.postMessage({
             type: SW_MESSAGE_TYPES.RECEIVE_PKCE_STATE,
             payload: { state: state.pkceValues?.state },
+          });
+          return;
+        }
+        case SW_MESSAGE_TYPES.CHECK_AUTHENTICATED: {
+          (await self.clients.matchAll()).forEach(client => {
+            client.postMessage({
+              type: SW_MESSAGE_TYPES.IS_AUTHENTICATED,
+              payload: {
+                authenticated: !!state.authorizationCode,
+              },
+            });
           });
           return;
         }

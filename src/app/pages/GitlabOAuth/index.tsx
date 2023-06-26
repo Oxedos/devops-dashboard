@@ -1,6 +1,8 @@
 import ContentWrapper from 'app/components/Design/ContentWrapper';
 import NavigationBar from 'app/components/NavigationBar';
+import { globalActions } from 'app/data/globalSlice';
 import React, { useEffect, useState } from 'react';
+import { useDispatch } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { SW_MESSAGE_TYPES } from 'service-worker';
 
@@ -15,6 +17,7 @@ export const OAuth: React.FC = props => {
   const [message, setMessage] = useState('Initial State');
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const code = searchParams.get('code');
   const state = searchParams.get('state');
 
@@ -60,14 +63,17 @@ export const OAuth: React.FC = props => {
       });
       // we don't need ourselves anymore
       navigator.serviceWorker.removeEventListener('message', eventListener);
-      navigate(path('/data/gitlab'));
+      dispatch(
+        globalActions.addNotification('Successfully authenticated with GitLab'),
+      );
+      navigate(path('/'));
     };
     navigator.serviceWorker.addEventListener('message', eventListener);
     // Request PKCE state
     navigator.serviceWorker.controller.postMessage({
       type: SW_MESSAGE_TYPES.RECEIVE_PKCE_STATE,
     });
-  }, [code, state, navigate]);
+  }, [code, state, navigate, dispatch]);
 
   return (
     <>

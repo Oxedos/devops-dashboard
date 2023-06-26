@@ -12,17 +12,14 @@ import {
   selectUrl,
   selectUserData,
 } from 'app/data/gitLabSlice/selectors';
-import { PkceValues } from 'app/data/gitLabSlice/types';
-import { globalActions } from 'app/data/globalSlice';
+import { REDIRECT_URI, redirectToGitlabAuth } from 'app/util/OAuthUtil';
 import { useState } from 'react';
 import Figure from 'react-bootstrap/Figure';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import { Helmet } from 'react-helmet-async';
-import { useDispatch } from 'react-redux';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { SW_MESSAGE_TYPES } from 'service-worker';
 import styled from 'styled-components/macro';
 
 function path(p) {
@@ -32,64 +29,6 @@ function path(p) {
   return p;
 }
 
-const REDIRECT_URI =
-  process.env.PUBLIC_URL.startsWith('.') || !process.env.PUBLIC_URL
-    ? 'http://localhost:3000/data/gitlab/oauth'
-    : `${process.env.HOMEPAGE}/data/gitlab/oauth`;
-
-const generatePkceValues = async () => {
-  const dec2hex = dec => {
-    return dec.toString(16).padStart(2, '0');
-  };
-
-  const generateRandomString = len => {
-    var arr = new Uint8Array((len || 40) / 2);
-    window.crypto.getRandomValues(arr);
-    return Array.from(arr, dec2hex).join('');
-  };
-
-  const codeVerifier = generateRandomString(128)
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
-  const encoder = new TextEncoder();
-  const data = encoder.encode(codeVerifier);
-  const digest = await window.crypto.subtle.digest('SHA-256', data);
-  const base64Digest = window
-    .btoa(String.fromCharCode(...new Uint8Array(digest)))
-    .replace(/\+/g, '-')
-    .replace(/\//g, '_')
-    .replace(/=/g, '');
-  return {
-    state: generateRandomString(10),
-    codeVerifier,
-    codeChallenge: base64Digest,
-    code: undefined,
-  };
-};
-
-const sendOAuthDataToServiceWorker = (
-  pkce: PkceValues,
-  url: string,
-  applicationId: string,
-) => {
-  if (
-    !navigator ||
-    !navigator.serviceWorker ||
-    !navigator.serviceWorker.controller
-  ) {
-    return;
-  }
-  navigator.serviceWorker.controller.postMessage({
-    type: SW_MESSAGE_TYPES.SAVE_OAUTH_DATA,
-    payload: {
-      pkce,
-      url,
-      applicationId,
-    },
-  });
-};
-
 export function GitLabDataSource() {
   const [clientID, setNewClientID] = useState(useSelector(selectApplicationId));
   const [newUrl, setNewUrl] = useState(useSelector(selectUrl));
@@ -97,30 +36,6 @@ export function GitLabDataSource() {
   const userData = useSelector(selectUserData);
   const dispatch = useDispatch();
   const navigate = useNavigate();
-
-  const saveConfig = async () => {
-    if (!newUrl) {
-      dispatch(globalActions.addErrorNotification("GitLab Url can't be empty"));
-      return;
-    }
-    if (!clientID) {
-      dispatch(
-        globalActions.addErrorNotification("Application ID can't be empty"),
-      );
-      return;
-    }
-    const pkceValues = await generatePkceValues();
-    dispatch(gitLabActions.setUrl(newUrl));
-    dispatch(gitLabActions.setApplicationId(clientID));
-    sendOAuthDataToServiceWorker(pkceValues, newUrl, clientID);
-    document.location.href = `${newUrl}/oauth/authorize?redirect_uri=${encodeURIComponent(
-      REDIRECT_URI,
-    )}&client_id=${clientID}&response_type=code&state=${
-      pkceValues.state
-    }&scope=api&code_challenge=${
-      pkceValues.codeChallenge
-    }&code_challenge_method=S256`;
-  };
 
   return (
     <>
@@ -180,7 +95,9 @@ export function GitLabDataSource() {
                   onChange={({ target: { value } }) => setNewClientID(value)}
                 />
               </Form.Group>
-              <BlueButton onClick={saveConfig}>
+              <BlueButton
+                onClick={() => redirectToGitlabAuth(newUrl, clientID, dispatch)}
+              >
                 <FontAwesomeIcon icon={['fab', 'gitlab']} />
                 Authenticate with GitLab
               </BlueButton>
