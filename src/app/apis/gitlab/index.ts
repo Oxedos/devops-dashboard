@@ -53,6 +53,7 @@ export async function getUserAssignedMrs(
   const mrListLink = normalizeUrl(url, API_SUFFIX) + `/merge_requests`;
   const mrList = await getWithKeysetPagination<GitLabSimpleMr>(mrListLink, {
     params: {
+      state: 'opened',
       scope: 'assigned_to_me',
       order_by: 'updated_at',
       sort: 'desc',
