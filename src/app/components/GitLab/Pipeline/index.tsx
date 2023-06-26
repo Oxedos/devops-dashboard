@@ -226,9 +226,8 @@ const LabelsRowWrapper = styled.div`
   align-items: center;
   justify-content: flex-start;
   margin: 0;
-  padding-right: 3em;
+  gap: 0.5em;
   & > * {
-    margin-right: 1em;
     background: var(--clr-blue-lighter) !important;
   }
 `;
