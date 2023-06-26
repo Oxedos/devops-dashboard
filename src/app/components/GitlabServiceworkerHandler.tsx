@@ -41,7 +41,6 @@ export const GitlabServiceworkerHandler: React.FC = () => {
         }
         // Load data when successfully authenticated
         case SW_MESSAGE_TYPES.SW_SUCCESS: {
-          // TODO: Just load profile data
           dispatch(gitLabActions.reload());
           break;
         }
@@ -49,13 +48,12 @@ export const GitlabServiceworkerHandler: React.FC = () => {
         case SW_MESSAGE_TYPES.IS_AUTHENTICATED: {
           if (!gitlabHost || !applicationId) return;
           const authenticated = event.data.payload.authenticated;
-          if (!authenticated) {
-            console.log('not authenticated!');
-            setTimeout(
-              () => redirectToGitlabAuth(gitlabHost, applicationId, dispatch),
-              1000,
-            );
-          }
+          // defer the evaluation by a few seconds to give everything time to load
+          setTimeout(() => {
+            if (!authenticated) {
+              redirectToGitlabAuth(gitlabHost, applicationId, dispatch);
+            }
+          }, 1000 * 3);
           return;
         }
         default:

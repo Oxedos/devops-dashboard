@@ -526,8 +526,8 @@ export function* gitLabSaga() {
   yield takeLeading(actions.deleteConfiguration.type, clear);
   yield takeEvery(actions.reloadPipeline.type, rerunPipelines);
   yield takeEvery(actions.playJob.type, playJobs);
-  yield takeLeading(actions.setUrl, persist);
-  yield takeLeading(actions.setApplicationId, persist);
+  yield takeLeading(actions.setUrl.type, persist);
+  yield takeLeading(actions.setApplicationId.type, persist);
   yield spawn(pollLong);
   yield spawn(pollShort);
 }
