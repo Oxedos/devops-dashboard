@@ -1,10 +1,10 @@
+import { GitLabMR } from 'app/apis/gitlab/types';
 import { createSelector } from 'reselect';
 import {
   createParameterSelector,
   selectGitlabSlice,
   selectUserData,
 } from './selectors';
-import { GitLabMR } from 'app/apis/gitlab/types';
 
 export const selectMrIdsByGroup = createSelector(
   selectGitlabSlice,
@@ -27,6 +27,28 @@ export const selectMrsByGroup = createSelector(
     const mrIds = mrsByGroup.get(groupName);
     if (!mrIds || mrIds.length <= 0) return [];
     return state.mrs.filter(mr => mrIds.includes(mr.id));
+  },
+);
+
+export const selectUserAssignedMrs = createSelector(
+  selectAllMrs,
+  selectUserData,
+  (allMrs, userData) => {
+    if (!allMrs || allMrs.length <= 0) return [];
+    if (!userData) return [];
+    return allMrs.filter(
+      mr =>
+        (mr &&
+          mr.assignee &&
+          userData &&
+          userData.id &&
+          mr.assignee.id === userData.id) ||
+        (mr.assignees &&
+          userData &&
+          userData.id &&
+          mr.assignees.length > 1 &&
+          mr.assignees.map(assignee => assignee.id).includes(userData.id)),
+    );
   },
 );
 

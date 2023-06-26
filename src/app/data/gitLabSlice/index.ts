@@ -19,13 +19,15 @@ import {
   createSettingReducer,
   equalByAttribute,
   getIdByAttribute,
+  remove,
   removeFromStateByIdentifier,
   updateState,
   upsert,
 } from '../helper';
+import { selectAbandonedGroups } from './groupSelectors';
+import { selectUserAssignedMrs } from './mrSelectors';
 import { gitLabSaga } from './saga';
 import { GitLabState } from './types';
-import { selectAbandonedGroups } from './groupSelectors';
 
 export const LOCALSTORAGE_KEY = 'gitlab-state';
 
@@ -171,6 +173,18 @@ const slice = createSlice({
         );
       } else {
         // If the MRs aren't associated to a group, they must be assigned to the user
+        // 1: Delete all MRs that were previously assigned
+        const previousUserAssignedMRs = selectUserAssignedMrs({
+          gitLab: state,
+        });
+        state.mrs = remove(
+          state.mrs,
+          previousUserAssignedMRs,
+          (a, b) => a.id === b.id,
+        );
+        // Now re-add all user assigned MRs
+        // If a MR changed assignees but wasn't closed, it will now be deleted
+        // -> okay for now, next reload will bring that MR back
         state.mrs = upsert(state.mrs, mrs, equalByAttribute('id'));
       }
     },
