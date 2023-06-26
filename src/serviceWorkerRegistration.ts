@@ -1,14 +1,12 @@
 // This optional code is used to register a service worker.
 // register() is not called by default.
 
-// This lets the app load faster on subsequent visits in production, and gives
-// it offline capabilities. However, it also means that developers (and users)
-// will only see deployed updates on subsequent visits to a page, after all the
-// existing tabs open on the page have been closed, since previously cached
-// resources are updated in the background.
-
-// To learn more about the benefits of this model and instructions on how to
-// opt-in, read https://cra.link/PWA
+import { gitLabActions } from 'app/data/gitLabSlice';
+import { selectApplicationId, selectUrl } from 'app/data/gitLabSlice/selectors';
+import { globalActions } from 'app/data/globalSlice';
+import { redirectToGitlabAuth } from 'app/util/OAuthUtil';
+import { reduxApplicationStore } from 'index';
+import { SW_MESSAGE_TYPES } from 'service-worker';
 
 const isLocalhost = Boolean(
   window.location.hostname === 'localhost' ||
@@ -38,19 +36,29 @@ export function register(config?: Config) {
     if (isLocalhost) {
       // This is running on localhost. Let's check if a service worker still exists or not.
       checkValidServiceWorker(swUrl, config);
-
-      // Add some additional logging to localhost, pointing developers to the
-      // service worker/PWA documentation.
-      navigator.serviceWorker.ready.then(() => {
-        console.log(
-          'This web app is being served cache-first by a service ' +
-            'worker. To learn more, visit https://cra.link/PWA',
-        );
-      });
     } else {
       // Is not localhost. Just register service worker
       registerValidSW(swUrl);
     }
+    // Register some stuff when our SW is ready
+    navigator.serviceWorker.ready.then(registration => {
+      // Event Listener for bidirectional communication to SW
+      navigator.serviceWorker.addEventListener(
+        'message',
+        onMessageEventListener,
+      );
+      // onfocus listener to check if we are authenticated with gitlab
+      window.onfocus = () => {
+        setTimeout(() => {
+          if (!navigator.serviceWorker || !navigator.serviceWorker.controller) {
+            return;
+          }
+          navigator.serviceWorker.controller.postMessage({
+            type: SW_MESSAGE_TYPES.CHECK_AUTHENTICATED,
+          });
+        }, 1000);
+      };
+    });
   });
 }
 
@@ -96,5 +104,48 @@ export function unregister() {
       .catch(error => {
         console.error(error.message);
       });
+  }
+}
+
+function onMessageEventListener(event: MessageEvent) {
+  if (!event || !event.data || !event.data.type) return;
+  switch (event.data.type) {
+    // Display Error Notifications
+    case SW_MESSAGE_TYPES.SW_ERROR: {
+      const error = event.data.payload.error;
+      if (error instanceof Error) {
+        reduxApplicationStore.dispatch(
+          globalActions.addErrorNotification(`[GitLab] ${error.message}`),
+        );
+      } else {
+        reduxApplicationStore.dispatch(
+          globalActions.addErrorNotification(`[GitLab] Unknown Error`),
+        );
+      }
+      break;
+    }
+    // Load data when successfully authenticated
+    case SW_MESSAGE_TYPES.SW_SUCCESS: {
+      reduxApplicationStore.dispatch(gitLabActions.reload());
+      break;
+    }
+    // Handle SW Message if we are authenticated or not (redo authentication after idleing)
+    case SW_MESSAGE_TYPES.IS_AUTHENTICATED: {
+      const rootState = reduxApplicationStore.getState();
+      const gitlabHost = selectUrl(rootState);
+      const applicationId = selectApplicationId(rootState);
+      if (!gitlabHost || !applicationId) return;
+      const authenticated = event.data.payload.authenticated;
+      if (!authenticated) {
+        redirectToGitlabAuth(
+          gitlabHost,
+          applicationId,
+          reduxApplicationStore.dispatch,
+        );
+      }
+      return;
+    }
+    default:
+      return;
   }
 }

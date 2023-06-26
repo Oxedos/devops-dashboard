@@ -40,6 +40,7 @@ import {
   selectUrl,
 } from './selectors';
 import { GitLabState } from './types';
+import { SW_MESSAGE_TYPES } from 'service-worker';
 
 const { select, call, put, delay } = Effects;
 
@@ -492,8 +493,13 @@ function* pollShort() {
 function* loadAll() {
   const configured: boolean = yield select(selectConfigured);
   if (!configured) return;
-  // Calls without any dependency
-  yield fork(getUserInfo);
+  const isAuthenticated = yield call(tryLoadingUserinfo);
+
+  if (!isAuthenticated) {
+    signalServiceWorker();
+    return;
+  }
+
   yield fork(getUserAssignedMrs);
 
   yield call(getGroups); // All other calls depend on groups, block for this call
@@ -518,6 +524,26 @@ function* persist() {
 function* clear() {
   yield call(PersistanceAPI.clearLocalStorage, LOCALSTORAGE_KEY);
 }
+
+function* tryLoadingUserinfo() {
+  const url = yield select(selectUrl);
+  try {
+    const userInfo = yield call(API.getUserInfo, url);
+    yield put(actions.setUserData(userInfo));
+    return true;
+  } catch (error) {
+    return false;
+  }
+}
+
+const signalServiceWorker = () => {
+  if (!navigator.serviceWorker || !navigator.serviceWorker.controller) {
+    return;
+  }
+  navigator.serviceWorker.controller.postMessage({
+    type: SW_MESSAGE_TYPES.CHECK_AUTHENTICATED,
+  });
+};
 
 export function* gitLabSaga() {
   yield takeLeading(actions.addListenedGroup.type, loadAll);

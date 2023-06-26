@@ -22,18 +22,16 @@ import '../node_modules/react-resizable/css/styles.css';
 import { App } from 'app';
 import { HelmetProvider } from 'react-helmet-async';
 import { configureAppStore } from 'store/configureStore';
-import GitlabServiceworkerHandler from 'app/components/GitlabServiceworkerHandler';
 
-const store = configureAppStore();
+export const reduxApplicationStore = configureAppStore();
 const MOUNT_NODE = document.getElementById('root') as HTMLElement;
 
 const root = ReactDOMClient.createRoot(MOUNT_NODE);
 root.render(
-  <Provider store={store}>
+  <Provider store={reduxApplicationStore}>
     <HelmetProvider>
       <App />
     </HelmetProvider>
-    <GitlabServiceworkerHandler />
   </Provider>,
 );
 

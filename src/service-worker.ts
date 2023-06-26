@@ -118,7 +118,7 @@ const REDIRECT_URI =
             client.postMessage({
               type: SW_MESSAGE_TYPES.IS_AUTHENTICATED,
               payload: {
-                authenticated: !!state.authorizationCode,
+                authenticated: isAuthenticated(state),
               },
             });
           });
@@ -138,15 +138,35 @@ const REDIRECT_URI =
 
   self.addEventListener('fetch', async event => {
     const fetchHandler = async () => {
-      if (!isConfigured(state)) return fetch(event.request);
-      if (!state.gitlabUrl) return fetch(event.request);
-      if (!state.authorizationCode) return fetch(event.request);
-      if (!state.pkceValues || !state.pkceValues.codeVerifier)
-        return fetch(event.request);
-      if (!state.applicationId) return fetch(event.request);
       if (!isGitlabFetch(state, event)) return fetch(event.request);
       if (isPictureFech(event)) return fetch(event.request);
-      if (!isAuthenticated(state)) return fetch(event.request);
+      // If we're not configured, signal the front-end
+      // the FE has to decide whether it can immediately redirect to GitLab or not
+      // Also: If we aren't configured at all (not gitlab URL) we can't even know if
+      // the FE is trying to make a request that fails
+      if (
+        !state.authorizationCode ||
+        !state.applicationId ||
+        !state.gitlabUrl ||
+        !state.pkceValues
+      ) {
+        const clients = await self.clients.matchAll();
+        clients.forEach(client => {
+          client.postMessage({
+            type: SW_MESSAGE_TYPES.IS_AUTHENTICATED,
+            payload: {
+              authenticated: isAuthenticated(state),
+            },
+          });
+        });
+        // Do not pass fetch through, reply with our own 401 response
+        const responseBody = JSON.stringify({ message: 'not authenticated' });
+        const response: Response = new Response(responseBody, { status: 401 });
+        const responsePromise: Promise<Response> = new Promise((resolve, _) =>
+          resolve(response),
+        );
+        return responsePromise;
+      }
       if (!isTokenAvailable(state)) {
         // Get initial token with authorizationCode
         const initialToken = await getTokenWithCode(
@@ -178,16 +198,14 @@ const REDIRECT_URI =
     event.respondWith(fetchHandler());
   });
 
-  const isConfigured = (state: SW_STATE) =>
-    !!state.gitlabUrl && !!state.pkceValues;
-
   const isGitlabFetch = (state: SW_STATE, event: FetchEvent) =>
     state.gitlabUrl && event.request.url.startsWith(state.gitlabUrl);
 
   const isPictureFech = (event: FetchEvent) =>
     event.request.url.endsWith('.png');
 
-  const isAuthenticated = (state: SW_STATE) => !!state.authorizationCode;
+  const isAuthenticated = (state: SW_STATE) =>
+    state.authorizationCode && state.gitlabUrl && state.applicationId;
 
   const isTokenAvailable = (state: SW_STATE) => !!state.oauth;
 
