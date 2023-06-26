@@ -61,8 +61,8 @@ export const selectProjectIdsListeningForEvents = createSelector(
   (projectIdsByGroup, groupsListeningForEvents) => {
     if (!groupsListeningForEvents || groupsListeningForEvents.length <= 0)
       return [];
-    groupsListeningForEvents
-      .map(group => projectIdsByGroup.get(group))
+    return groupsListeningForEvents
+      .flatMap(group => projectIdsByGroup.get(group))
       .filter(projectId => !!projectId);
   },
 );
