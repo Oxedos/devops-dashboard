@@ -12,6 +12,7 @@ import { GlobalColours } from 'styles/global-styles';
 import Badge from 'react-bootstrap/Badge';
 import { PipelineStatus, StatusStyle } from '../Status';
 import { selectProjects } from 'app/data/gitLabSlice/projectSelectors';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 type PropTypes = {
   pipeline: GitLabPipeline;
@@ -105,11 +106,33 @@ const Pipeline: React.FC<PropTypes> = props => {
 
   const labels =
     pipeline.labels &&
-    pipeline.labels.map((label, idx) => (
-      <Badge pill key={`${label}-${idx}`}>
-        {label}
-      </Badge>
-    ));
+    pipeline.labels.map((label, idx) => {
+      const labelComponent = (
+        <ColoredBadged
+          pill
+          key={`${label}-${idx}`}
+          background={label.color}
+          color={label.text_color}
+        >
+          {label.name}
+        </ColoredBadged>
+      );
+      if (!label.description) {
+        return labelComponent;
+      }
+      return (
+        <OverlayTrigger
+          placement="bottom"
+          overlay={overlayProps => (
+            <Tooltip id="button-tooltip" {...overlayProps}>
+              {label.description}
+            </Tooltip>
+          )}
+        >
+          {labelComponent}
+        </OverlayTrigger>
+      );
+    });
 
   return (
     <Wrapper backgroundColor={backgroundColour}>
@@ -227,9 +250,14 @@ const LabelsRowWrapper = styled.div`
   justify-content: flex-start;
   margin: 0;
   gap: 0.5em;
-  & > * {
-    background: var(--clr-blue-lighter) !important;
-  }
+`;
+
+const ColoredBadged = styled(Badge)`
+  background: ${(props: any) =>
+    props.background
+      ? `${props.background} !important`
+      : 'var(--clr-blue-lighter)'};
+  color: ${(props: any) => (props.color ? props.color : 'var(--clr-white)')};
 `;
 
 const TimeWrapper = styled.div`

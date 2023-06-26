@@ -5,7 +5,6 @@ import {
   selectGlobal,
 } from '../globalSlice/selectors';
 import { VisualisationType } from '../VisualisationTypes';
-import { GitLabGroup } from 'app/apis/gitlab/types';
 
 export const selectGroups = createSelector(
   selectGitlabSlice,

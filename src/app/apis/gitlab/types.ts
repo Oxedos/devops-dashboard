@@ -103,9 +103,17 @@ export type GitLabPipeline = {
   jobs: GitLabJob[];
   title: string | undefined; // Title of associated MR if present
   mr_web_url: string | undefined; // Web URL of associated MR if present
-  labels: String[];
+  labels: GitlabLabel[];
   associatedMr: GitLabMR;
 } & GitLabPipelineBasic;
+
+export type GitlabLabel = {
+  name: string;
+  color: string;
+  description: string;
+  description_html: string;
+  text_color: string;
+};
 
 export type GitLabSimpleMr = {
   id: MrId;
@@ -131,7 +139,7 @@ export type GitLabSimpleMr = {
   reviewers: GitLabUserReference[];
   source_project_id: number;
   target_project_id: number;
-  labels: string[];
+  labels: GitlabLabel[];
   draft: boolean;
   work_in_progress: boolean;
   milestone: {
@@ -216,7 +224,7 @@ export type GitLabMR = {
   reviewers: GitLabUserReference[];
   source_project_id: number;
   target_project_id: number;
-  labels: string[];
+  labels: GitlabLabel[];
   draft: boolean;
   work_in_progress: boolean;
   milestone: GitLabMilestone;

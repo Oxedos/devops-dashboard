@@ -32,21 +32,14 @@ export async function getGroups(
 }
 
 type GetMergeRequestParams = {
-  state?: 'opened' | 'closed' | 'merged';
   order_by?: 'created_at' | 'updated_at';
   sort?: 'asc' | 'desc';
-  view?: 'simple';
-  labels?: string[] | 'None' | 'Any';
   scope?: 'created_by_me' | 'assigned_to_me' | 'all';
-  assignee_id?: number | 'None' | 'Any';
-  reviewer_id?: number | 'None' | 'Any';
 };
 
-// TODO: look at param with_labels_details 
 export async function getGroupMergeRequests(
   url: string,
   groupId: number,
-  params: GetMergeRequestParams = {},
 ): Promise<GitLabSimpleMr[]> {
   const mrListLink =
     normalizeUrl(url, API_SUFFIX) + `/groups/${groupId}/merge_requests`;
@@ -54,7 +47,7 @@ export async function getGroupMergeRequests(
     params: {
       scope: 'all',
       state: 'opened',
-      ...params,
+      with_labels_details: 'true',
     },
   });
   return mrList;
@@ -67,9 +60,10 @@ export async function getMergeRequests(
   const mrListLink = normalizeUrl(url, API_SUFFIX) + `/merge_requests`;
   const mrList = await getWithKeysetPagination<GitLabSimpleMr>(mrListLink, {
     params: {
+      ...params,
       scope: 'all',
       state: 'opened',
-      ...params,
+      with_labels_details: 'true',
     },
   });
   return mrList;
