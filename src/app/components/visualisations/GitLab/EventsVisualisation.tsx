@@ -33,6 +33,9 @@ const getIcon = (
   if (actionName === 'accepted') {
     return { color: GlobalColours.green, icon: 'check' };
   }
+  if (actionName === 'commented on') {
+    return { color: GlobalColours.white, icon: 'comment' };
+  }
   if (actionName === 'pushed to' && target === 'branch') {
     return { color: GlobalColours.white, icon: 'code-merge' };
   }

@@ -46,6 +46,7 @@ import {
   faCodePullRequest,
   faCog,
   faCogs,
+  faComment,
   faExclamation,
   faExclamationCircle,
   faExclamationTriangle,
@@ -131,7 +132,7 @@ export const App: React.FC = props => {
   useEffect(() => {
     setInterval(function () {
       fetch(`${PUBLIC_URL}/favicon.ico`);
-    }, 20 * 1000);
+    }, 10 * 1000);
   }, []);
 
   useEffect(() => {
@@ -203,6 +204,7 @@ export const App: React.FC = props => {
     faCodeMerge,
     faCodePullRequest,
     faCodeBranch,
+    faComment,
   );
 
   const HomeWithDashboardIdCheckpoint = withDashboardIdCheckpoint(HomePage);
