@@ -110,7 +110,7 @@ const Pipeline: React.FC<PropTypes> = props => {
       const labelComponent = (
         <ColoredBadged
           pill
-          key={`${label}-${idx}`}
+          key={`${label}-${idx} Badge`}
           background={label.color}
           color={label.text_color}
         >
@@ -122,6 +122,7 @@ const Pipeline: React.FC<PropTypes> = props => {
       }
       return (
         <OverlayTrigger
+          key={`${label}-${idx} Overlay`}
           placement="bottom"
           overlay={overlayProps => (
             <Tooltip id="button-tooltip" {...overlayProps}>
