@@ -4,6 +4,8 @@ import {
   selectConfiguredVisualisations,
   selectGlobal,
 } from '../globalSlice/selectors';
+import { VisualisationType } from '../VisualisationTypes';
+import { GitLabGroup } from 'app/apis/gitlab/types';
 
 export const selectGroups = createSelector(
   selectGitlabSlice,
@@ -27,6 +29,53 @@ export const selectListenedGroups = createSelector(
       ),
     ];
   },
+);
+
+export const selectGroupsListeningForPipelines = createSelector(
+  selectConfiguredVisualisations,
+  configuredVisualisations =>
+    configuredVisualisations
+      .filter(
+        vis => vis && vis.type === VisualisationType.GITLAB_PIPELINES_TABLE,
+      )
+      .map(vis => ({
+        group: vis.props?.group,
+        includeBranches: vis.props?.displayPipelinesForBranches,
+        includeMrs: vis.props?.displayPipelinesForMRs,
+      }))
+      .filter(groupConfig => !!groupConfig.group),
+);
+
+export const selectGroupsListeningForMrs = createSelector(
+  selectConfiguredVisualisations,
+  selectGroups,
+  (configuredVisualisations, groups) =>
+    configuredVisualisations
+      .filter(
+        vis =>
+          (vis && vis.type === VisualisationType.GITLAB_MR_TABLE) ||
+          vis.type === VisualisationType.GITLAB_PIPELINES_TABLE,
+      )
+      // Dot not include group if vis is configured for user assigned MRs
+      .filter(vis => vis.props && !vis.props.assignedToUserOnly)
+      .map(vis => ({
+        group: vis.props?.group,
+        includeWIP: vis.props?.includeWIP || false,
+      }))
+      .filter(groupConfig => !!groupConfig.group)
+      .map(groupConfig => ({
+        group: groups.find(g => g.full_name === groupConfig.group),
+        includeWIP: !!groupConfig.includeWIP,
+      })),
+);
+
+export const selectGroupNamesListeningForEvents = createSelector(
+  selectConfiguredVisualisations,
+  configuredVisualisations =>
+    configuredVisualisations
+      .filter(vis => vis && vis.type === VisualisationType.GITLAB_EVENTS)
+      .map(vis => vis.props?.group)
+      .filter(group => !!group),
 );
 
 export const selectListenedGroupsForPipelines = createSelector(
@@ -56,16 +105,5 @@ export const selectGroupByGroupName = createSelector(
   (groups, groupName) => {
     if (!groupName) return undefined;
     return groups.find(group => group.full_name === groupName);
-  },
-);
-
-export const selectListenedGroupsFull = createSelector(
-  selectGroups,
-  selectListenedGroups,
-  (groups, listenedGroupNames) => {
-    if (!listenedGroupNames || listenedGroupNames.length <= 0) return [];
-    return listenedGroupNames
-      .map(groupName => groups.find(g => g.full_name === groupName))
-      .filter(group => !!group);
   },
 );

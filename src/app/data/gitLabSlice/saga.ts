@@ -20,16 +20,18 @@ import {
   takeEvery,
   takeLeading,
 } from 'redux-saga/effects';
+import { SW_MESSAGE_TYPES } from 'service-worker';
 import { LOCALSTORAGE_KEY, gitLabActions as actions, gitLabActions } from '.';
 import {
   selectGroupByGroupName,
+  selectGroupsListeningForMrs,
+  selectGroupsListeningForPipelines,
   selectListenedGroups,
-  selectListenedGroupsFull,
 } from './groupSelectors';
 import { selectAllMrs, selectMrsByGroup } from './mrSelectors';
 import { selectPipelinesToReload } from './pipelineSelectors';
 import {
-  selectListenedProjectIds,
+  selectProjectIdsListeningForEvents,
   selectProjects,
   selectProjectsByGroup,
 } from './projectSelectors';
@@ -40,7 +42,6 @@ import {
   selectUrl,
 } from './selectors';
 import { GitLabState } from './types';
-import { SW_MESSAGE_TYPES } from 'service-worker';
 
 const { select, call, put, delay } = Effects;
 
@@ -142,6 +143,8 @@ function* getProjects() {
 function* loadPipelinesForProject(
   project: GitLabProject,
   mrs: GitLabMR[],
+  includeBranches: boolean,
+  includeMrs: boolean,
   url: string,
 ) {
   try {
@@ -150,6 +153,8 @@ function* loadPipelinesForProject(
       url,
       project.id,
       mrs,
+      includeBranches,
+      includeMrs,
     );
     return pipelines;
   } catch (error) {
@@ -157,7 +162,12 @@ function* loadPipelinesForProject(
   }
 }
 
-function* loadPipelinesForGroup(groupName: GroupName, url: string) {
+function* loadPipelinesForGroup(
+  groupName: GroupName,
+  includeBranches: boolean,
+  includeMrs: boolean,
+  url: string,
+) {
   const groupProjects: GitLabProject[] = yield select(state =>
     selectProjectsByGroup(state, { groupName }),
   );
@@ -173,7 +183,14 @@ function* loadPipelinesForGroup(groupName: GroupName, url: string) {
   for (let project of groupProjects) {
     if (project.archived || !project.jobs_enabled) continue;
     const projectMRs = groupMrs.filter(mr => mr.project_id === project.id);
-    const task = yield fork(loadPipelinesForProject, project, projectMRs, url);
+    const task = yield fork(
+      loadPipelinesForProject,
+      project,
+      projectMRs,
+      includeBranches,
+      includeMrs,
+      url,
+    );
     tasks.push(task);
   }
   const taskResults: any[] = yield join(tasks);
@@ -188,14 +205,24 @@ function* loadPipelinesForGroup(groupName: GroupName, url: string) {
 }
 
 function* getPipelines() {
-  const listenedGroups: string[] = yield select(selectListenedGroups);
-  if (listenedGroups.length <= 0) return;
+  const groupsListeningForPipelines: {
+    group: string;
+    includeBranches: boolean;
+    includeMrs: boolean;
+  }[] = yield select(selectGroupsListeningForPipelines);
+  if (groupsListeningForPipelines.length <= 0) return;
 
   const url: string = yield select(selectUrl);
 
-  for (let groupName of listenedGroups) {
-    if (!groupName) continue;
-    yield fork(loadPipelinesForGroup, groupName, url);
+  for (let groupConfig of groupsListeningForPipelines) {
+    if (!groupConfig || !groupConfig.group) continue;
+    yield fork(
+      loadPipelinesForGroup,
+      groupConfig.group,
+      groupConfig.includeBranches,
+      groupConfig.includeMrs,
+      url,
+    );
   }
 }
 
@@ -266,21 +293,32 @@ function* getMissingProjects() {
 
 function* getMergeRequests() {
   const url: string = yield select(selectUrl);
-  const listenedGroupsFull: GitLabGroup[] = yield select(
-    selectListenedGroupsFull,
-  );
+  const groupConfigsListeningForMrs: {
+    group: GitLabGroup;
+    includeWIP: boolean;
+  }[] = yield select(selectGroupsListeningForMrs);
 
-  if (!listenedGroupsFull || listenedGroupsFull.length <= 0) return;
+  if (!groupConfigsListeningForMrs || groupConfigsListeningForMrs.length <= 0)
+    return;
 
   const loadingId = '[GitLab] getMergeRequests';
   yield put(globalActions.addLoader({ id: loadingId }));
 
   // Get all MRs for listened groups
-  for (let group of listenedGroupsFull) {
-    if (!group) continue;
+  for (let groupConfig of groupConfigsListeningForMrs) {
+    if (!groupConfig || !groupConfig.group) continue;
     try {
-      const groupsMrs = yield call(API.getGroupMergeRequests, url, group.id);
-      yield put(actions.setMrs({ groupName: group.full_name, mrs: groupsMrs }));
+      const groupsMrs = yield call(
+        API.getGroupMergeRequests,
+        url,
+        groupConfig.group.id,
+      );
+      yield put(
+        actions.setMrs({
+          groupName: groupConfig.group.full_name,
+          mrs: groupsMrs,
+        }),
+      );
     } catch (error) {
       if (error instanceof Error) {
         yield put(
@@ -448,7 +486,7 @@ function* loadEventsForProject(projectId: number, url: string) {
 
 function* getEvents() {
   const url: string = yield select(selectUrl);
-  const listenedProjectsIds = yield select(selectListenedProjectIds);
+  const listenedProjectsIds = yield select(selectProjectIdsListeningForEvents);
   for (let projectId of listenedProjectsIds) {
     if (!projectId) continue;
     yield fork(loadEventsForProject, projectId, url);

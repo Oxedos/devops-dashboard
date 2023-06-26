@@ -42,6 +42,7 @@ type GetMergeRequestParams = {
   reviewer_id?: number | 'None' | 'Any';
 };
 
+// TODO: look at param with_labels_details 
 export async function getGroupMergeRequests(
   url: string,
   groupId: number,
@@ -129,31 +130,40 @@ export async function getPipelines(
   url: string,
   projectId: number,
   mrs: GitLabMR[],
+  includeBranches: boolean,
+  includeMrs: boolean,
 ): Promise<GitLabPipeline[]> {
+  if (!includeBranches && !includeMrs) return new Promise((res, _) => res([]));
   const projectPipelinesUrl =
     normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}/pipelines`;
 
   // Get all available pipelines for branches
-  const branchPipelines = await getWithKeysetPagination<GitLabPipeline>(
-    projectPipelinesUrl,
-    { params: { scope: 'branches' } },
-  );
+  let branchPipelines: GitLabPipeline[] = [];
+  if (includeBranches) {
+    branchPipelines = await getWithKeysetPagination<GitLabPipeline>(
+      projectPipelinesUrl,
+      { params: { scope: 'branches' } },
+    );
+  }
 
   // For each MR get the latest pipeline
-  const mrPipelinesConfig = {
-    order_by: 'updated_at',
-    sort: 'desc',
-    per_page: 1,
-  };
-  const refs = mrs.map(mr => `refs/merge-requests/${mr.iid}/head`);
-  const pipelinePromises = refs.map(ref =>
-    axios.get<GitLabPipeline[]>(projectPipelinesUrl, {
-      params: { ...mrPipelinesConfig, ref },
-    }),
-  );
-  const mrPipelines: GitLabPipeline[] = (await Promise.all(pipelinePromises))
-    .map(response => response.data)
-    .flat(); // Each response must contain exactly one response
+  let mrPipelines: GitLabPipeline[] = [];
+  if (includeMrs) {
+    const mrPipelinesConfig = {
+      order_by: 'updated_at',
+      sort: 'desc',
+      per_page: 1,
+    };
+    const refs = mrs.map(mr => `refs/merge-requests/${mr.iid}/head`);
+    const pipelinePromises = refs.map(ref =>
+      axios.get<GitLabPipeline[]>(projectPipelinesUrl, {
+        params: { ...mrPipelinesConfig, ref },
+      }),
+    );
+    mrPipelines = (await Promise.all(pipelinePromises))
+      .map(response => response.data)
+      .flat(); // Each response must contain exactly one response
+  }
 
   // Combine both lists
   const pipelines = branchPipelines.concat(mrPipelines);

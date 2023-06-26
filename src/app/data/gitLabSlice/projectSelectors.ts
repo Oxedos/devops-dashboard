@@ -1,6 +1,9 @@
 import { createSelector } from '@reduxjs/toolkit';
+import {
+  selectGroupNamesListeningForEvents,
+  selectListenedGroups,
+} from './groupSelectors';
 import { createParameterSelector, selectGitlabSlice } from './selectors';
-import { selectListenedGroups } from './groupSelectors';
 
 export const selectProjects = createSelector(
   selectGitlabSlice,
@@ -48,6 +51,18 @@ export const selectListenedProjectIds = createSelector(
       .map(groupName => projectIdsByGroup.get(groupName))
       .filter(projectIds => !!projectIds && projectIds.length > 0)
       .flat()
+      .filter(projectId => !!projectId);
+  },
+);
+
+export const selectProjectIdsListeningForEvents = createSelector(
+  selectAllProjectIdsByGroup,
+  selectGroupNamesListeningForEvents,
+  (projectIdsByGroup, groupsListeningForEvents) => {
+    if (!groupsListeningForEvents || groupsListeningForEvents.length <= 0)
+      return [];
+    groupsListeningForEvents
+      .map(group => projectIdsByGroup.get(group))
       .filter(projectId => !!projectId);
   },
 );
