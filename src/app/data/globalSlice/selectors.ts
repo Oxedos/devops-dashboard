@@ -23,6 +23,15 @@ export const selectNotifications = createSelector(
   selectGlobal,
   state => state.notifications,
 );
+export const selectConfiguredVisualisations = createSelector(
+  selectGlobal,
+  state => {
+    if (!state || !state.dashboards) return [];
+    return Array.from(state.dashboards.values()).flatMap(
+      dashboard => dashboard.visualisations,
+    );
+  },
+);
 
 // Helper functions
 export const getDashbaordId = (

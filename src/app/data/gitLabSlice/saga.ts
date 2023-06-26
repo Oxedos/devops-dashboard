@@ -546,8 +546,8 @@ const signalServiceWorker = () => {
 };
 
 export function* gitLabSaga() {
-  yield takeLeading(actions.addListenedGroup.type, loadAll);
-  yield takeEvery(actions.removeListenedGroup.type, persist);
+  yield takeLeading(actions.addGitlabVisualisation.type, loadAll);
+  yield takeEvery(actions.cleanState.type, persist);
   yield takeLeading(actions.reload.type, loadAll);
   yield takeLeading(actions.deleteConfiguration.type, clear);
   yield takeEvery(actions.reloadPipeline.type, rerunPipelines);

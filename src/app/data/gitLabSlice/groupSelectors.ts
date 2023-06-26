@@ -1,6 +1,9 @@
 import { createSelector } from 'reselect';
 import { createParameterSelector, selectGitlabSlice } from './selectors';
-import { uniqueGroupListeners } from '.';
+import {
+  selectConfiguredVisualisations,
+  selectGlobal,
+} from '../globalSlice/selectors';
 
 export const selectGroups = createSelector(
   selectGitlabSlice,
@@ -12,8 +15,39 @@ export const selectGroupNames = createSelector(selectGroups, groups => {
   return groups.map(group => group.full_name).sort();
 });
 
-export const selectListenedGroups = createSelector(selectGitlabSlice, state =>
-  uniqueGroupListeners(state),
+export const selectListenedGroups = createSelector(
+  selectConfiguredVisualisations,
+  configuredVisualisation => {
+    if (!configuredVisualisation) return [];
+    return [
+      ...new Set( // unique groups
+        configuredVisualisation
+          .map(vis => vis.props?.group)
+          .filter(group => !!group),
+      ),
+    ];
+  },
+);
+
+export const selectListenedGroupsForPipelines = createSelector(
+  selectGlobal,
+  state => {},
+);
+
+export const selectAbandonedGroups = createSelector(
+  selectGitlabSlice,
+  selectListenedGroups,
+  (state, listenedGroups) => {
+    if (!state) return [];
+    const groupsWithData = [
+      ...new Set(
+        new Array(state.mrsByGroup.keys())
+          .concat(new Array(state.projectsByGroup.keys()))
+          .concat(new Array(state.pipelinesByGroup.keys())),
+      ),
+    ];
+    return groupsWithData.filter(group => !listenedGroups.includes(group));
+  },
 );
 
 export const selectGroupByGroupName = createSelector(

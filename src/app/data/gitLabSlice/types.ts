@@ -34,8 +34,6 @@ export interface GitLabState {
   applicationId: string | undefined;
   // Data of current user
   userData: GitLabUserData | undefined; // Data returned from GET /user
-  // Which data to regularly fetch
-  listenedGroups: { visId: string; groupName: string }[];
   // General Data -> main data storage
   groups: GitLabGroup[]; // All groups the user is member of / has access to
   mrs: GitLabMR[]; // all currently loaded MRs

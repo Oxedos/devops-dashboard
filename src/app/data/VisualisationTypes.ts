@@ -42,15 +42,8 @@ export const getAfterVisualisationUpdatedActions = (
     case VisualisationType.GITLAB_PIPELINES_TABLE:
     case VisualisationType.GITLAB_EVENTS:
       return [
-        props.assignedToUserOnly
-          ? gitLabActions.removeListenedGroup({
-              visId,
-              groupName: props.group,
-            })
-          : gitLabActions.addListenedGroup({
-              groupName: props.group,
-              visId,
-            }),
+        gitLabActions.cleanState(),
+        gitLabActions.addGitlabVisualisation(),
       ];
     case VisualisationType.RSS_FEED_VISUALISATION: {
       // update props to base64-encode username and password
@@ -102,12 +95,7 @@ export const getAfterVisualisationRemovedActions = (
     case VisualisationType.GITLAB_MR_TABLE:
     case VisualisationType.GITLAB_PIPELINES_TABLE:
     case VisualisationType.GITLAB_EVENTS:
-      return [
-        gitLabActions.removeListenedGroup({
-          visId,
-          groupName: props.group,
-        }),
-      ];
+      return [gitLabActions.cleanState()];
     case VisualisationType.RSS_FEED_VISUALISATION:
       return [rssActions.removeFeed({ visId })];
     default: {

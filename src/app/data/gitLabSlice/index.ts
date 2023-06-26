@@ -25,6 +25,7 @@ import {
 } from '../helper';
 import { gitLabSaga } from './saga';
 import { GitLabState } from './types';
+import { selectAbandonedGroups } from './groupSelectors';
 
 export const LOCALSTORAGE_KEY = 'gitlab-state';
 
@@ -35,7 +36,6 @@ const loadInitialState = (): GitLabState => {
     url: persistedState?.url,
     applicationId: persistedState?.applicationId,
     userData: persistedState?.userData,
-    listenedGroups: persistedState?.listenedGroups || [],
     groups: persistedState?.groups || [],
     mrs: persistedState?.mrs || [],
     projects: persistedState?.projects || [],
@@ -52,24 +52,6 @@ const loadInitialState = (): GitLabState => {
 
 export const initialState = loadInitialState();
 
-// returns a list of distinct groups that are listened to
-export const uniqueGroupListeners = (state: GitLabState): string[] => {
-  const initList: string[] = [];
-  if (!state.listenedGroups || state.listenedGroups.length <= 0) {
-    return [];
-  }
-  return state.listenedGroups
-    .map(listener => listener.groupName)
-    .reduce(
-      (unique, item) => (unique.includes(item) ? unique : [...unique, item]),
-      initList,
-    );
-};
-
-const hasListener = (state: GitLabState, groupName: string): boolean => {
-  const uniqueGroups = uniqueGroupListeners(state);
-  return uniqueGroups.includes(groupName);
-};
 // Dirty Hack cause something is wrong with the GitLab API on Chrome when receiving an empty array...
 function checkAllAreObject(objs: any[]) {
   if (!objs) return false;
@@ -161,50 +143,16 @@ const slice = createSlice({
         jobsToPlay: [],
       };
     },
+    addGitlabVisualisation(state, action: PayloadAction<void>) {},
+    cleanState(state, action: PayloadAction<void>) {
+      selectAbandonedGroups({ gitLab: state }).forEach(abandonedGroup =>
+        clearStateByGroupName(state, abandonedGroup),
+      );
+    },
     // groups
     setGroups(state, action: PayloadAction<GitLabGroup[]>) {
       if (!checkAllAreObject(action.payload)) return;
       state.groups = action.payload;
-    },
-    addListenedGroup(
-      state,
-      action: PayloadAction<{ visId: string; groupName: string }>,
-    ) {
-      const {
-        payload: { visId },
-      } = action;
-      // Find current listener -> we need to check if changes occured
-      const currentListener = state.listenedGroups.find(
-        listener => listener.visId === visId,
-      );
-      // Save or update the listener in our state
-      state.listenedGroups = upsert(
-        state.listenedGroups,
-        [action.payload],
-        equalByAttribute('visId'),
-      );
-      // clean up state if we changed the listener to a group and that group is no longer listened to
-      if (currentListener && !hasListener(state, currentListener.groupName)) {
-        clearStateByGroupName(state, currentListener.groupName);
-      }
-    },
-    removeListenedGroup(
-      state,
-      action: PayloadAction<{ visId: string; groupName: string }>,
-    ) {
-      const {
-        payload: { visId, groupName },
-      } = action;
-
-      // remove this specific listener from our state
-      state.listenedGroups = state.listenedGroups.filter(
-        listener => listener.visId !== visId,
-      );
-
-      // if we do not have any listeners left, remove the data
-      if (!hasListener(state, groupName)) {
-        clearStateByGroupName(state, groupName);
-      }
     },
     // mrs
     setMrs(
