@@ -27,6 +27,7 @@ const getIcon = (
   actionName: string,
   target: string | undefined,
 ): { color: string; icon: IconProp } => {
+  // TODO: closed MergeRequest
   if (actionName === 'deleted') {
     return { color: GlobalColours.red, icon: 'trash' };
   }

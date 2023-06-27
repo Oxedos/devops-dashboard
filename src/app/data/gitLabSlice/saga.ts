@@ -24,6 +24,7 @@ import { SW_MESSAGE_TYPES } from 'service-worker';
 import { LOCALSTORAGE_KEY, gitLabActions as actions, gitLabActions } from '.';
 import {
   selectGroupByGroupName,
+  selectGroupNamesListeningForEvents,
   selectGroupsListeningForMrs,
   selectGroupsListeningForPipelines,
   selectListenedGroups,
@@ -34,9 +35,9 @@ import {
   selectPipelinesToReload,
 } from './pipelineSelectors';
 import {
-  selectProjectIdsListeningForEvents,
   selectProjects,
   selectProjectsByGroup,
+  selectProjectsByGroupSortedByLatestActivity,
 } from './projectSelectors';
 import {
   selectConfigured,
@@ -478,17 +479,10 @@ function* playJob(
 function* loadEventsForProject(projectId: number, url: string) {
   const loadingId = `[GitLab] getEvents ${projectId}`;
   yield put(globalActions.addLoader({ id: loadingId }));
+  let events: GitLabEvent[] = [];
   try {
     const after = moment().subtract(1, 'day').format('YYYY-MM-DD');
-    const events: GitLabEvent[] = yield call(
-      API.getEvents,
-      url,
-      projectId,
-      after,
-    );
-    yield put(
-      gitLabActions.setEvents({ assoicatedId: projectId, items: events }),
-    );
+    events = yield call(API.getEvents, url, projectId, after);
   } catch (error) {
     if (error instanceof Error) {
       yield put(
@@ -499,15 +493,38 @@ function* loadEventsForProject(projectId: number, url: string) {
     }
   } finally {
     yield put(globalActions.removeLoader({ id: loadingId }));
+    return events;
   }
 }
 
 function* getEvents() {
   const url: string = yield select(selectUrl);
-  const listenedProjectsIds = yield select(selectProjectIdsListeningForEvents);
-  for (let projectId of listenedProjectsIds) {
-    if (!projectId) continue;
-    yield fork(loadEventsForProject, projectId, url);
+  // load groups listening for events
+  const listenedGroups: string[] = yield select(
+    selectGroupNamesListeningForEvents,
+  );
+  if (!listenedGroups || listenedGroups.length <= 0) return;
+  for (let groupName of listenedGroups) {
+    const listenedProjects: GitLabProject[] = yield select(
+      selectProjectsByGroupSortedByLatestActivity,
+      { groupName },
+    );
+    let eventCount = 0;
+    let i = 0;
+    // TODO: Make this magic number user configurable
+    while (eventCount < 20 && i < listenedProjects.length) {
+      const project = listenedProjects[i];
+      if (!project) continue;
+      const events: GitLabEvent[] = yield call(
+        loadEventsForProject,
+        project.id,
+        url,
+      );
+      eventCount += events.length;
+      yield put(
+        gitLabActions.setEvents({ assoicatedId: project.id, items: events }),
+      );
+    }
   }
 }
 
