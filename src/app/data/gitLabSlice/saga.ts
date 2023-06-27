@@ -29,7 +29,10 @@ import {
   selectListenedGroups,
 } from './groupSelectors';
 import { selectAllMrs, selectMrsByGroup } from './mrSelectors';
-import { selectPipelinesToReload } from './pipelineSelectors';
+import {
+  getSelectedPipelineStatus,
+  selectPipelinesToReload,
+} from './pipelineSelectors';
 import {
   selectProjectIdsListeningForEvents,
   selectProjects,
@@ -145,6 +148,7 @@ function* loadPipelinesForProject(
   mrs: GitLabMR[],
   includeBranches: boolean,
   includeMrs: boolean,
+  selectedStatus: string[],
   url: string,
 ) {
   try {
@@ -155,6 +159,7 @@ function* loadPipelinesForProject(
       mrs,
       includeBranches,
       includeMrs,
+      selectedStatus,
     );
     return pipelines;
   } catch (error) {
@@ -166,6 +171,7 @@ function* loadPipelinesForGroup(
   groupName: GroupName,
   includeBranches: boolean,
   includeMrs: boolean,
+  selectedStatus: string[],
   url: string,
 ) {
   const groupProjects: GitLabProject[] = yield select(state =>
@@ -189,6 +195,7 @@ function* loadPipelinesForGroup(
       projectMRs,
       includeBranches,
       includeMrs,
+      selectedStatus,
       url,
     );
     tasks.push(task);
@@ -209,6 +216,12 @@ function* getPipelines() {
     group: string;
     includeBranches: boolean;
     includeMrs: boolean;
+    includeFailed: boolean;
+    includeSuccess: boolean;
+    includeCanceled: boolean;
+    includeRunning: boolean;
+    includeCreated: boolean;
+    includeManual: boolean;
   }[] = yield select(selectGroupsListeningForPipelines);
   if (groupsListeningForPipelines.length <= 0) return;
 
@@ -216,11 +229,20 @@ function* getPipelines() {
 
   for (let groupConfig of groupsListeningForPipelines) {
     if (!groupConfig || !groupConfig.group) continue;
+    const selectedStatus = getSelectedPipelineStatus(
+      groupConfig.includeCanceled,
+      groupConfig.includeCreated,
+      groupConfig.includeFailed,
+      groupConfig.includeRunning,
+      groupConfig.includeSuccess,
+      groupConfig.includeManual,
+    );
     yield fork(
       loadPipelinesForGroup,
       groupConfig.group,
       groupConfig.includeBranches,
       groupConfig.includeMrs,
+      selectedStatus,
       url,
     );
   }

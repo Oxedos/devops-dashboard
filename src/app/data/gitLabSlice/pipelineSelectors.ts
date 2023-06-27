@@ -120,7 +120,7 @@ export const selectPipelinesFiltered = createSelector(
   },
 );
 
-function getSelectedPipelineStatus(
+export function getSelectedPipelineStatus(
   pipelines_canceled,
   pipelines_created,
   pipelines_failed,

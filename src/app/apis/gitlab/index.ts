@@ -119,6 +119,7 @@ export async function getPipelines(
   mrs: GitLabMR[],
   includeBranches: boolean,
   includeMrs: boolean,
+  selectedStatus: string[],
 ): Promise<GitLabPipeline[]> {
   if (!includeBranches && !includeMrs) return new Promise((res, _) => res([]));
   const projectPipelinesUrl =
@@ -156,9 +157,12 @@ export async function getPipelines(
   const pipelines = branchPipelines.concat(mrPipelines);
 
   // Get Jobs for each pipeline
-  const jobPromises = pipelines.map(pipeline =>
-    getPipelineJobs(url, projectId, pipeline.id),
-  );
+  const jobPromises = pipelines
+    .filter(pipeline => selectedStatus.includes(pipeline.status))
+    .map(async pipeline => {
+      const jobs = await getPipelineJobs(url, projectId, pipeline.id);
+      return { pipelineId: pipeline.id, jobs };
+    });
   let jobs = await Promise.all(jobPromises);
 
   // zip jobs and pipeline
@@ -172,7 +176,14 @@ export async function getPipelines(
     const mr_web_url = hasAssociatedMr ? hasAssociatedMr.web_url : undefined;
     return {
       ...pipeline,
-      jobs: jobs[idx],
+      jobs:
+        jobs.find(
+          jobList =>
+            jobList &&
+            jobList.jobs &&
+            jobList.jobs.length > 0 &&
+            jobList.pipelineId === pipeline.id,
+        )?.jobs || [],
       project_id: pipeline.project_id || projectId,
       title,
       mr_web_url,
@@ -310,6 +321,7 @@ export async function loadPipelineForMr(
   };
 }
 
+// TODO Mit last_activity_at(pin):"2023-06-26T08:32:48.462Z" des Projekts einschränken was ich lade
 export async function getEvents(
   url: string,
   projectId: number,

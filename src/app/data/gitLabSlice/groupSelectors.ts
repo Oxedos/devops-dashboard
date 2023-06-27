@@ -39,10 +39,35 @@ export const selectGroupsListeningForPipelines = createSelector(
       )
       .map(vis => ({
         group: vis.props?.group,
-        includeBranches: vis.props?.displayPipelinesForBranches,
-        includeMrs: vis.props?.displayPipelinesForMRs,
+        includeBranches: !!vis.props?.displayPipelinesForBranches,
+        includeMrs: !!vis.props?.displayPipelinesForMRs,
+        includeFailed: !!vis.props?.pipelines_failed,
+        includeSuccess: !!vis.props?.pipelines_success,
+        includeCanceled: !!vis.props?.pipelines_canceled,
+        includeRunning: !!vis.props?.pipelines_running,
+        includeCreated: !!vis.props?.pipelines_created,
+        includeManual: !!vis.props?.pipelines_manual,
       }))
-      .filter(groupConfig => !!groupConfig.group),
+      .filter(groupConfig => !!groupConfig.group)
+      .reduce((acc, curr) => {
+        if (!acc.has(curr.group)) {
+          acc.set(curr.group, curr);
+          return acc;
+        }
+        const accGroup = acc.get(curr.group);
+        acc.set(curr.group, {
+          includeBranches: curr.includeBranches || accGroup.includeBranches,
+          includeMrs: curr.includeMrs || accGroup.includeMrs,
+          includeFailed: curr.includeFailed || accGroup.includeFailed,
+          includeSuccess: curr.includeSuccess || accGroup.includeSuccess,
+          includeCanceled: curr.includeCanceled || accGroup.includeCanceled,
+          includeRunning: curr.includeRunning || accGroup.includeRunning,
+          includeCreated: curr.includeCreated || accGroup.includeCreated,
+          includeManual: curr.includeManual || accGroup.includeManual,
+        });
+        return acc;
+      }, new Map<String, any>())
+      .values(),
 );
 
 export const selectGroupsListeningForMrs = createSelector(
