@@ -4,7 +4,7 @@
 import { gitLabActions } from 'app/data/gitLabSlice';
 import { selectApplicationId, selectUrl } from 'app/data/gitLabSlice/selectors';
 import { globalActions } from 'app/data/globalSlice';
-import { redirectToGitlabAuth } from 'app/util/OAuthUtil';
+import { PUBLIC_URL, redirectToGitlabAuth } from 'app/util/OAuthUtil';
 import { reduxApplicationStore } from 'index';
 import { SW_MESSAGE_TYPES } from 'service-worker';
 
@@ -47,6 +47,12 @@ export function register(config?: Config) {
         'message',
         onMessageEventListener,
       );
+
+      // keep the service worker alive
+      setInterval(function () {
+        fetch(`${PUBLIC_URL}/favicon.ico`);
+      }, 10 * 1000);
+
       // onfocus listener to check if we are authenticated with gitlab
       window.onfocus = () => {
         setTimeout(() => {
