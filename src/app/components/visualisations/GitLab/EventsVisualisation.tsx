@@ -27,7 +27,9 @@ const getIcon = (
   actionName: string,
   target: string | undefined,
 ): { color: string; icon: IconProp } => {
-  // TODO: closed MergeRequest
+  if (actionName === 'joined') {
+    return { color: GlobalColours.green, icon: 'user-plus' };
+  }
   if (actionName === 'deleted') {
     return { color: GlobalColours.red, icon: 'trash' };
   }
@@ -42,6 +44,9 @@ const getIcon = (
   }
   if (actionName === 'opened' && target === 'MergeRequest') {
     return { color: GlobalColours.white, icon: 'code-pull-request' };
+  }
+  if (actionName === 'closed' && target === 'MergeRequest') {
+    return { color: GlobalColours.red, icon: 'code-pull-request' };
   }
   if (actionName === 'pushed new' && target === 'branch') {
     return { color: GlobalColours.white, icon: 'code-branch' };

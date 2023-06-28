@@ -70,6 +70,7 @@ import {
   faTrash,
   faUpRightFromSquare,
   faUser,
+  faUserPlus,
 } from '@fortawesome/free-solid-svg-icons';
 import { useSelector } from 'react-redux';
 import { selectDashboards } from './data/globalSlice/selectors';
@@ -161,6 +162,7 @@ export const App: React.FC = props => {
     faCodePullRequest,
     faCodeBranch,
     faComment,
+    faUserPlus,
   );
 
   const HomeWithDashboardIdCheckpoint = withDashboardIdCheckpoint(HomePage);
