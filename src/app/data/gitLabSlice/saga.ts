@@ -528,6 +528,7 @@ function* getEvents() {
         url,
       );
       eventCount += events.length;
+      i += 1;
       yield put(
         gitLabActions.setEvents({ assoicatedId: project.id, items: events }),
       );
