@@ -321,7 +321,6 @@ export async function loadPipelineForMr(
   };
 }
 
-// TODO Mit last_activity_at(pin):"2023-06-26T08:32:48.462Z" des Projekts einschränken was ich lade
 export async function getEvents(
   url: string,
   projectId: number,

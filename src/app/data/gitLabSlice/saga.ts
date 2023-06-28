@@ -153,6 +153,13 @@ function* loadPipelinesForProject(
   url: string,
 ) {
   try {
+    if (!project) return [];
+    // TODO: Maybe make this magic number configurable as well?
+    if (
+      moment(project.last_activity_at).isBefore(moment().subtract(3, 'days'))
+    ) {
+      return [];
+    }
     const pipelines: GitLabPipeline[] = yield call(
       API.getPipelines,
       url,
