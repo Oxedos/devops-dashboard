@@ -59,6 +59,9 @@ const getIcon = (
   if (actionName === 'accepted') {
     return { color: GlobalColours.green, icon: 'check' };
   }
+  if (actionName === 'approved') {
+    return { color: GlobalColours.green, icon: 'check' };
+  }
   if (actionName === 'commented on') {
     return { color: GlobalColours.white, icon: 'comment' };
   }
