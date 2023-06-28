@@ -123,6 +123,14 @@ const EventsVisualisation: React.FC<InnerPropTypes> = props => {
                       {item.project.name}
                     </>
                   )}
+                  {item.push_data && item.push_data.commit_title && (
+                    <>
+                      {': '}
+                      <div className="gray">
+                        {`"${item.push_data.commit_title}"`}
+                      </div>
+                    </>
+                  )}
                 </div>
               </div>
             </CardWrapper>
