@@ -42,6 +42,7 @@ import {
   faCircle,
   faClock,
   faCodeBranch,
+  faCodeCommit,
   faCodeMerge,
   faCodePullRequest,
   faCog,
@@ -163,6 +164,7 @@ export const App: React.FC = props => {
     faCodeBranch,
     faComment,
     faUserPlus,
+    faCodeCommit,
   );
 
   const HomeWithDashboardIdCheckpoint = withDashboardIdCheckpoint(HomePage);

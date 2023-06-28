@@ -27,6 +27,29 @@ const getIcon = (
   actionName: string,
   target: string | undefined,
 ): { color: string; icon: IconProp } => {
+  // Merge Requests
+  if (actionName === 'opened' && target === 'MergeRequest') {
+    return { color: GlobalColours.white, icon: 'code-pull-request' };
+  }
+  if (actionName === 'closed' && target === 'MergeRequest') {
+    return { color: GlobalColours.red, icon: 'code-pull-request' };
+  }
+  if (actionName === 'accepted' && target === 'MergeRequest') {
+    return { color: GlobalColours.green, icon: 'code-pull-request' };
+  }
+
+  // Branches
+  if (actionName === 'pushed to' && target === 'branch') {
+    return { color: GlobalColours.white, icon: 'code-commit' };
+  }
+  if (actionName === 'pushed new' && target === 'branch') {
+    return { color: GlobalColours.white, icon: 'code-branch' };
+  }
+  if (actionName === 'deleted' && target === 'branch') {
+    return { color: GlobalColours.red, icon: 'code-branch' };
+  }
+
+  // General
   if (actionName === 'joined') {
     return { color: GlobalColours.green, icon: 'user-plus' };
   }
@@ -39,18 +62,8 @@ const getIcon = (
   if (actionName === 'commented on') {
     return { color: GlobalColours.white, icon: 'comment' };
   }
-  if (actionName === 'pushed to' && target === 'branch') {
-    return { color: GlobalColours.white, icon: 'code-merge' };
-  }
-  if (actionName === 'opened' && target === 'MergeRequest') {
-    return { color: GlobalColours.white, icon: 'code-pull-request' };
-  }
-  if (actionName === 'closed' && target === 'MergeRequest') {
-    return { color: GlobalColours.red, icon: 'code-pull-request' };
-  }
-  if (actionName === 'pushed new' && target === 'branch') {
-    return { color: GlobalColours.white, icon: 'code-branch' };
-  }
+
+  // Fallback
   return { color: GlobalColours.gray, icon: 'circle' };
 };
 
