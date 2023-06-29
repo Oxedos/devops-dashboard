@@ -38,11 +38,17 @@ export const GlobalStyle = createGlobalStyle`
     color: var(--clr-white);
 
     /* custom scrollbar */
+    * {
+        scrollbar-color: var(--clr-dark-gray) transparent;
+        scrollbar-width: thin;
+    }
+
     *::-webkit-scrollbar {
       width: 20px;
     }
 
-    *::-webkit-scrollbar-track {
+    *::-webkit-scrollbar-track,
+    *::-webkit-scrollbar-corner {
       background-color: transparent;
     }
 
