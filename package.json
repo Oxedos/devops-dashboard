@@ -115,7 +115,7 @@
     "html-webpack-plugin": "5.5.3",
     "husky": "8.0.3",
     "is-ci": "3.0.1",
-    "lint-staged": "13.2.2",
+    "lint-staged": "13.2.3",
     "mini-css-extract-plugin": "2.7.6",
     "node-plop": "0.31.1",
     "node-polyfill-webpack-plugin": "2.0.1",
