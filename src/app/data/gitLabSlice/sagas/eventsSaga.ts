@@ -1,16 +1,21 @@
 import { getEvents } from 'app/apis/gitlab';
 import { GitLabEvent, GitLabProject } from 'app/apis/gitlab/types';
-import { globalActions } from 'app/data/globalSlice';
 import moment from 'moment';
 import { call, put, select } from 'redux-saga/effects';
 import { gitLabActions } from '..';
 import { selectGroupNamesListeningForEvents } from '../selectors/groupSelectors';
 import { selectProjectsByGroupSortedByLatestActivity } from '../selectors/projectSelectors';
 import { selectUrl } from '../selectors/selectors';
+import { displayNotification, removeLoader, setLoader } from './sagaHelper';
 
 export function* loadEvents() {
+  const loaderId = yield call(setLoader, 'Events');
+  yield call(loadEventsForGroups);
+  yield call(removeLoader, loaderId);
+}
+
+function* loadEventsForGroups() {
   const url: string = yield select(selectUrl);
-  // load groups listening for events
   const listenedGroups: string[] = yield select(
     selectGroupNamesListeningForEvents,
   );
@@ -41,22 +46,11 @@ export function* loadEvents() {
 }
 
 function* getEventsForProject(projectId: number, url: string) {
-  const loadingId = `[GitLab] getEvents ${projectId}`;
-  yield put(globalActions.addLoader({ id: loadingId }));
-  let events: GitLabEvent[] = [];
   try {
     const after = moment().subtract(1, 'day').format('YYYY-MM-DD');
-    events = yield call(getEvents, url, projectId, after);
+    return yield call(getEvents, url, projectId, after);
   } catch (error) {
-    if (error instanceof Error) {
-      yield put(
-        globalActions.addErrorNotification(`[GitLab] ${error.message}`),
-      );
-    } else {
-      yield put(globalActions.addErrorNotification(`[GitLab] Unkown Error`));
-    }
-  } finally {
-    yield put(globalActions.removeLoader({ id: loadingId }));
-    return events;
+    yield call(displayNotification, error);
+    return [];
   }
 }

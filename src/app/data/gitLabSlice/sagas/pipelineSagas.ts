@@ -1,31 +1,36 @@
 import {
+  createPipelineForRef,
+  getPipelines,
+  loadPipelineForMr,
+  playJob as playJobApi,
+  rerunPipeline as rerunPipelineApi,
+} from 'app/apis/gitlab';
+import {
   GitLabMR,
   GitLabPipeline,
   GitLabProject,
   GroupName,
 } from 'app/apis/gitlab/types';
-import { globalActions } from 'app/data/globalSlice';
+import moment from 'moment';
 import { call, fork, join, put, select } from 'redux-saga/effects';
-import { selectJobsToPlay, selectUrl } from '../selectors/selectors';
+import { gitLabActions as actions, gitLabActions } from '..';
 import { selectGroupsListeningForPipelines } from '../selectors/groupSelectors';
+import { selectMrsByGroup } from '../selectors/mrSelectors';
 import {
   getSelectedPipelineStatus,
   selectPipelinesToReload,
 } from '../selectors/pipelineSelectors';
 import { selectProjectsByGroup } from '../selectors/projectSelectors';
-import { selectMrsByGroup } from '../selectors/mrSelectors';
-import { gitLabActions } from '..';
-import moment from 'moment';
-import {
-  createPipelineForRef,
-  getPipelines,
-  rerunPipeline as rerunPipelineApi,
-  playJob as playJobApi,
-  loadPipelineForMr,
-} from 'app/apis/gitlab';
-import { gitLabActions as actions } from '..';
+import { selectJobsToPlay, selectUrl } from '../selectors/selectors';
+import { displayNotification, removeLoader, setLoader } from './sagaHelper';
 
 export function* loadPipelines() {
+  const loaderId = yield call(setLoader, 'Pipelines');
+  yield call(loadGroupPipelines);
+  yield call(removeLoader, loaderId);
+}
+
+function* loadGroupPipelines() {
   const groupsListeningForPipelines: {
     group: string;
     includeBranches: boolean;
@@ -76,9 +81,6 @@ function* loadPipelinesForGroup(
     selectMrsByGroup(state, { groupName }),
   );
 
-  const loadingId = `[GitLab] getPipelines ${groupName}`;
-  yield put(globalActions.addLoader({ id: loadingId }));
-
   let tasks: any[] = [];
   // Parallelise all calls for each project in this group
   for (let project of groupProjects) {
@@ -97,7 +99,6 @@ function* loadPipelinesForGroup(
   }
   const taskResults: any[] = yield join(tasks);
 
-  yield put(globalActions.removeLoader({ id: loadingId }));
   yield put(
     gitLabActions.setPipelines({
       items: taskResults.flat(),
@@ -133,6 +134,7 @@ function* getPipelinesForProject(
     );
     return pipelines;
   } catch (error) {
+    yield call(displayNotification, error);
     return [];
   }
 }
@@ -142,8 +144,10 @@ export function* rerunPipelines() {
   const pipelines: { groupName: string; ref: string; projectId: number }[] =
     yield select(selectPipelinesToReload);
 
+  const loaderId = yield call(setLoader, 'Rerun Pipelines');
+
   for (let pipeline of pipelines) {
-    yield fork(
+    yield call(
       rerunPipeline,
       url,
       pipeline.projectId,
@@ -151,6 +155,8 @@ export function* rerunPipelines() {
       pipeline.groupName,
     );
   }
+
+  yield call(removeLoader, loaderId);
 }
 
 function* rerunPipeline(
@@ -159,8 +165,6 @@ function* rerunPipeline(
   ref: string,
   groupName: string,
 ) {
-  const loadingId = `[GitLab] rerunPipelines ${projectId} ${ref}`;
-  yield put(globalActions.addLoader({ id: loadingId }));
   // immediately remove pipeline from list as to not start them several times
   yield put(actions.removePipelineToReload({ groupName, projectId, ref }));
 
@@ -191,16 +195,9 @@ function* rerunPipeline(
       yield put(actions.updatePipeline({ pipeline: newPipelineData }));
     }
   } catch (error) {
-    if (error instanceof Error) {
-      yield put(
-        globalActions.addErrorNotification(`[GitLab] ${error.message}`),
-      );
-    } else {
-      yield put(globalActions.addErrorNotification(`[GitLab] Unkown Error`));
-    }
+    yield call(displayNotification, error);
   } finally {
     yield put(actions.removePipelineToReload({ groupName, projectId, ref }));
-    yield put(globalActions.removeLoader({ id: loadingId }));
   }
 }
 
@@ -212,7 +209,7 @@ export function* playJobs() {
     mrIid: number;
     jobId: number;
   }[] = yield select(selectJobsToPlay);
-
+  const loaderId = yield call(setLoader, 'Play Jobs');
   for (let job of jobsToPlay) {
     yield fork(
       playJob,
@@ -223,6 +220,7 @@ export function* playJobs() {
       job.groupName,
     );
   }
+  yield call(removeLoader, loaderId);
 }
 
 function* playJob(
@@ -232,8 +230,6 @@ function* playJob(
   mrIid: number,
   groupName: string,
 ) {
-  const loadingId = `[GitLab] playJob ${projectId} ${jobId}`;
-  yield put(globalActions.addLoader({ id: loadingId }));
   // immediately remove pipeline from list as to not start them several times
   yield put(actions.removeJobToPlay({ projectId, jobId, mrIid, groupName }));
 
@@ -245,15 +241,8 @@ function* playJob(
     const pipelineData = yield call(loadPipelineForMr, url, projectId, mrIid);
     yield put(actions.updatePipeline({ pipeline: pipelineData }));
   } catch (error) {
-    if (error instanceof Error) {
-      yield put(
-        globalActions.addErrorNotification(`[GitLab] ${error.message}`),
-      );
-    } else {
-      yield put(globalActions.addErrorNotification(`[GitLab] Unkown Error`));
-    }
+    yield call(displayNotification, error);
   } finally {
     yield put(actions.removeJobToPlay({ projectId, jobId, mrIid, groupName })); // just to be sure
-    yield put(globalActions.removeLoader({ id: loadingId }));
   }
 }
