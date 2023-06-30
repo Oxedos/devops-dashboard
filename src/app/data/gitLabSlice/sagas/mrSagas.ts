@@ -9,8 +9,18 @@ import {
   getMrsWithReviewer,
   getUserAssignedMrs,
 } from 'app/apis/gitlab';
+import {
+  mustLoadMRsUserIsReviewing,
+  mustLoadUserAssignedMRs,
+} from '../selectors/mrSelectors';
 
 export function* loadMergeRequests() {
+  yield call(loadUserAssignedMrs);
+  yield call(loadMrsWithUserAsReviewer);
+  yield call(loadGroupMergeRequests);
+}
+
+function* loadGroupMergeRequests() {
   const url: string = yield select(selectUrl);
   const groupConfigsListeningForMrs: {
     group: GitLabGroup;
@@ -20,7 +30,7 @@ export function* loadMergeRequests() {
   if (!groupConfigsListeningForMrs || groupConfigsListeningForMrs.length <= 0)
     return;
 
-  const loadingId = '[GitLab] getMergeRequests';
+  const loadingId = '[GitLab] loadGroupMergeRequests';
   yield put(globalActions.addLoader({ id: loadingId }));
 
   // Get all MRs for listened groups
@@ -51,7 +61,9 @@ export function* loadMergeRequests() {
   yield put(globalActions.removeLoader({ id: loadingId }));
 }
 
-export function* loadUserAssignedMrs() {
+function* loadUserAssignedMrs() {
+  const mustLoad = yield select(mustLoadUserAssignedMRs);
+  if (!mustLoad) return;
   const url: string = yield select(selectUrl);
   const loadingId = '[GitLab] getUserAssignedMRs';
   yield put(globalActions.addLoader({ id: loadingId }));
@@ -72,7 +84,9 @@ export function* loadUserAssignedMrs() {
   }
 }
 
-export function* loadMrsWithUserAsReviewer() {
+function* loadMrsWithUserAsReviewer() {
+  const mustLoad = yield select(mustLoadMRsUserIsReviewing);
+  if (!mustLoad) return;
   const url: string = yield select(selectUrl);
   const userData: GitLabUserData = yield select(selectUserData);
   if (!userData) return;

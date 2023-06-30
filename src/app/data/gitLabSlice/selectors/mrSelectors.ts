@@ -5,6 +5,8 @@ import {
   selectGitlabSlice,
   selectUserData,
 } from './selectors';
+import { selectConfiguredVisualisations } from 'app/data/globalSlice/selectors';
+import { VisualisationType } from 'app/data/VisualisationTypes';
 
 export const selectMrIdsByGroup = createSelector(
   selectGitlabSlice,
@@ -125,4 +127,20 @@ export const selectMrsByGroupFiltered = createSelector(
         return dateY - dateX;
       });
   },
+);
+
+export const mustLoadUserAssignedMRs = createSelector(
+  selectConfiguredVisualisations,
+  configuredVisualisations =>
+    configuredVisualisations
+      .filter(vis => vis && vis.type === VisualisationType.GITLAB_MR_TABLE)
+      .filter(vis => vis.props && !!vis.props.assignedToUserOnly).length > 0,
+);
+
+export const mustLoadMRsUserIsReviewing = createSelector(
+  selectConfiguredVisualisations,
+  configuredVisualisations =>
+    configuredVisualisations
+      .filter(vis => vis && vis.type === VisualisationType.GITLAB_MR_TABLE)
+      .filter(vis => vis.props && !!vis.props.userAsReviewer).length > 0,
 );

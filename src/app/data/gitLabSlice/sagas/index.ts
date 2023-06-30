@@ -7,11 +7,7 @@ import { selectConfigured, selectGitlabSlice } from '../selectors/selectors';
 import { GitLabState } from '../types';
 import { loadEvents } from './eventsSaga';
 import { loadGroups } from './groupSagas';
-import {
-  loadMergeRequests,
-  loadMrsWithUserAsReviewer,
-  loadUserAssignedMrs,
-} from './mrSagas';
+import { loadMergeRequests } from './mrSagas';
 import { loadPipelines, playJobs, rerunPipelines } from './pipelineSagas';
 import { loadMissingProjects, loadProjects } from './projectSagas';
 import { loadUserInfo, tryLoadingUserinfo } from './userSagas';
@@ -36,13 +32,7 @@ function* pollShort() {
     const configured: boolean = yield select(selectConfigured);
     yield delay(1000 * 60); // every minute
     if (configured) {
-      yield all([
-        call(loadMrsWithUserAsReviewer),
-        call(loadUserAssignedMrs),
-        call(loadMergeRequests),
-        call(loadEvents),
-      ]);
-
+      yield all([call(loadMergeRequests), call(loadEvents)]);
       yield call(loadPipelines);
       yield call(loadMissingProjects);
       yield call(persist);
@@ -59,10 +49,6 @@ function* loadAll() {
     signalServiceWorker();
     return;
   }
-
-  yield fork(loadMrsWithUserAsReviewer);
-
-  yield fork(loadUserAssignedMrs);
 
   yield call(loadGroups); // All other calls depend on groups, block for this call
 
