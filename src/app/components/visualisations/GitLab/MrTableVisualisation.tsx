@@ -7,7 +7,7 @@ import compose from 'app/components/compose';
 import withGitLabConfiguredCheck from './components/withGitLabConfiguredCheck';
 import SimpleMessage from '../components/SimpleMessage';
 import withWidgetConfigurationModal from '../components/withWidgetConfigurationModal';
-import withGroupFieldsProvider from './components/withMrTableFieldsProvider';
+import withMrTableFieldsProvider from './components/withMrTableFieldsProvider';
 import { PipelineStatus, StatusStyle } from 'app/components/GitLab/Status';
 import styled from 'styled-components/macro';
 import { selectMrsByGroupFiltered } from 'app/data/gitLabSlice/mrSelectors';
@@ -25,6 +25,7 @@ type innerPropTypes = {
   mrs: GitLabMR[];
   pipelines?: GitLabPipeline[];
   assignedToUserOnly?: boolean;
+  userAsReviewer?: boolean;
   includeWIP?: boolean;
 } & OuterPropTypes;
 
@@ -78,6 +79,7 @@ const MrTableVisualisation: React.FC<innerPropTypes> = props => {
       includeReady: true,
       includeWIP: props.includeWIP,
       assignedToUserOnly: props.assignedToUserOnly,
+      userAsReviewer: props.userAsReviewer,
     }),
   );
 
@@ -88,10 +90,18 @@ const MrTableVisualisation: React.FC<innerPropTypes> = props => {
     selectProjectsByGroup(state, { groupName: props.group }),
   );
   const visProps = getMrTable(mrs, pipelines, projects);
-  const groupTitle = props.group ? `in ${props.group}` : '';
-  const title = `MRs ${
-    props.assignedToUserOnly ? 'assigned to you' : groupTitle
-  }`.trim();
+  let title = 'Merge Requests';
+  let message = 'No Merge Requests to display';
+  if (props.userAsReviewer) {
+    title = 'Reviewing MRs';
+    message = 'No reviews requested from you';
+  } else if (props.assignedToUserOnly) {
+    title = 'MRs assigned to you';
+    message = 'No Merge Requests assigned to you';
+  } else if (props.group) {
+    title = `MRs in ${props.group}`;
+    message = `No Merge Requests in ${props.group}`;
+  }
 
   if (visProps.values.length <= 0) {
     return (
@@ -99,9 +109,7 @@ const MrTableVisualisation: React.FC<innerPropTypes> = props => {
         id={props.id}
         title={title}
         onSettingsClick={props.onSettingsClick}
-        message={`No MRs ${
-          props.assignedToUserOnly ? 'assigned to you' : groupTitle
-        } to display`}
+        message={message}
       />
     );
   }
@@ -130,6 +138,6 @@ MrTableVisualisation.defaultProps = {
 
 export default compose<ComponentType<OuterPropTypes>>(
   withGitLabConfiguredCheck,
-  withGroupFieldsProvider,
+  withMrTableFieldsProvider,
   withWidgetConfigurationModal(), // takes fields from withGroupFieldsProvider,
 )(MrTableVisualisation);

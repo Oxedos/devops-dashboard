@@ -62,6 +62,23 @@ export async function getUserAssignedMrs(
   return mrList;
 }
 
+export async function getMrsWithReviewer(
+  reviewerId: number,
+  url: string,
+): Promise<GitLabSimpleMr[]> {
+  const mrListLink = normalizeUrl(url, API_SUFFIX) + `/merge_requests`;
+  const mrList = await getWithKeysetPagination<GitLabSimpleMr>(mrListLink, {
+    params: {
+      state: 'opened',
+      reviewer_id: reviewerId,
+      scope: 'all',
+      order_by: 'updated_at',
+      sort: 'desc',
+    },
+  });
+  return mrList;
+}
+
 export async function getUserInfo(url: string): Promise<GitLabUserData> {
   try {
     const response = await axios.get<GitLabUserData>(

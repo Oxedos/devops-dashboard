@@ -23,7 +23,7 @@ import styled from 'styled-components/macro';
 export type FieldType = {
   name: string; // unique. Used as key in props
   label?: string; // Optional label to display
-  type?: 'password' | 'checkbox' | 'select' | 'toggle';
+  type?: 'password' | 'checkbox' | 'select' | 'toggle' | 'radio';
   options?: string[]; // If type is select, the options must be provided
   prepend?: string | JSX.Element; // Text or Element to prepend before input field
   append?: string | JSX.Element; // Text or Element to append before input field
@@ -32,6 +32,7 @@ export type FieldType = {
   hr?: boolean | string; // Second highest precedende. If hr is provided, a <hr /> will be displayed
   space?: boolean; // just an invisible spacer
   disables?: string; // A checkbox can disable another input
+  radioGroup?: string; // Groups radios together so that only one is checked
 };
 
 const FormField: React.FC<{
@@ -75,15 +76,25 @@ const FormField: React.FC<{
 
   if (type === 'checkbox') {
     return (
-      <Form.Group>
-        <Form.Check
-          type="checkbox"
-          label={label}
-          checked={value || false}
-          disabled={disabled || false}
-          onChange={e => onChange(name, e.target.checked)}
-        />
-      </Form.Group>
+      <Form.Check
+        type="checkbox"
+        label={label}
+        checked={value || false}
+        disabled={disabled || false}
+        onChange={e => onChange(name, e.target.checked)}
+      />
+    );
+  }
+
+  if (type === 'radio') {
+    return (
+      <Form.Check
+        type="radio"
+        label={label}
+        checked={value || false}
+        disabled={disabled || false}
+        onChange={e => onChange(name, e.target.checked)}
+      />
     );
   }
 
@@ -228,10 +239,21 @@ const withWidgetConfigurationModal =
       }
 
       const onFieldChange = (name: string, value: string | boolean) => {
+        // Copy state to update it
         const newState = {
           ...newProps,
           [name]: value,
         };
+        // Figure out if we are dealing with a radio group
+        const field = fieldsToUse.find(field => field.name === name);
+        if (field && field.radioGroup) {
+          // find all fields belonging to that radiogroup and disable them
+          fieldsToUse
+            .filter(f => f.radioGroup && f.radioGroup === field.radioGroup)
+            .forEach(f => (newState[f.name] = false));
+        }
+        // Set the new value
+        newState[name] = value;
         setNewProps(newState);
       };
 

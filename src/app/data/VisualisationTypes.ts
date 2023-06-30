@@ -169,7 +169,7 @@ export const AllVisualisations = [
     group: 'gitlab',
     icon: 'table',
     type: VisualisationType.GITLAB_MR_TABLE,
-    label: 'Ready MRs',
+    label: 'Merge Requests',
   },
   {
     group: 'gitlab',

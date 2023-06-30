@@ -40,6 +40,14 @@ const withGroupFieldsProvider = (WrappedComponent: React.FC<any>) => {
         label: 'Merge Requests assigned to you',
         type: 'checkbox',
         disables: 'group',
+        radioGroup: 'source',
+      },
+      {
+        name: 'userAsReviewer',
+        label: 'Merge Requests you are reviewing',
+        type: 'checkbox',
+        disables: 'group',
+        radioGroup: 'source',
       },
       {
         name: 'hr-2',

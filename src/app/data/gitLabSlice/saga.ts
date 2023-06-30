@@ -44,6 +44,7 @@ import {
   selectGitlabSlice,
   selectJobsToPlay,
   selectUrl,
+  selectUserData,
 } from './selectors';
 import { GitLabState } from './types';
 
@@ -264,6 +265,30 @@ function* getUserAssignedMrs() {
   try {
     const mrsUserAssigned = yield call(API.getUserAssignedMrs, url);
     yield put(actions.setMrs({ mrs: mrsUserAssigned }));
+  } catch (error) {
+    if (error instanceof Error) {
+      yield put(
+        globalActions.addErrorNotification(`[GitLab] ${error.message}`),
+      );
+    } else {
+      yield put(globalActions.addErrorNotification(`[GitLab] Unknown Error`));
+    }
+  } finally {
+    yield put(globalActions.removeLoader({ id: loadingId }));
+  }
+}
+
+function* getMrsWithUserAsReviewer() {
+  const url: string = yield select(selectUrl);
+  const userData: GitLabUserData = yield select(selectUserData);
+  if (!userData) return;
+
+  const loadingId = '[GitLab] getMrsWithUserAsReviewer';
+  yield put(globalActions.addLoader({ id: loadingId }));
+
+  try {
+    const mrs = yield call(API.getMrsWithReviewer, userData.id, url);
+    yield put(actions.setMrs({ mrs: mrs }));
   } catch (error) {
     if (error instanceof Error) {
       yield put(
@@ -559,6 +584,7 @@ function* pollShort() {
     yield delay(1000 * 60); // every minute
     if (configured) {
       yield all([
+        call(getMrsWithUserAsReviewer),
         call(getUserAssignedMrs),
         call(getMergeRequests),
         call(getEvents),
@@ -580,6 +606,8 @@ function* loadAll() {
     signalServiceWorker();
     return;
   }
+
+  yield fork(getMrsWithUserAsReviewer);
 
   yield fork(getUserAssignedMrs);
 

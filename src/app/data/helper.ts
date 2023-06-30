@@ -15,20 +15,19 @@ export const upsert = (
 ) => {
   // add item to list if list is empty
   if (list.length <= 0) {
-    return [...newItems];
+    return newItems;
   }
-  const newList = list.slice();
   newItems.forEach(newItem => {
     // check if list has item, if not just add the item
-    const existingItemIdx = newList.findIndex(i => isEqual(i, newItem));
+    const existingItemIdx = list.findIndex(i => isEqual(i, newItem));
     if (existingItemIdx === -1) {
-      newList.push(newItem);
+      list.push(newItem);
     } else {
       // return a new list that has the new item replace the old one
-      newList[existingItemIdx] = newItem;
+      list[existingItemIdx] = newItem;
     }
   });
-  return newList;
+  return list;
 };
 
 /**
@@ -47,14 +46,13 @@ export const remove = (
   if (list.length <= 0) {
     return [];
   }
-  const newList = list.slice();
   removeItems.forEach(removeItem => {
-    const existingItemIdx = newList.findIndex(i => isEqual(i, removeItem));
+    const existingItemIdx = list.findIndex(i => isEqual(i, removeItem));
     if (existingItemIdx !== -1) {
-      newList.splice(existingItemIdx, 1);
+      list.splice(existingItemIdx, 1);
     }
   });
-  return newList;
+  return list;
 };
 
 export function updateState<DataType, DataIdType, AssociatedIdType>(

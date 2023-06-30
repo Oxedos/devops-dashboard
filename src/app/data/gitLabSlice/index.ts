@@ -25,7 +25,10 @@ import {
   upsert,
 } from '../helper';
 import { selectAbandonedGroups } from './groupSelectors';
-import { selectUserAssignedMrs } from './mrSelectors';
+import {
+  selectMrsWithUserAsReviewer,
+  selectUserAssignedMrs,
+} from './mrSelectors';
 import { gitLabSaga } from './saga';
 import { GitLabState } from './types';
 
@@ -173,19 +176,24 @@ const slice = createSlice({
         );
       } else {
         // If the MRs aren't associated to a group, they must be assigned to the user
+        // or are being reviewed by the user
         // 1: Delete all MRs that were previously assigned
         const previousUserAssignedMRs = selectUserAssignedMrs({
           gitLab: state,
         });
-        state.mrs = remove(
+        const previousReviewingMRs = selectMrsWithUserAsReviewer({
+          gitLab: state,
+        });
+        const mrsLeftInState = remove(
           state.mrs,
-          previousUserAssignedMRs,
+          previousUserAssignedMRs.concat(previousReviewingMRs),
           (a, b) => a.id === b.id,
         );
         // Now re-add all user assigned MRs
         // If a MR changed assignees but wasn't closed, it will now be deleted
         // -> okay for now, next reload will bring that MR back
-        state.mrs = upsert(state.mrs, mrs, equalByAttribute('id'));
+        const newStateMRs = upsert(mrsLeftInState, mrs, equalByAttribute('id'));
+        state.mrs = newStateMRs;
       }
     },
     // projects

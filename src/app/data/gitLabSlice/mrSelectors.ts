@@ -46,8 +46,25 @@ export const selectUserAssignedMrs = createSelector(
         (mr.assignees &&
           userData &&
           userData.id &&
-          mr.assignees.length > 1 &&
+          mr.assignees.length >= 1 &&
           mr.assignees.map(assignee => assignee.id).includes(userData.id)),
+    );
+  },
+);
+
+export const selectMrsWithUserAsReviewer = createSelector(
+  selectAllMrs,
+  selectUserData,
+  (allMrs, userData) => {
+    if (!allMrs || allMrs.length <= 0) return [];
+    if (!userData) return [];
+    return allMrs.filter(
+      mr =>
+        mr.reviewers &&
+        userData &&
+        userData.id &&
+        mr.reviewers.length >= 1 &&
+        mr.reviewers.map(reviewer => reviewer.id).includes(userData.id),
     );
   },
 );
@@ -59,6 +76,7 @@ export const selectMrsByGroupFiltered = createSelector(
   createParameterSelector(p => p.includeWIP),
   createParameterSelector(p => p.includeReady),
   createParameterSelector(p => p.assignedToUserOnly),
+  createParameterSelector(p => p.userAsReviewer),
   (
     allMrs,
     groupMrs,
@@ -66,6 +84,7 @@ export const selectMrsByGroupFiltered = createSelector(
     includeWIP,
     includeReady,
     assignedToUserOnly,
+    userAsReviewer,
   ) => {
     let mrs: GitLabMR[] = [];
     if (assignedToUserOnly) {
@@ -78,8 +97,17 @@ export const selectMrsByGroupFiltered = createSelector(
           (mr.assignees &&
             userData &&
             userData.id &&
-            mr.assignees.length > 1 &&
+            mr.assignees.length >= 1 &&
             mr.assignees.map(assignee => assignee.id).includes(userData.id)),
+      );
+    } else if (userAsReviewer) {
+      mrs = allMrs.filter(
+        mr =>
+          mr.reviewers &&
+          userData &&
+          userData.id &&
+          mr.reviewers.length >= 1 &&
+          mr.reviewers.map(reviewer => reviewer.id).includes(userData.id),
       );
     } else {
       mrs = groupMrs;
