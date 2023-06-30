@@ -19,7 +19,7 @@ const withGroupFieldsProvider = (WrappedComponent: React.FC<any>) => {
     const fields: FieldType[] = [
       {
         name: 'source-text',
-        text: 'You can choose between displaying Merge Requests from a group, or all Merge Requests that are assigned to you',
+        text: 'You can choose between displaying Merge Requests from a group, assigned to you, or which you are reviewing',
       },
       {
         name: 'space1',
