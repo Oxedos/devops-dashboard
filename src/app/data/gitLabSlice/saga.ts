@@ -28,24 +28,24 @@ import {
   selectGroupsListeningForMrs,
   selectGroupsListeningForPipelines,
   selectListenedGroups,
-} from './groupSelectors';
-import { selectAllMrs, selectMrsByGroup } from './mrSelectors';
+} from './selectors/groupSelectors';
+import { selectAllMrs, selectMrsByGroup } from './selectors/mrSelectors';
 import {
   getSelectedPipelineStatus,
   selectPipelinesToReload,
-} from './pipelineSelectors';
+} from './selectors/pipelineSelectors';
 import {
   selectProjects,
   selectProjectsByGroup,
   selectProjectsByGroupSortedByLatestActivity,
-} from './projectSelectors';
+} from './selectors/projectSelectors';
 import {
   selectConfigured,
   selectGitlabSlice,
   selectJobsToPlay,
   selectUrl,
   selectUserData,
-} from './selectors';
+} from './selectors/selectors';
 import { GitLabState } from './types';
 
 const { select, call, put, delay } = Effects;
@@ -54,7 +54,7 @@ const { select, call, put, delay } = Effects;
  * Pure Data Loaders
  */
 
-function* getUserInfo() {
+function* loadUserInfo() {
   const url: string = yield select(selectUrl);
   const loadingId = '[GitLab] getUserInfo';
   yield put(globalActions.addLoader({ id: loadingId }));
@@ -76,7 +76,7 @@ function* getUserInfo() {
   }
 }
 
-function* getGroups() {
+function* loadGroups() {
   const url: string = yield select(selectUrl);
   const loadingId = '[GitLab] getGroups';
   yield put(globalActions.addLoader({ id: loadingId }));
@@ -127,7 +127,7 @@ function* loadProjectsForGroup(groupName: string, url: string) {
   }
 }
 
-function* getProjects() {
+function* loadProjects() {
   const url: string = yield select(selectUrl);
   const listenedGroups: string[] = yield select(selectListenedGroups);
 
@@ -145,7 +145,7 @@ function* getProjects() {
   yield put(globalActions.removeLoader({ id: loadingId }));
 }
 
-function* loadPipelinesForProject(
+function* getPipelinesForProject(
   project: GitLabProject,
   mrs: GitLabMR[],
   includeBranches: boolean,
@@ -199,7 +199,7 @@ function* loadPipelinesForGroup(
     if (project.archived || !project.jobs_enabled) continue;
     const projectMRs = groupMrs.filter(mr => mr.project_id === project.id);
     const task = yield fork(
-      loadPipelinesForProject,
+      getPipelinesForProject,
       project,
       projectMRs,
       includeBranches,
@@ -220,7 +220,7 @@ function* loadPipelinesForGroup(
   );
 }
 
-function* getPipelines() {
+function* loadPipelines() {
   const groupsListeningForPipelines: {
     group: string;
     includeBranches: boolean;
@@ -257,7 +257,7 @@ function* getPipelines() {
   }
 }
 
-function* getUserAssignedMrs() {
+function* loadUserAssignedMrs() {
   const url: string = yield select(selectUrl);
   const loadingId = '[GitLab] getUserAssignedMRs';
   yield put(globalActions.addLoader({ id: loadingId }));
@@ -278,7 +278,7 @@ function* getUserAssignedMrs() {
   }
 }
 
-function* getMrsWithUserAsReviewer() {
+function* loadMrsWithUserAsReviewer() {
   const url: string = yield select(selectUrl);
   const userData: GitLabUserData = yield select(selectUserData);
   if (!userData) return;
@@ -302,7 +302,7 @@ function* getMrsWithUserAsReviewer() {
   }
 }
 
-function* getMissingProjects() {
+function* loadMissingProjects() {
   const url: string = yield select(selectUrl);
   const loadingId = '[GitLab] getMissingProjects';
 
@@ -342,7 +342,7 @@ function* getMissingProjects() {
   }
 }
 
-function* getMergeRequests() {
+function* loadMergeRequests() {
   const url: string = yield select(selectUrl);
   const groupConfigsListeningForMrs: {
     group: GitLabGroup;
@@ -487,6 +487,7 @@ function* playJob(
     // play job
     yield call(API.playJob, url, projectId, jobId);
     // reload this Pipeline
+    // TODO: Do I have to load everything in API.loadPipelineForMr?
     const pipelineData = yield call(
       API.loadPipelineForMr,
       url,
@@ -508,7 +509,7 @@ function* playJob(
   }
 }
 
-function* loadEventsForProject(projectId: number, url: string) {
+function* getEventsForProject(projectId: number, url: string) {
   const loadingId = `[GitLab] getEvents ${projectId}`;
   yield put(globalActions.addLoader({ id: loadingId }));
   let events: GitLabEvent[] = [];
@@ -529,7 +530,7 @@ function* loadEventsForProject(projectId: number, url: string) {
   }
 }
 
-function* getEvents() {
+function* loadEvents() {
   const url: string = yield select(selectUrl);
   // load groups listening for events
   const listenedGroups: string[] = yield select(
@@ -548,7 +549,7 @@ function* getEvents() {
       const project = listenedProjects[i];
       if (!project) continue;
       const events: GitLabEvent[] = yield call(
-        loadEventsForProject,
+        getEventsForProject,
         project.id,
         url,
       );
@@ -570,9 +571,9 @@ function* pollLong() {
     const configured: boolean = yield select(selectConfigured);
     yield delay(1000 * 60 * 60); // every 60 Minutes
     if (configured) {
-      yield fork(getUserInfo);
-      yield call(getGroups);
-      yield call(getProjects);
+      yield fork(loadUserInfo);
+      yield call(loadGroups);
+      yield call(loadProjects);
       yield call(persist);
     }
   }
@@ -584,14 +585,14 @@ function* pollShort() {
     yield delay(1000 * 60); // every minute
     if (configured) {
       yield all([
-        call(getMrsWithUserAsReviewer),
-        call(getUserAssignedMrs),
-        call(getMergeRequests),
-        call(getEvents),
+        call(loadMrsWithUserAsReviewer),
+        call(loadUserAssignedMrs),
+        call(loadMergeRequests),
+        call(loadEvents),
       ]);
 
-      yield call(getPipelines);
-      yield call(getMissingProjects);
+      yield call(loadPipelines);
+      yield call(loadMissingProjects);
       yield call(persist);
     }
   }
@@ -607,17 +608,17 @@ function* loadAll() {
     return;
   }
 
-  yield fork(getMrsWithUserAsReviewer);
+  yield fork(loadMrsWithUserAsReviewer);
 
-  yield fork(getUserAssignedMrs);
+  yield fork(loadUserAssignedMrs);
 
-  yield call(getGroups); // All other calls depend on groups, block for this call
+  yield call(loadGroups); // All other calls depend on groups, block for this call
 
-  yield all([call(getProjects), call(getMergeRequests)]);
+  yield all([call(loadProjects), call(loadMergeRequests)]);
 
-  yield all([call(getEvents), call(getPipelines)]);
+  yield all([call(loadEvents), call(loadPipelines)]);
 
-  yield call(getMissingProjects);
+  yield call(loadMissingProjects);
 
   yield call(persist);
 }

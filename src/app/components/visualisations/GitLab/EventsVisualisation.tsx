@@ -1,7 +1,7 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import GitLabUser from 'app/components/GitLab/GitLabUser';
 import compose from 'app/components/compose';
-import { selectEventsByGroup } from 'app/data/gitLabSlice/eventSelectors';
+import { selectEventsByGroup } from 'app/data/gitLabSlice/selectors/eventSelectors';
 import moment from 'moment';
 import React, { ComponentType } from 'react';
 import { useSelector } from 'react-redux';

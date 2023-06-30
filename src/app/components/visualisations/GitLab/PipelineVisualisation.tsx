@@ -1,7 +1,7 @@
 import { GitLabPipeline } from 'app/apis/gitlab/types';
 import Pipeline from 'app/components/GitLab/Pipeline';
 import compose from 'app/components/compose';
-import { selectPipelinesFiltered } from 'app/data/gitLabSlice/pipelineSelectors';
+import { selectPipelinesFiltered } from 'app/data/gitLabSlice/selectors/pipelineSelectors';
 import React, { ComponentType } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components/macro';

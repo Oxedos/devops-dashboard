@@ -8,8 +8,8 @@ import {
   GitLabMR,
   GitLabPipeline,
   GitLabProject,
-  GitLabSimpleMr,
   GitLabUserData,
+  GitLabMrExtended,
 } from './types';
 
 export const API_SUFFIX = '/api/v4';
@@ -34,10 +34,10 @@ export async function getGroups(
 export async function getGroupMergeRequests(
   url: string,
   groupId: number,
-): Promise<GitLabSimpleMr[]> {
+): Promise<GitLabMR[]> {
   const mrListLink =
     normalizeUrl(url, API_SUFFIX) + `/groups/${groupId}/merge_requests`;
-  const mrList: GitLabSimpleMr[] = await getWithKeysetPagination(mrListLink, {
+  const mrList: GitLabMR[] = await getWithKeysetPagination(mrListLink, {
     params: {
       scope: 'all',
       state: 'opened',
@@ -47,11 +47,9 @@ export async function getGroupMergeRequests(
   return mrList;
 }
 
-export async function getUserAssignedMrs(
-  url: string,
-): Promise<GitLabSimpleMr[]> {
+export async function getUserAssignedMrs(url: string): Promise<GitLabMR[]> {
   const mrListLink = normalizeUrl(url, API_SUFFIX) + `/merge_requests`;
-  const mrList = await getWithKeysetPagination<GitLabSimpleMr>(mrListLink, {
+  const mrList = await getWithKeysetPagination<GitLabMR>(mrListLink, {
     params: {
       state: 'opened',
       scope: 'assigned_to_me',
@@ -66,9 +64,9 @@ export async function getUserAssignedMrs(
 export async function getMrsWithReviewer(
   reviewerId: number,
   url: string,
-): Promise<GitLabSimpleMr[]> {
+): Promise<GitLabMR[]> {
   const mrListLink = normalizeUrl(url, API_SUFFIX) + `/merge_requests`;
-  const mrList = await getWithKeysetPagination<GitLabSimpleMr>(mrListLink, {
+  const mrList = await getWithKeysetPagination<GitLabMR>(mrListLink, {
     params: {
       state: 'opened',
       reviewer_id: reviewerId,
@@ -308,9 +306,9 @@ export async function loadPipelineForMr(
     `/projects/${projectId}/merge_requests/${mrIid}`;
 
   // get data the associated MR
-  let mrData: GitLabMR;
+  let mrData: GitLabMrExtended;
   try {
-    const mrDataResponse = await axios.get<GitLabMR>(mrLink);
+    const mrDataResponse = await axios.get<GitLabMrExtended>(mrLink);
     mrData = mrDataResponse.data;
   } catch (error) {
     throw new Error(getGitLabErrorMessage(error));

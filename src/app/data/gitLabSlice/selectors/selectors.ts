@@ -1,7 +1,7 @@
 import { createSelector } from '@reduxjs/toolkit';
 
 import { RootState } from 'types';
-import { initialState } from '.';
+import { initialState } from '../index';
 
 export const selectGitlabSlice = (state: RootState) =>
   state ? state.gitLab || initialState : initialState;

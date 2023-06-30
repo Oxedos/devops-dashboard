@@ -10,9 +10,9 @@ import withWidgetConfigurationModal from '../components/withWidgetConfigurationM
 import withMrTableFieldsProvider from './components/withMrTableFieldsProvider';
 import { PipelineStatus, StatusStyle } from 'app/components/GitLab/Status';
 import styled from 'styled-components/macro';
-import { selectMrsByGroupFiltered } from 'app/data/gitLabSlice/mrSelectors';
-import { selectPipelinesByGroup } from 'app/data/gitLabSlice/pipelineSelectors';
-import { selectProjectsByGroup } from 'app/data/gitLabSlice/projectSelectors';
+import { selectMrsByGroupFiltered } from 'app/data/gitLabSlice/selectors/mrSelectors';
+import { selectPipelinesByGroup } from 'app/data/gitLabSlice/selectors/pipelineSelectors';
+import { selectProjectsByGroup } from 'app/data/gitLabSlice/selectors/projectSelectors';
 
 type OuterPropTypes = {
   id: string;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
-import { selectConfigured } from 'app/data/gitLabSlice/selectors';
+import { selectConfigured } from 'app/data/gitLabSlice/selectors/selectors';
 import SimpleMessage from 'app/components/visualisations/components/SimpleMessage';
 
 type PropTypes = {

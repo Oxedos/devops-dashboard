@@ -3,8 +3,8 @@ import { createParameterSelector, selectGitlabSlice } from './selectors';
 import {
   selectConfiguredVisualisations,
   selectGlobal,
-} from '../globalSlice/selectors';
-import { VisualisationType } from '../VisualisationTypes';
+} from '../../globalSlice/selectors';
+import { VisualisationType } from '../../VisualisationTypes';
 
 export const selectGroups = createSelector(
   selectGitlabSlice,

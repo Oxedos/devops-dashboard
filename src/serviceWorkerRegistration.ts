@@ -2,7 +2,10 @@
 // register() is not called by default.
 
 import { gitLabActions } from 'app/data/gitLabSlice';
-import { selectApplicationId, selectUrl } from 'app/data/gitLabSlice/selectors';
+import {
+  selectApplicationId,
+  selectUrl,
+} from 'app/data/gitLabSlice/selectors/selectors';
 import { globalActions } from 'app/data/globalSlice';
 import { PUBLIC_URL, redirectToGitlabAuth } from 'app/util/OAuthUtil';
 import { reduxApplicationStore } from 'index';

@@ -11,7 +11,7 @@ import {
   selectConfigured,
   selectUrl,
   selectUserData,
-} from 'app/data/gitLabSlice/selectors';
+} from 'app/data/gitLabSlice/selectors/selectors';
 import { REDIRECT_URI, redirectToGitlabAuth } from 'app/util/OAuthUtil';
 import { useState } from 'react';
 import Figure from 'react-bootstrap/Figure';

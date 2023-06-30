@@ -1,7 +1,7 @@
 import React from 'react';
 import { useSelector } from 'react-redux';
 import { FieldType } from 'app/components/visualisations/components/withWidgetConfigurationModal';
-import { selectGroupNames } from 'app/data/gitLabSlice/groupSelectors';
+import { selectGroupNames } from 'app/data/gitLabSlice/selectors/groupSelectors';
 
 type PropTypes = {
   id: string;

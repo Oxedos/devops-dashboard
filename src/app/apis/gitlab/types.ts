@@ -115,7 +115,7 @@ export type GitlabLabel = {
   text_color: string;
 };
 
-export type GitLabSimpleMr = {
+export type GitLabMR = {
   id: MrId;
   iid: number;
   project_id: number;
@@ -188,6 +188,10 @@ export type GitLabSimpleMr = {
   blocking_discussions_resolved: boolean;
 };
 
+export type GitLabMrExtended = {
+  head_pipeline: GitLabPipelineBasic;
+} & GitLabMR;
+
 export type GitLabMilestone = {
   id: MilestoneId;
   iid: number;
@@ -200,83 +204,6 @@ export type GitLabMilestone = {
   due_date: string;
   start_date: string;
   web_url: string;
-};
-
-export type GitLabMR = {
-  id: MrId;
-  iid: number;
-  project_id: number;
-  title: string;
-  description: string;
-  state: string;
-  created_at: string;
-  updated_at: string;
-  target_branch: string;
-  source_branch: string;
-  upvotes: number;
-  downvotes: number;
-  author: GitLabUserReference;
-  user: {
-    can_merge: boolean;
-  };
-  assignee: GitLabUserReference;
-  assignees: GitLabUserReference[];
-  reviewers: GitLabUserReference[];
-  source_project_id: number;
-  target_project_id: number;
-  labels: GitlabLabel[];
-  draft: boolean;
-  work_in_progress: boolean;
-  milestone: GitLabMilestone;
-  merge_when_pipeline_succeeds: boolean;
-  merge_status: string;
-  merge_error: string;
-  sha: string;
-  merge_commit_sha: string;
-  squash_commit_sha: string;
-  user_notes_count: number;
-  discussion_locked: string;
-  should_remove_source_branch: boolean;
-  force_remove_source_branch: boolean;
-  allow_collaboration: boolean;
-  allow_maintainer_to_push: boolean;
-  web_url: string;
-  references: {
-    short: string;
-    relative: string;
-    full: string;
-  };
-  time_stats: {
-    time_estimate: number;
-    total_time_spent: number;
-    human_time_estimate: string;
-    human_total_time_spent: string;
-  };
-  squash: boolean;
-  subscribed: boolean;
-  changes_count: string;
-  merge_user: GitLabUserData;
-  merged_at: string;
-  closed_by: string;
-  closed_at: string;
-  latest_build_started_at: string;
-  latest_build_finished_at: string;
-  first_deployed_to_production_at: string;
-  diff_refs: {
-    base_sha: string;
-    head_sha: string;
-    start_sha: string;
-  };
-  diverged_commits_count: number;
-  rebase_in_progress: boolean;
-  first_contribution: boolean;
-  task_completion_status: {
-    count: number;
-    completed_count: null;
-  };
-  has_conflicts: boolean;
-  blocking_discussions_resolved: boolean;
-  head_pipeline: GitLabPipelineBasic;
 };
 
 export type GitLabEvent = {

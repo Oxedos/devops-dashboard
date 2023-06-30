@@ -11,7 +11,7 @@ import Stage from '../Stage';
 import { GlobalColours } from 'styles/global-styles';
 import Badge from 'react-bootstrap/Badge';
 import { PipelineStatus, StatusStyle } from '../Status';
-import { selectProjects } from 'app/data/gitLabSlice/projectSelectors';
+import { selectProjects } from 'app/data/gitLabSlice/selectors/projectSelectors';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 type PropTypes = {

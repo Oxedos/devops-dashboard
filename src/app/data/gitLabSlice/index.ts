@@ -24,11 +24,11 @@ import {
   updateState,
   upsert,
 } from '../helper';
-import { selectAbandonedGroups } from './groupSelectors';
+import { selectAbandonedGroups } from './selectors/groupSelectors';
 import {
   selectMrsWithUserAsReviewer,
   selectUserAssignedMrs,
-} from './mrSelectors';
+} from './selectors/mrSelectors';
 import { gitLabSaga } from './saga';
 import { GitLabState } from './types';
 
