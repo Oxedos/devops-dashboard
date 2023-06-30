@@ -57,6 +57,7 @@ export async function getUserAssignedMrs(
       scope: 'assigned_to_me',
       order_by: 'updated_at',
       sort: 'desc',
+      with_labels_details: 'true',
     },
   });
   return mrList;
@@ -74,6 +75,7 @@ export async function getMrsWithReviewer(
       scope: 'all',
       order_by: 'updated_at',
       sort: 'desc',
+      with_labels_details: 'true',
     },
   });
   return mrList;
