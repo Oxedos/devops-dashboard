@@ -29,7 +29,7 @@ import {
   selectMrsWithUserAsReviewer,
   selectUserAssignedMrs,
 } from './selectors/mrSelectors';
-import { gitLabSaga } from './saga';
+import { gitLabSaga } from './sagas';
 import { GitLabState } from './types';
 
 export const LOCALSTORAGE_KEY = 'gitlab-state';
