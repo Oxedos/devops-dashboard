@@ -77,6 +77,14 @@ const NotificationContainer: React.FC = props => {
       {notifications.map(n => (
         <NotificationToast notification={n} key={n.id} />
       ))}
+      <NotificationToast
+        notification={{
+          id: '',
+          type: NotificationType.info,
+          time: new Date().toISOString(),
+          message: 'Hello World',
+        }}
+      />
     </Wrapper>
   );
 };
@@ -95,26 +103,10 @@ const Wrapper = styled.div`
 `;
 
 const StyledToast = styled(Toast)`
-  min-width: 30em;
-  width: 30em;
-  max-width: 30em;
-  background: var(--clr-menu);
-  color: var(--clr-white);
-
   .toast-header {
-    background: var(--clr-menu);
-    color: var(--clr-white);
     & svg {
       padding-right: 0.5em;
     }
-  }
-
-  span {
-    color: var(--clr-white);
-  }
-
-  span:hover {
-    color: var(--clr-dark-gray);
   }
 `;
 

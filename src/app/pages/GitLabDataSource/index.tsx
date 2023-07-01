@@ -1,9 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import {
-  BlueButton as BlueButtonRaw,
-  RedButton,
-} from 'app/components/Design/Buttons';
-import DarkForm from 'app/components/Design/DarkForm';
+import Button from 'react-bootstrap/Button';
 import NavigationBar from 'app/components/NavigationBar';
 import { gitLabActions } from 'app/data/gitLabSlice';
 import {
@@ -76,7 +72,7 @@ export function GitLabDataSource() {
               Application
             </span>
             <hr />
-            <DarkForm>
+            <Form>
               <Form.Group className="mb-3">
                 <Form.Label>GitLab URL</Form.Label>
                 <InputGroup>
@@ -101,20 +97,21 @@ export function GitLabDataSource() {
                 <FontAwesomeIcon icon={['fab', 'gitlab']} />
                 Authenticate with GitLab
               </BlueButton>
-            </DarkForm>
+            </Form>
           </ContentElement>
           {configured && (
             <ContentElement>
-              <RedButton
+              <Button
                 onClick={() => {
                   setNewClientID('');
                   setNewUrl('');
                   dispatch(gitLabActions.deleteConfiguration());
                   navigate(path('/data/gitlab'));
                 }}
+                variant="danger"
               >
                 Delete Configuration
-              </RedButton>
+              </Button>
             </ContentElement>
           )}
         </ContentWrapper>
@@ -149,7 +146,6 @@ const ContentElement = styled.div`
   border-radius: 0.5em;
   padding: 1em;
   max-width: 50em;
-  // unter, bevorz, ober
   width: clamp(5em, 30em, calc(100vh - 20em));
   background: var(--clr-widget);
   > * {
@@ -184,7 +180,7 @@ const StyledFigure = styled(Figure)`
   }
 `;
 
-const BlueButton = styled(BlueButtonRaw)`
+const BlueButton = styled(Button)`
   width: 100%;
   display: flex;
   flex-flow: row;

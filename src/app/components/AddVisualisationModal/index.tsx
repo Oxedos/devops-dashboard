@@ -6,8 +6,7 @@ import Modal from 'react-bootstrap/Modal';
 import { GroupIcons, VisualisationType } from 'app/data/VisualisationTypes';
 import { v4 as uuidv4 } from 'uuid';
 import { AllVisualisations } from 'app/data/VisualisationTypes';
-import DarkModal from 'app/components/Design/DarkModal';
-import { BlueButton } from '../Design/Buttons';
+import Button from 'react-bootstrap/Button';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useParams } from 'react-router';
 import {
@@ -46,7 +45,7 @@ export default function AddVisualisationModal(props: propTypes) {
   const AnyIcon: any = FontAwesomeIcon; // Because we're using a custom icon
 
   return (
-    <DarkModal show={props.show} centered onHide={props.onHide}>
+    <Modal show={props.show} centered onHide={props.onHide}>
       <Modal.Header closeButton>
         <Modal.Title>Add Widget</Modal.Title>
       </Modal.Header>
@@ -72,9 +71,7 @@ export default function AddVisualisationModal(props: propTypes) {
                 ))}
               </ButtonGroup>
               <hr />
-              <BlueButton block onClick={() => setSelectedGroup(undefined)}>
-                Back
-              </BlueButton>
+              <Button onClick={() => setSelectedGroup(undefined)}>Back</Button>
             </GroupWrapper>
           ) : (
             <ButtonGroup>
@@ -90,7 +87,7 @@ export default function AddVisualisationModal(props: propTypes) {
           )}
         </ButtonWrapper>
       </Modal.Body>
-    </DarkModal>
+    </Modal>
   );
 }
 

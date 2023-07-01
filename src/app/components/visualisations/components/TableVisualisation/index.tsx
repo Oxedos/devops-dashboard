@@ -61,7 +61,6 @@ const Wrapper = styled.div`
 
 const StyledTable = styled(Table)`
   width: 100%;
-  color: var(--clr-white);
 
   th {
     min-width: 3em;
@@ -73,11 +72,6 @@ const StyledTable = styled(Table)`
 
   tbody tr td {
     vertical-align: middle;
-    color: var(--clr-white) !important;
-  }
-
-  tbody tr:hover {
-    color: var(--clr-white) !important;
   }
 `;
 

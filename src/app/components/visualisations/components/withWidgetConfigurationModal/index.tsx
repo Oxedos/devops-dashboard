@@ -7,10 +7,7 @@ import {
   getDashbaordId,
   selectDashboards,
 } from 'app/data/globalSlice/selectors';
-import DarkModal from 'app/components/Design/DarkModal';
-import DarkForm from 'app/components/Design/DarkForm';
-import DarkInputGroupText from 'app/components/Design/DarkInputGroupText';
-import { BlueButton } from 'app/components/Design/Buttons';
+import Button from 'react-bootstrap/Button';
 import { useParams } from 'react-router';
 import { globalActions } from 'app/data/globalSlice';
 import {
@@ -122,14 +119,14 @@ const FormField: React.FC<{
     <Form.Group>
       {label && <Form.Label>{`${label} ${required ? '*' : ''}`}</Form.Label>}
       <InputGroup>
-        {prepend && <DarkInputGroupText>{prepend}</DarkInputGroupText>}
+        {prepend && <InputGroup.Text>{prepend}</InputGroup.Text>}
         <Form.Control
           placeholder={label}
           value={value || ''}
           type={type}
           onChange={({ target: { value } }) => onChange(name, value)}
         />
-        {append && <DarkInputGroupText>{append}</DarkInputGroupText>}
+        {append && <InputGroup.Text>{append}</InputGroup.Text>}
       </InputGroup>
     </Form.Group>
   );
@@ -250,16 +247,12 @@ const withWidgetConfigurationModal =
             afterVisRemoved={afterVisRemove}
             {...props}
           />
-          <DarkModal
-            show={isModalOpen}
-            centered
-            onHide={() => setModalOpen(false)}
-          >
+          <Modal show={isModalOpen} centered onHide={() => setModalOpen(false)}>
             <Modal.Header closeButton>
               <Modal.Title>Configure Widget</Modal.Title>
             </Modal.Header>
             <Modal.Body>
-              <DarkForm>
+              <Form>
                 {fieldsToUse.map((field, idx) => {
                   const disabled = fieldsToUse
                     .filter(f => f.disables === field.name)
@@ -276,16 +269,16 @@ const withWidgetConfigurationModal =
                   );
                 })}
                 <hr />
-                <BlueButton
+                <Button
                   onClick={() =>
                     submit(fieldsToUse, dispatch, props, newProps, setModalOpen)
                   }
                 >
                   Save
-                </BlueButton>
-              </DarkForm>
+                </Button>
+              </Form>
             </Modal.Body>
-          </DarkModal>
+          </Modal>
         </>
       );
     };

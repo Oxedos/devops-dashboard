@@ -14,6 +14,7 @@ import { Provider } from 'react-redux';
 import * as serviceWorkerRegistration from './serviceWorkerRegistration';
 
 // Styling
+import 'styles/bootstrap.scss';
 import 'sanitize.css/sanitize.css';
 import '../node_modules/react-grid-layout/css/styles.css';
 import '../node_modules/react-resizable/css/styles.css';

@@ -20,8 +20,8 @@ const Job: React.FC<PropTypes> = props => {
 
   const popover = innerProps => (
     <Popover id="popover-basic" {...innerProps}>
-      <Popover.Header as="h3">{props.job.status}</Popover.Header>
-      <Popover.Body>
+      <PopoverBase.Header as="h3">{props.job.status}</PopoverBase.Header>
+      <PopoverBase.Body>
         <StyledA href={props.job.web_url} target="_blank" rel="noreferrer">
           <Wrapper>
             <strong>{props.job.stage}:</strong>
@@ -38,7 +38,7 @@ const Job: React.FC<PropTypes> = props => {
             )}
           </Wrapper>
         </StyledA>
-      </Popover.Body>
+      </PopoverBase.Body>
     </Popover>
   );
 
@@ -89,28 +89,6 @@ const StyledA = styled.a`
 `;
 
 const Popover = styled(PopoverBase)`
-  & .popover-arrow:after,
-  & .popover-header:before {
-    border-bottom-color: var(--clr-menu);
-    background: transparent;
-  }
-  & .popover-header {
-    background: var(--clr-menu);
-  }
-  background: var(--clr-menu);
-  & *:not(svg, g, path) {
-    color: var(--clr-white);
-  }
-  a {
-    color: inherit;
-    word-wrap: none;
-  }
-  & .popover-body {
-    display: flex;
-    flex-flow: column nowrap;
-    gap: 1em;
-    padding: 1em;
-  }
   max-width: unset;
 `;
 
