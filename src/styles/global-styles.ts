@@ -11,6 +11,7 @@ export const GlobalColours = {
   background: '#34495e',
   widget: '#2c3e50',
   white: '#ecebeb',
+  menu: '#3c6382',
 };
 
 export const GlobalStyle = createGlobalStyle`
@@ -18,21 +19,21 @@ export const GlobalStyle = createGlobalStyle`
   body {
     height: 100%;
     width: 100%;
-    --clr-background: #34495e;
-    --clr-menu: #3c6382;
-    --clr-widget: #2c3e50;
-    --clr-red: #e55039;
+    --clr-background: ${GlobalColours.background};
+    --clr-menu: ${GlobalColours.menu};
+    --clr-widget: ${GlobalColours.widget};
+    --clr-red:  ${GlobalColours.red};
     --clr-red-lighter: #eb644f;
-    --clr-blue: #4a69bd;
+    --clr-blue:  ${GlobalColours.blue};
     --clr-blue-lighter: #5b7ee0;
-    --clr-green: #78e08f;
+    --clr-green: ${GlobalColours.green};
     --clr-green-lighter: #86f89f;
-    --clr-orange: #e58e26;
+    --clr-orange:  ${GlobalColours.orange};
     --clr-orange-lighter: #ffa12d;
-    --clr-white: #ecebeb;
-    --clr-gray: #a5b1c2;
+    --clr-white:  ${GlobalColours.white};
+    --clr-gray:  ${GlobalColours.gray};
     --clr-dark-gray: rgba(255, 255, 255, 0.15);
-    --clr-yellow: #f6b93b;
+    --clr-yellow:  ${GlobalColours.yellow};
 
     background: var(--clr-background);
     color: var(--clr-white);
@@ -63,10 +64,6 @@ export const GlobalStyle = createGlobalStyle`
       background-color: var(--clr-gray);
     }
   }
-  
-  body {
-    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  }
 
   #root {
     min-height: 100%;
@@ -75,24 +72,10 @@ export const GlobalStyle = createGlobalStyle`
 
   p,
   label {
-    font-family: Georgia, Times, 'Times New Roman', serif;
     line-height: 1.5em;
-  }
-
-  input, select {
-    font-family: inherit;
-    font-size: inherit;
   }
 
   .react-grid-placeholder {
     background: var(--clr-blue) !important;
   }
-
-  // Pie Chart hover highligh colour
-  .donut-chart-example {
-    .rv-radial-chart__series--pie__slice:hover {
-      stroke: black !important;
-      stroke-width: 2px !important;
-  }
-}
 `;

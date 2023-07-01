@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { BlueButton } from 'app/components/Design/Buttons';
+import Button from 'react-bootstrap/Button';
 import { Dashboard } from 'app/data/globalSlice/types';
 import React, { useState } from 'react';
 import ShareModal from '../ShareModal';
@@ -23,9 +23,9 @@ const ShareButton: React.FC<ShareButtonPropTypes> = props => {
   );
 
   const shareButton = (
-    <BlueButton onClick={() => setModalOpen(true)}>
+    <Button onClick={() => setModalOpen(true)}>
       <FontAwesomeIcon icon="share-square" />
-    </BlueButton>
+    </Button>
   );
 
   return (

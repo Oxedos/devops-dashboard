@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { replacer, reviver } from 'app/apis/persistance';
-import { BlueButton } from 'app/components/Design/Buttons';
-import DarkModal from 'app/components/Design/DarkModal';
-import { DarkFormControl } from 'app/components/Design/DarkForm';
+import Button from 'react-bootstrap/Button';
 import { globalActions } from 'app/data/globalSlice';
-import Modal from 'react-bootstrap/esm/Modal';
+import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components/macro';
 import { Dashboard } from 'app/data/globalSlice/types';
@@ -12,7 +11,7 @@ import { Dashboard } from 'app/data/globalSlice/types';
 type ShareModalPropTypes = {
   show: boolean;
   dashboardId: string;
-  onHide: Function;
+  onHide: () => void;
   dashboard: Dashboard;
 };
 
@@ -57,7 +56,7 @@ const ShareModal: React.FC<ShareModalPropTypes> = props => {
   };
 
   return (
-    <DarkModal size="lg" show={props.show} centered onHide={props.onHide}>
+    <Modal size="lg" show={props.show} centered onHide={props.onHide}>
       <Modal.Header closeButton>
         <Modal.Title>Share Configuration</Modal.Title>
       </Modal.Header>
@@ -67,19 +66,17 @@ const ShareModal: React.FC<ShareModalPropTypes> = props => {
           (base64 encoded) credentials! Check the output below and delete any
           secrets you do not wish to share.
         </Alert>
-        <StyledDarkFormControl
+        <StyledFormControl
           as="textarea"
           onChange={a => setConfig(a.target.value)}
         >
           {config}
-        </StyledDarkFormControl>
+        </StyledFormControl>
       </Modal.Body>
       <Modal.Footer>
-        <BlueButton block onClick={copyToClipboard}>
-          Copy to Clipboard
-        </BlueButton>
+        <Button onClick={copyToClipboard}>Copy to Clipboard</Button>
       </Modal.Footer>
-    </DarkModal>
+    </Modal>
   );
 };
 
@@ -93,7 +90,7 @@ const Alert = styled.div`
   margin-bottom: 1em;
 `;
 
-const StyledDarkFormControl = styled(DarkFormControl)`
+const StyledFormControl = styled(Form.Control)`
   height: 65vh;
   width: 100%;
 `;

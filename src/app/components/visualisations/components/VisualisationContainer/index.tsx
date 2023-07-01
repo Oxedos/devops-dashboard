@@ -8,6 +8,7 @@ import {
   getDashbaordId,
   selectDashboards,
 } from 'app/data/globalSlice/selectors';
+import { GlobalColours } from 'styles/global-styles';
 
 type PropTypes = {
   id: string;
@@ -37,6 +38,7 @@ const VisualisationContainer: React.FC<
             className="fadeIcon"
             icon="cog"
             size="xs"
+            color={GlobalColours.blue}
             onClick={() => props.onSettingsClick && props.onSettingsClick()}
           />
         ) : (
@@ -52,6 +54,7 @@ const VisualisationContainer: React.FC<
           className="fadeIcon"
           icon="times"
           size="xs"
+          color={GlobalColours.red}
           onClick={() => {
             dispatch(globalActions.removeVisualisation(props.id));
             if (props.afterVisRemoved) {
@@ -105,7 +108,6 @@ const CloseIcon = styled(FontAwesomeIcon)`
   margin-top: 0.15em;
   margin-left: 0.5em;
   opacity: 0;
-  color: #bbb;
   cursor: pointer;
   &:hover {
     color: var(--clr-red);
@@ -114,7 +116,6 @@ const CloseIcon = styled(FontAwesomeIcon)`
 
 const SettingsIcon = styled(FontAwesomeIcon)`
   opacity: 0;
-  color: #bbb;
   margin-top: 0.15em;
   margin-right: 0.5em;
   cursor: pointer;

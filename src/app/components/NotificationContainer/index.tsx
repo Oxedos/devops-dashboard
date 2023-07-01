@@ -95,26 +95,10 @@ const Wrapper = styled.div`
 `;
 
 const StyledToast = styled(Toast)`
-  min-width: 30em;
-  width: 30em;
-  max-width: 30em;
-  background: var(--clr-menu);
-  color: var(--clr-white);
-
   .toast-header {
-    background: var(--clr-menu);
-    color: var(--clr-white);
     & svg {
       padding-right: 0.5em;
     }
-  }
-
-  span {
-    color: var(--clr-white);
-  }
-
-  span:hover {
-    color: var(--clr-dark-gray);
   }
 `;
 

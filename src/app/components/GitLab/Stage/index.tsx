@@ -67,8 +67,8 @@ const Stage: React.FC<PropTypes> = props => {
 
   const popover = innerProps => (
     <Popover id="popover-basic" {...innerProps}>
-      <Popover.Header as="h3">Stage:{props.stage}</Popover.Header>
-      <Popover.Body>
+      <PopoverBase.Header as="h3">Stage:{props.stage}</PopoverBase.Header>
+      <PopoverBase.Body>
         {props.jobs.map(job => {
           return (
             <JobLineContainer
@@ -92,7 +92,7 @@ const Stage: React.FC<PropTypes> = props => {
             </JobLineContainer>
           );
         })}
-      </Popover.Body>
+      </PopoverBase.Body>
     </Popover>
   );
 
@@ -146,19 +146,6 @@ const JobLineContainer = styled.a`
 `;
 
 const Popover = styled(PopoverBase)`
-  border: 1px solid var(--clr-white);
-  & .popover-arrow:after,
-  & .popover-header:before {
-    border-bottom-color: var(--clr-menu);
-    background: transparent;
-  }
-  & .popover-header {
-    background: var(--clr-menu);
-  }
-  background: var(--clr-menu);
-  & *:not(svg, g, path) {
-    color: var(--clr-white);
-  }
   a {
     color: inherit;
     word-wrap: none;

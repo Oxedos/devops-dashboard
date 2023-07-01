@@ -1,9 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { BlueButton } from 'app/components/Design/Buttons';
-import DarkModal from 'app/components/Design/DarkModal';
+import Button from 'react-bootstrap/Button';
 import { globalActions } from 'app/data/globalSlice';
-import { DarkFormControl } from 'app/components/Design/DarkForm';
-import Modal from 'react-bootstrap/esm/Modal';
+import Modal from 'react-bootstrap/Modal';
+import Form from 'react-bootstrap/Form';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components/macro';
 import { replacer, reviver } from 'app/apis/persistance';
@@ -12,7 +11,7 @@ import { getAfterVisualisationUpdatedActions } from 'app/data/VisualisationTypes
 
 type ShareModalPropTypes = {
   show: boolean;
-  onHide: Function;
+  onHide: () => void;
 };
 
 function isVisualisation(obj: any): obj is ConfiguredVisualisation {
@@ -152,7 +151,7 @@ const AddSharedDashboardModal: React.FC<ShareModalPropTypes> = props => {
   };
 
   return (
-    <DarkModal size="lg" show={props.show} centered onHide={props.onHide}>
+    <Modal size="lg" show={props.show} centered onHide={props.onHide}>
       <Modal.Header closeButton>
         <Modal.Title>Import Dashboard Configuration</Modal.Title>
       </Modal.Header>
@@ -170,25 +169,23 @@ const AddSharedDashboardModal: React.FC<ShareModalPropTypes> = props => {
           Please make sure that the necessary data sources are configured before
           importing a shared dashboard.
         </div>
-        <BlueButton block onClick={() => pasteFromClipboard()} className="mb-3">
+        <Button onClick={() => pasteFromClipboard()} className="mb-3">
           Paste from Clipboard
-        </BlueButton>
-        <StyledDarkFormControl
+        </Button>
+        <StyledFormControl
           as="textarea"
           onChange={a => setConfig(a.target.value)}
           value={config}
         />
       </Modal.Body>
       <Modal.Footer>
-        <BlueButton block onClick={saveDashboard}>
-          Add new Dashboard
-        </BlueButton>
+        <Button onClick={saveDashboard}>Add new Dashboard</Button>
       </Modal.Footer>
-    </DarkModal>
+    </Modal>
   );
 };
 
-const StyledDarkFormControl = styled(DarkFormControl)`
+const StyledFormControl = styled(Form.Control)`
   height: 40vh;
   width: 100%;
 `;

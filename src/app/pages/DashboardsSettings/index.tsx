@@ -9,8 +9,8 @@ import Row from 'react-bootstrap/Row';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useDispatch, useSelector } from 'react-redux';
 import NavigationBar from 'app/components/NavigationBar';
-import DarkForm, { DarkFormControl } from 'app/components/Design/DarkForm';
-import { BlueButton, GreenButton } from 'app/components/Design/Buttons';
+import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 import { selectDashboards } from 'app/data/globalSlice/selectors';
 import { Dashboard } from 'app/data/globalSlice/types';
 import { globalActions } from 'app/data/globalSlice';
@@ -137,7 +137,7 @@ export const DashboardSettings: React.FC = props => {
             <Row>
               <Col {...ID_FIELD_WIDTH} />
               <Col {...NAME_FIELD_WIDTH}>
-                <DarkFormControl
+                <Form.Control
                   placeholder="Name"
                   value={dashboardName}
                   onChange={({ target: { value } }) => setDashboardName(value)}
@@ -151,21 +151,21 @@ export const DashboardSettings: React.FC = props => {
                 />
               </Col>
               <Col {...BUTTON_FIELD_WIDTH}>
-                <GreenButton onClick={addDashboard}>
+                <Button onClick={addDashboard} variant="success">
                   <FontAwesomeIcon icon="plus" />
-                </GreenButton>
+                </Button>
               </Col>
               <Col {...BUTTON_FIELD_WIDTH} />
             </Row>
           </Container>
           <hr />
           <h3 className="mb-4">Shared Dashboards</h3>
-          <BlueButton
+          <Button
             style={{ maxWidth: '20em' }}
             onClick={() => setModalOpen(true)}
           >
             Import a shared Dashboard
-          </BlueButton>
+          </Button>
         </ContentElement>
       </ContentWrapper>
     </>
@@ -177,7 +177,7 @@ const H3 = styled.h3`
   overflow-wrap: normal;
 `;
 
-const BigCheckBox = styled(DarkForm.Check)`
+const BigCheckBox = styled(Form.Check)`
   .form-check-input {
     width: 20px;
     height: 20px;

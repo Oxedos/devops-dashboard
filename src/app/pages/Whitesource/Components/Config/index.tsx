@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
+import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
+import Button from 'react-bootstrap/Button';
 import ContentElement from '../../../../components/Design/ContentElement';
 import { useDispatch, useSelector } from 'react-redux';
 import { globalActions } from 'app/data/globalSlice';
@@ -10,10 +12,6 @@ import {
   selectUserKey,
 } from 'app/data/whitesourceSlice/selectors';
 import { whitesourceActions } from 'app/data/whitesourceSlice';
-import DarkForm from 'app/components/Design/DarkForm';
-import { BlueButton, RedButton } from 'app/components/Design/Buttons';
-import InputGroup from 'react-bootstrap/InputGroup';
-import DarkInputGroupText from 'app/components/Design/DarkInputGroupText';
 import { API_SUFFIX } from 'app/apis/whitesource';
 
 const Config: React.FC = props => {
@@ -56,7 +54,7 @@ const Config: React.FC = props => {
       <hr />
       <h4>State: {configured ? 'Connected' : 'Not Configured'}</h4>
       <hr />
-      <DarkForm>
+      <Form>
         <Form.Group>
           <Form.Label>Whitesource URL*</Form.Label>
           <InputGroup>
@@ -65,7 +63,7 @@ const Config: React.FC = props => {
               value={newUrl || ''}
               onChange={({ target: { value } }) => setNewUrl(value)}
             />
-            <DarkInputGroupText>{API_SUFFIX}</DarkInputGroupText>
+            <InputGroup.Text>{API_SUFFIX}</InputGroup.Text>
           </InputGroup>
         </Form.Group>
         <Form.Group>
@@ -88,16 +86,17 @@ const Config: React.FC = props => {
             onChange={({ target: { value } }) => setNewProductToken(value)}
           />
         </Form.Group>
-        <BlueButton onClick={saveConfig}>Save</BlueButton>
+        <Button onClick={saveConfig}>Save</Button>
         {configured && (
-          <RedButton
+          <Button
             className="ml-3"
+            variant="danger"
             onClick={() => dispatch(whitesourceActions.deleteConfiguration())}
           >
             Delete Configuration
-          </RedButton>
+          </Button>
         )}
-      </DarkForm>
+      </Form>
     </ContentElement>
   );
 };

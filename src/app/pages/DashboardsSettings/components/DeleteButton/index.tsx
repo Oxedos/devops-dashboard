@@ -1,14 +1,13 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { BlueButton, RedButton } from 'app/components/Design/Buttons';
-import DarkModal from 'app/components/Design/DarkModal';
-import { globalActions } from 'app/data/globalSlice';
-import { Dashboard } from 'app/data/globalSlice/types';
 import {
   ConfiguredVisualisation,
   getAfterVisualisationRemovedActions,
 } from 'app/data/VisualisationTypes';
+import { globalActions } from 'app/data/globalSlice';
+import { Dashboard } from 'app/data/globalSlice/types';
 import React, { useState } from 'react';
-import Modal from 'react-bootstrap/esm/Modal';
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 import { useDispatch } from 'react-redux';
 
 type DeleteButtonPropTypes = {
@@ -40,10 +39,14 @@ const DeleteButton: React.FC<DeleteButtonPropTypes> = props => {
 
   return (
     <>
-      <RedButton onClick={() => setModalOpen(true)} className="mr-3">
+      <Button
+        onClick={() => setModalOpen(true)}
+        className="mr-3"
+        variant="danger"
+      >
         <FontAwesomeIcon icon="trash" />
-      </RedButton>
-      <DarkModal show={isModalOpen} centered onHide={() => setModalOpen(false)}>
+      </Button>
+      <Modal show={isModalOpen} centered onHide={() => setModalOpen(false)}>
         <Modal.Header closeButton>
           <Modal.Title>Delete Dashboard</Modal.Title>
         </Modal.Header>
@@ -52,12 +55,12 @@ const DeleteButton: React.FC<DeleteButtonPropTypes> = props => {
           {dashboard.name}"? This action cannot be undone!
         </Modal.Body>
         <Modal.Footer>
-          <RedButton onClick={() => deleteDashboard(dashboardId)}>
+          <Button onClick={() => deleteDashboard(dashboardId)} variant="danger">
             Permanently Delete Dashboard
-          </RedButton>
-          <BlueButton onClick={() => setModalOpen(false)}>Cancel</BlueButton>
+          </Button>
+          <Button onClick={() => setModalOpen(false)}>Cancel</Button>
         </Modal.Footer>
-      </DarkModal>
+      </Modal>
     </>
   );
 };
