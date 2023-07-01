@@ -77,14 +77,6 @@ const NotificationContainer: React.FC = props => {
       {notifications.map(n => (
         <NotificationToast notification={n} key={n.id} />
       ))}
-      <NotificationToast
-        notification={{
-          id: '',
-          type: NotificationType.info,
-          time: new Date().toISOString(),
-          message: 'Hello World',
-        }}
-      />
     </Wrapper>
   );
 };
