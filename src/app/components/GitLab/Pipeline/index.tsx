@@ -108,16 +108,14 @@ const Pipeline: React.FC<PropTypes> = props => {
     pipeline.labels &&
     pipeline.labels.map((label, idx) => {
       const labelComponent = (
-        <Badge
+        <ColoredBadged
           pill
-          style={{
-            color: label.text_color,
-            background: label.color,
-          }}
+          $background={label.color}
+          $color={label.text_color}
           key={`${label}-${idx} Badge`}
         >
           {label.name}
-        </Badge>
+        </ColoredBadged>
       );
       if (!label.description) {
         return labelComponent;
@@ -269,6 +267,14 @@ const TimeWrapper = styled.div`
   & > span {
     padding-left: 0.5em;
   }
+`;
+
+const ColoredBadged = styled(Badge)`
+  background: ${(props: any) =>
+    props.$background
+      ? `${props.$background} !important`
+      : 'var(--clr-blue-lighter)'};
+  color: ${(props: any) => (props.$color ? props.$color : 'var(--clr-white)')};
 `;
 
 export default Pipeline;
