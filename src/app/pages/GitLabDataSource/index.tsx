@@ -26,6 +26,7 @@ function path(p) {
 }
 
 export function GitLabDataSource() {
+  const [loginDisabled, setLoginDisabled] = useState(false);
   const [clientID, setNewClientID] = useState(useSelector(selectApplicationId));
   const [newUrl, setNewUrl] = useState(useSelector(selectUrl));
   const configured = useSelector(selectConfigured);
@@ -92,7 +93,11 @@ export function GitLabDataSource() {
                 />
               </Form.Group>
               <BlueButton
-                onClick={() => redirectToGitlabAuth(newUrl, clientID, dispatch)}
+                disabled={loginDisabled}
+                onClick={() => {
+                  setLoginDisabled(true);
+                  redirectToGitlabAuth(newUrl, clientID, dispatch);
+                }}
               >
                 <FontAwesomeIcon icon={['fab', 'gitlab']} />
                 Authenticate with GitLab

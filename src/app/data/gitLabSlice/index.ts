@@ -112,8 +112,22 @@ const slice = createSlice({
   name: 'gitLab',
   initialState,
   reducers: {
-    setFullState(state, action: PayloadAction<GitLabState>) {
-      return action.payload;
+    setFullState(state, action: PayloadAction<{ state: GitLabState }>) {
+      if (!action.payload.state) {
+        return;
+      }
+      state.url = action.payload.state.url;
+      state.applicationId = action.payload.state.applicationId;
+      state.userData = action.payload.state.userData;
+      state.groups = action.payload.state.groups;
+      state.mrs = action.payload.state.mrs;
+      state.projects = action.payload.state.projects;
+      state.events = action.payload.state.events;
+      state.pipelines = action.payload.state.pipelines;
+      state.mrsByGroup = action.payload.state.mrsByGroup;
+      state.projectsByGroup = action.payload.state.projectsByGroup;
+      state.pipelinesByGroup = action.payload.state.pipelinesByGroup;
+      state.eventsByProject = action.payload.state.eventsByProject;
     },
     setUrl(state, action: PayloadAction<string | undefined>) {
       state.url = action.payload;

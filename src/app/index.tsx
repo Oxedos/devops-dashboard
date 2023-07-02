@@ -7,7 +7,7 @@
  */
 
 import { enableMapSet } from 'immer';
-import { default as React } from 'react';
+import { default as React, useEffect } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   BrowserRouter,
@@ -25,13 +25,15 @@ import { GitlabOAuth } from './pages/GitlabOAuth/Loadable';
 import { HomePage } from './pages/HomePage/Loadable';
 import { NotFoundPage } from './pages/NotFoundPage/Loadable';
 
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { loadIcons } from 'styles/FontawesomeIcons';
+import { loadFromStorage } from './apis/persistance';
+import { LOCALSTORAGE_KEY, gitLabActions } from './data/gitLabSlice';
 import { selectDashboards } from './data/globalSlice/selectors';
 import { useRssSlice } from './data/rssSlice';
 import { useWhitesourceSlice } from './data/whitesourceSlice';
 import { DashboardSettings } from './pages/DashboardsSettings/Loadable';
 import { Whitesource } from './pages/Whitesource/Loadable';
-import { loadIcons } from 'styles/FontawesomeIcons';
 
 function path(p) {
   if (process.env.NODE_ENV === 'production') {
@@ -61,7 +63,20 @@ export const App: React.FC = props => {
   useRssSlice();
   enableMapSet();
   loadIcons();
+  const dispatch = useDispatch();
   const HomeWithDashboardIdCheckpoint = withDashboardIdCheckpoint(HomePage);
+
+  // Load Gitlab state from LocalForage
+  useEffect(() => {
+    (async () => {
+      const gitlabState = await loadFromStorage(LOCALSTORAGE_KEY);
+      // defer dispatch to make sure everything is set up
+      setTimeout(
+        () => dispatch(gitLabActions.setFullState({ state: gitlabState })),
+        500,
+      );
+    })();
+  }, [dispatch]);
 
   return (
     <BrowserRouter>

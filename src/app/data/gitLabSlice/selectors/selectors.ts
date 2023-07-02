@@ -3,13 +3,16 @@ import { createSelector } from '@reduxjs/toolkit';
 import { RootState } from 'types';
 import { initialState } from '../index';
 
-export const selectGitlabSlice = (state: RootState) =>
-  state && state.gitLab ? state.gitLab : initialState;
+export const selectGitlabSlice = (state: RootState) => {
+  if (!state || !state.gitLab) {
+    return initialState;
+  }
+  return state.gitLab;
+};
 
-export const selectConfigured = createSelector(
-  selectGitlabSlice,
-  state => state.url && state.applicationId,
-);
+export const selectConfigured = createSelector(selectGitlabSlice, state => {
+  return state.url && state.applicationId;
+});
 export const selectUrl = createSelector(selectGitlabSlice, state => state.url);
 export const selectUserData = createSelector(
   selectGitlabSlice,
