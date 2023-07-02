@@ -32,7 +32,10 @@ const GitLabUser: React.FC<PropTypes> = props => {
         )}
       >
         {props.user.avatar_url ? (
-          <StyledFigure className="fa-layers">
+          <StyledFigure
+            className="fa-layers"
+            style={{ marginRight: props.imgOnly ? '0' : '1em' }}
+          >
             <Figure.Image src={props.user.avatar_url} />
             {props.iconProps && (
               <FontAwesomeIcon

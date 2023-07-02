@@ -152,7 +152,9 @@ const Pipeline: React.FC<PropTypes> = props => {
           </span>
         </TitelWrapper>
         {pipeline?.jobs[0] && (
-          <GitLabUser user={pipeline.jobs[0].user} imgOnly />
+          <UserWrapper>
+            <GitLabUser user={pipeline.jobs[0].user} imgOnly />
+          </UserWrapper>
         )}
       </Header>
       <JobsRowWrapper>{blobs}</JobsRowWrapper>
@@ -220,6 +222,10 @@ const Footer = styled.div`
   justify-content: space-between;
 `;
 
+const UserWrapper = styled.div`
+  padding-right: 1em;
+`;
+
 const JobWrapper = styled.div`
   margin-bottom: 0.5em;
   display: flex;
@@ -262,7 +268,7 @@ const ColoredBadged = styled(Badge)`
 `;
 
 const TimeWrapper = styled.div`
-  padding-right: 2em;
+  padding-right: 1em;
   white-space: nowrap;
   & > span {
     padding-left: 0.5em;

@@ -25,60 +25,13 @@ import { GitlabOAuth } from './pages/GitlabOAuth/Loadable';
 import { HomePage } from './pages/HomePage/Loadable';
 import { NotFoundPage } from './pages/NotFoundPage/Loadable';
 
-// Icon stuff
-import { library } from '@fortawesome/fontawesome-svg-core';
-import {
-  faAtlassian,
-  faGitlab,
-  faRedhat,
-} from '@fortawesome/free-brands-svg-icons';
-import {
-  faBars,
-  faChartLine,
-  faChartPie,
-  faCheck,
-  faChevronLeft,
-  faChevronRight,
-  faCircle,
-  faClock,
-  faCodeBranch,
-  faCodeCommit,
-  faCodeMerge,
-  faCodePullRequest,
-  faCog,
-  faCogs,
-  faComment,
-  faExclamation,
-  faExclamationCircle,
-  faExclamationTriangle,
-  faForward,
-  faHome,
-  faInfoCircle,
-  faLongArrowAltLeft,
-  faLongArrowAltRight,
-  faPause,
-  faPlay,
-  faPlus,
-  faRssSquare,
-  faShareSquare,
-  faSlash,
-  faSpinner,
-  faStream,
-  faSync,
-  faTable,
-  faTachometerAlt,
-  faTimes,
-  faTrash,
-  faUpRightFromSquare,
-  faUser,
-  faUserPlus,
-} from '@fortawesome/free-solid-svg-icons';
 import { useSelector } from 'react-redux';
 import { selectDashboards } from './data/globalSlice/selectors';
 import { useRssSlice } from './data/rssSlice';
 import { useWhitesourceSlice } from './data/whitesourceSlice';
 import { DashboardSettings } from './pages/DashboardsSettings/Loadable';
 import { Whitesource } from './pages/Whitesource/Loadable';
+import { loadIcons } from 'styles/FontawesomeIcons';
 
 function path(p) {
   if (process.env.NODE_ENV === 'production') {
@@ -86,18 +39,6 @@ function path(p) {
   }
   return p;
 }
-
-const customMetric: any = {
-  prefix: 'fab',
-  iconName: 'metric',
-  icon: [
-    16,
-    16,
-    [],
-    'f36c',
-    'M6.532 7.34a2.161 2.161 0 112.936 0 2.746 2.746 0 11-2.936 0zM2 0h12a2 2 0 012 2v12a2 2 0 01-2 2H2a2 2 0 01-2-2V2a2 2 0 012-2zm0 1a1 1 0 00-1 1v12a1 1 0 001 1h12a1 1 0 001-1V2a1 1 0 00-1-1H2zm6 5.915a1.161 1.161 0 100-2.322 1.161 1.161 0 000 2.322zm0 4.492a1.746 1.746 0 100-3.492 1.746 1.746 0 000 3.492z',
-  ],
-};
 
 // HOC that makes sure that the provided dashboardId is valid
 const withDashboardIdCheckpoint = (WrappedComponent: React.FC<any>) => {
@@ -119,54 +60,7 @@ export const App: React.FC = props => {
   useWhitesourceSlice();
   useRssSlice();
   enableMapSet();
-
-  // Pre-Load FA Icons
-  library.add(
-    faTachometerAlt,
-    faCogs,
-    faCog,
-    faPlus,
-    faTimes,
-    faSync,
-    faExclamationTriangle,
-    faExclamationCircle,
-    faInfoCircle,
-    faTrash,
-    faCircle,
-    faCheck,
-    faForward,
-    faSpinner,
-    faUser,
-    faClock,
-    faBars,
-    faHome,
-    faGitlab,
-    faAtlassian,
-    faRedhat,
-    faPause,
-    customMetric,
-    faTable,
-    faChartPie,
-    faStream,
-    faRssSquare,
-    faExclamation,
-    faLongArrowAltLeft,
-    faLongArrowAltRight,
-    faShareSquare,
-    faSlash,
-    faChevronLeft,
-    faChevronRight,
-    faChartLine,
-    faUpRightFromSquare,
-    faPlay,
-    faCodeMerge,
-    faCodePullRequest,
-    faCodeBranch,
-    faComment,
-    faUserPlus,
-    faCodeCommit,
-  );
-
+  loadIcons();
   const HomeWithDashboardIdCheckpoint = withDashboardIdCheckpoint(HomePage);
 
   return (

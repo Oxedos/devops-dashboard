@@ -1,18 +1,24 @@
-import React, { ComponentType } from 'react';
-import { useSelector } from 'react-redux';
+import {
+  IconDefinition,
+  findIconDefinition,
+} from '@fortawesome/fontawesome-svg-core';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { GitLabMR, GitLabPipeline } from 'app/apis/gitlab/types';
 import GitLabUser from 'app/components/GitLab/GitLabUser';
-import TableVisualisation from '../components/TableVisualisation';
-import { GitLabMR, GitLabPipeline, GitLabProject } from 'app/apis/gitlab/types';
-import compose from 'app/components/compose';
-import withGitLabConfiguredCheck from './components/withGitLabConfiguredCheck';
-import SimpleMessage from '../components/SimpleMessage';
-import withWidgetConfigurationModal from '../components/withWidgetConfigurationModal';
-import withMrTableFieldsProvider from './components/withMrTableFieldsProvider';
+import MrMergeStatus from 'app/components/GitLab/MrMergeStatus';
 import { PipelineStatus, StatusStyle } from 'app/components/GitLab/Status';
-import styled from 'styled-components/macro';
+import compose from 'app/components/compose';
 import { selectMrsByGroupFiltered } from 'app/data/gitLabSlice/selectors/mrSelectors';
 import { selectPipelinesByGroup } from 'app/data/gitLabSlice/selectors/pipelineSelectors';
-import { selectProjectsByGroup } from 'app/data/gitLabSlice/selectors/projectSelectors';
+import React, { ComponentType } from 'react';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
+import styled from 'styled-components/macro';
+import SimpleMessage from '../components/SimpleMessage';
+import VisualisationContainer from '../components/VisualisationContainer';
+import withWidgetConfigurationModal from '../components/withWidgetConfigurationModal';
+import withGitLabConfiguredCheck from './components/withGitLabConfiguredCheck';
+import withMrTableFieldsProvider from './components/withMrTableFieldsProvider';
 
 type OuterPropTypes = {
   id: string;
@@ -29,49 +35,6 @@ type innerPropTypes = {
   includeWIP?: boolean;
 } & OuterPropTypes;
 
-function getMrTable(
-  mrs: GitLabMR[],
-  pipelines: GitLabPipeline[],
-  projects: GitLabProject[],
-) {
-  let header: string[] = [];
-  let values: any = undefined;
-
-  header = ['Project', 'Pipeline', 'Title', 'Author', 'Assignee', 'Reviewer'];
-  values = mrs.map(mr => {
-    const project =
-      projects && projects.find(project => mr.project_id === project.id);
-    const pipeline =
-      pipelines &&
-      pipelines.find(pipeline => pipeline.ref.includes(`${mr.iid}`));
-    return {
-      project: project?.name,
-      pipeline: pipeline && (
-        <Centered>
-          <PipelineStatus
-            pipeline={pipeline}
-            simple
-            tooltip={pipeline?.status || 'unkown'}
-            url={pipeline?.web_url || undefined}
-            style={StatusStyle.simple}
-          />
-        </Centered>
-      ),
-      title: mr.title,
-      author: <GitLabUser user={mr.author} imgOnly />,
-      assignee: <GitLabUser user={mr.assignee} imgOnly />,
-      reviewer: mr.reviewers && <GitLabUser user={mr.reviewers[0]} imgOnly />,
-      clickHandler: (e: MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        window.open(mr.web_url);
-      },
-    };
-  });
-
-  return { header, values };
-}
-
 const MrTableVisualisation: React.FC<innerPropTypes> = props => {
   const mrs = useSelector(state =>
     selectMrsByGroupFiltered(state, {
@@ -86,10 +49,7 @@ const MrTableVisualisation: React.FC<innerPropTypes> = props => {
   const pipelines = useSelector(state =>
     selectPipelinesByGroup(state, { groupName: props.group }),
   );
-  const projects = useSelector(state =>
-    selectProjectsByGroup(state, { groupName: props.group }),
-  );
-  const visProps = getMrTable(mrs, pipelines, projects);
+
   let title = 'Merge Requests';
   let message = 'No Merge Requests to display';
   if (props.userAsReviewer) {
@@ -103,7 +63,7 @@ const MrTableVisualisation: React.FC<innerPropTypes> = props => {
     message = `No Merge Requests in ${props.group}`;
   }
 
-  if (visProps.values.length <= 0) {
+  if (mrs.length <= 0) {
     return (
       <SimpleMessage
         id={props.id}
@@ -114,22 +74,200 @@ const MrTableVisualisation: React.FC<innerPropTypes> = props => {
     );
   }
 
+  const rowClick = (e: MouseEvent, mr: GitLabMR) => {
+    e.stopPropagation();
+    e.preventDefault();
+    window.open(mr.web_url);
+  };
+
+  const pipelineLookup: any = { prefix: 'custom', iconName: 'pipeline' };
+  const pipelineIcon: IconDefinition = findIconDefinition(pipelineLookup);
+
   return (
-    <TableVisualisation
+    <VisualisationContainer
       onSettingsClick={props.onSettingsClick}
       afterVisRemoved={props.afterVisRemoved}
       id={props.id}
       title={title}
-      hover
-      {...visProps}
-    />
+    >
+      <Container>
+        <Row className="header">
+          <NameCol>
+            <strong>Project</strong>
+          </NameCol>
+          <TitleCol>
+            <strong>Title</strong>
+          </TitleCol>
+          <StatusCol>
+            <Col>
+              <OverlayTrigger
+                placement="left"
+                overlay={overlayProps => (
+                  <Tooltip id="pipeline-status" {...overlayProps}>
+                    Pipeline Status
+                  </Tooltip>
+                )}
+              >
+                <FontAwesomeIcon icon={pipelineIcon} />
+              </OverlayTrigger>
+            </Col>
+            <Col>
+              <OverlayTrigger
+                placement="left"
+                overlay={overlayProps => (
+                  <Tooltip id="assignee" {...overlayProps}>
+                    Assignee
+                  </Tooltip>
+                )}
+              >
+                <FontAwesomeIcon icon="user-gear" />
+              </OverlayTrigger>
+            </Col>
+            <Col>
+              <OverlayTrigger
+                placement="left"
+                overlay={overlayProps => (
+                  <Tooltip id="reviewer" {...overlayProps}>
+                    Reviewer
+                  </Tooltip>
+                )}
+              >
+                <div>
+                  <FontAwesomeIcon icon="magnifying-glass" />
+                  <FontAwesomeIcon icon="user" />
+                </div>
+              </OverlayTrigger>
+            </Col>
+            <Col>
+              <OverlayTrigger
+                placement="left"
+                overlay={overlayProps => (
+                  <Tooltip id="reviewer" {...overlayProps}>
+                    Merge Status
+                  </Tooltip>
+                )}
+              >
+                <FontAwesomeIcon icon="code-merge" />
+              </OverlayTrigger>
+            </Col>
+          </StatusCol>
+        </Row>
+        {mrs.map(mr => {
+          const pipeline =
+            pipelines &&
+            pipelines.find(pipeline => pipeline.ref.includes(`${mr.iid}`));
+          return (
+            <Row key={mr.id} onClick={e => rowClick(e, mr)}>
+              <NameCol>
+                {/* my-group/my-subgroup/my-project!123 */}
+                {mr.references.relative.split('!')[0].split('/').slice(-1)}
+              </NameCol>
+              <TitleCol>{mr.title}</TitleCol>
+              <StatusCol>
+                <Col>
+                  {pipeline && (
+                    <PipelineStatus
+                      pipeline={pipeline}
+                      simple
+                      tooltip={pipeline?.status || 'unkown'}
+                      url={pipeline?.web_url || undefined}
+                      style={StatusStyle.boxed}
+                    />
+                  )}
+                </Col>
+                <Col>
+                  <GitLabUser user={mr.assignee} imgOnly />
+                </Col>
+                <Col>
+                  {mr.reviewers && (
+                    <GitLabUser user={mr.reviewers[0]} imgOnly />
+                  )}
+                </Col>
+                <Col>
+                  <MrMergeStatus mr={mr} />
+                </Col>
+              </StatusCol>
+            </Row>
+          );
+        })}
+      </Container>
+    </VisualisationContainer>
   );
 };
 
-const Centered = styled.div`
+const Container = styled.div`
+  width: 100%;
+  height: 100%;
   display: flex;
+  flex-flow: column nowrap;
+`;
+
+const Row = styled.div`
+  width: 100%;
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5em;
+  gap: 1em;
+  cursor: pointer;
+
+  &.header {
+    padding-bottom: 0.5em;
+    border-bottom: 1px solid var(--clr-dark-gray);
+    cursor: unset;
+  }
+  &.header:hover {
+    background: unset !important;
+  }
+  &:hover {
+    background: color-mix(in oklab, var(--clr-widget) 90%, black) !important;
+  }
+  &:nth-child(even) {
+    background: color-mix(in oklab, var(--clr-widget) 95%, black);
+  }
+`;
+
+const Col = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
   align-items: center;
   justify-content: space-around;
+  min-width: 3em;
+  max-width: 3em;
+  width: 3em;
+`;
+
+const NameCol = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  max-width: 12em;
+  width: clamp(4em, 10em, 12em);
+  min-width: 4em;
+  overflow: hidden;
+  white-space: nowrap;
+`;
+
+const TitleCol = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: flex-start;
+  flex-grow: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+`;
+
+const StatusCol = styled.div`
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+  justify-content: space-around;
+  width: 15em;
+  min-width: 15em;
 `;
 
 MrTableVisualisation.defaultProps = {

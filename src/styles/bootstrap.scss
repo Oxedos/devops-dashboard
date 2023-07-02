@@ -29,6 +29,7 @@ $popover-bg: $background-contrast-color;
 $popover-header-bg: $background-contrast-color;
 $toast-background-color: $background-contrast-color;
 $toast-header-background-color: $background-contrast-color;
+$tooltip-color: $white;
 
 // 3. Include remainder of required Bootstrap stylesheets (including any separate color mode stylesheets)
 @import "~bootstrap/scss/variables";

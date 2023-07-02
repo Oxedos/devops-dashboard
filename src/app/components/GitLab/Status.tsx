@@ -114,7 +114,14 @@ const Status: React.FC<StatusProps> = props => {
 
   if (props.url) {
     icon = (
-      <a href={props.url} target="_blank" rel="noreferrer">
+      <a
+        href={props.url}
+        onClick={e => {
+          e.preventDefault();
+          e.stopPropagation();
+          window.open(props.url);
+        }}
+      >
         {icon}
       </a>
     );
