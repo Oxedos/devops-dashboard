@@ -4,7 +4,7 @@ import { RootState } from 'types';
 import { initialState } from '../index';
 
 export const selectGitlabSlice = (state: RootState) =>
-  state ? state.gitLab || initialState : initialState;
+  state && state.gitLab ? state.gitLab : initialState;
 
 export const selectConfigured = createSelector(
   selectGitlabSlice,

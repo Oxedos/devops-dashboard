@@ -1,10 +1,7 @@
-import { createSelector } from 'reselect';
-import { createParameterSelector, selectGitlabSlice } from './selectors';
-import {
-  selectProjectByProjectId,
-  selectProjectIdsByGroup,
-} from './projectSelectors';
 import moment from 'moment';
+import { createSelector } from 'reselect';
+import { selectProjectIdsByGroup, selectProjects } from './projectSelectors';
+import { createParameterSelector, selectGitlabSlice } from './selectors';
 
 export const selectEvents = createSelector(
   selectGitlabSlice,
@@ -28,8 +25,9 @@ export const selectEventIdsByProjectId = createSelector(
 export const selectEventsByGroup = createSelector(
   selectEvents,
   selectProjectIdsByGroup,
+  selectProjects,
   createParameterSelector(p => p.maxCount),
-  (events, projectIds, maxCount) => {
+  (events, projectIds, allProjects, maxCount) => {
     if (!events) return [];
     if (!projectIds) return [];
     return events
@@ -43,9 +41,7 @@ export const selectEventsByGroup = createSelector(
       .slice(0, maxCount)
       .map(event => ({
         ...event,
-        project: selectProjectByProjectId(selectGitlabSlice, {
-          projectId: event.project_id,
-        }),
+        project: allProjects.find(p => p.id === event.project_id),
       }));
   },
 );
