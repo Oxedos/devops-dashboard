@@ -109,7 +109,15 @@ const Status: React.FC<StatusProps> = props => {
     );
   }
   if (props.style && props.style === StatusStyle.boxed) {
-    icon = <BoxedContainer color={props.color}>{icon}</BoxedContainer>;
+    icon = (
+      <BoxedContainer
+        style={{
+          borderColor: props.color,
+        }}
+      >
+        {icon}
+      </BoxedContainer>
+    );
   }
 
   if (props.url) {
@@ -146,13 +154,19 @@ const Status: React.FC<StatusProps> = props => {
   if (props.withDivider && props.nextStatus) {
     divider = (
       <DividerGradient
-        theme={{
-          gradient: `linear-gradient(to right, ${props.color}, ${props.nextStatus.color})`,
+        style={{
+          backgroundImage: `linear-gradient(to right, ${props.color}, ${props.nextStatus.color})`,
         }}
       />
     );
   } else if (props.withDivider) {
-    divider = <Divider color={props.color} />;
+    divider = (
+      <Divider
+        style={{
+          background: props.color,
+        }}
+      />
+    );
   }
 
   return (
@@ -177,9 +191,8 @@ const RoundedContainer = styled.span`
   cursor: pointer;
 `;
 
-const BoxedContainer = styled.div`
+const BoxedContainer: any = styled.div`
   border: 3px solid;
-  border-color: ${(props: any) => props.color};
   border-radius: 0.5em;
   min-width: 2.25em;
   min-height: 2.25em;
@@ -188,24 +201,22 @@ const BoxedContainer = styled.div`
   justify-content: space-around;
 `;
 
-const Divider = styled.div`
+const Divider: any = styled.div`
   max-width: 1em;
   width: 0.5em;
   min-width: 0.25em;
   height: 5px;
   flex-shrink: 1;
   flex-grow: 1;
-  background: ${(props: any) => props.color};
 `;
 
-const DividerGradient = styled.div`
+const DividerGradient: any = styled.div`
   max-width: 1em;
   width: 0.5em;
   min-width: 0.25em;
   height: 5px;
   flex-shrink: 1;
   flex-grow: 1;
-  background-image: ${(props: any) => props.theme.gradient};
 `;
 
 export default memo(Status);

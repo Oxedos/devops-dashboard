@@ -12,7 +12,6 @@ import {
   PipelineId,
   ProjectId,
 } from 'app/apis/gitlab/types';
-import * as PersistanceAPI from 'app/apis/persistance';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer, useInjectSaga } from 'utils/redux-injectors';
 import {
@@ -24,38 +23,32 @@ import {
   updateState,
   upsert,
 } from '../helper';
+import { gitLabSaga } from './sagas';
 import { selectAbandonedGroups } from './selectors/groupSelectors';
 import {
   selectMrsWithUserAsReviewer,
   selectUserAssignedMrs,
 } from './selectors/mrSelectors';
-import { gitLabSaga } from './sagas';
 import { GitLabState } from './types';
 
 export const LOCALSTORAGE_KEY = 'gitlab-state';
 
-const loadInitialState = (): GitLabState => {
-  const persistedState: GitLabState =
-    PersistanceAPI.loadFromLocalStorage(LOCALSTORAGE_KEY);
-  return {
-    url: persistedState?.url,
-    applicationId: persistedState?.applicationId,
-    userData: persistedState?.userData,
-    groups: persistedState?.groups || [],
-    mrs: persistedState?.mrs || [],
-    projects: persistedState?.projects || [],
-    events: persistedState?.events || [],
-    pipelines: persistedState?.pipelines || [],
-    mrsByGroup: persistedState?.mrsByGroup || new Map(),
-    projectsByGroup: persistedState?.projectsByGroup || new Map(),
-    pipelinesByGroup: persistedState?.pipelinesByGroup || new Map(),
-    eventsByProject: persistedState?.eventsByProject || new Map(),
-    pipelinesToReload: [],
-    jobsToPlay: [],
-  };
+export const initialState: GitLabState = {
+  url: undefined,
+  applicationId: undefined,
+  userData: undefined,
+  groups: [],
+  mrs: [],
+  projects: [],
+  events: [],
+  pipelines: [],
+  mrsByGroup: new Map(),
+  projectsByGroup: new Map(),
+  pipelinesByGroup: new Map(),
+  eventsByProject: new Map(),
+  pipelinesToReload: [],
+  jobsToPlay: [],
 };
-
-export const initialState = loadInitialState();
 
 // Dirty Hack cause something is wrong with the GitLab API on Chrome when receiving an empty array...
 function checkAllAreObject(objs: any[]) {
@@ -119,6 +112,9 @@ const slice = createSlice({
   name: 'gitLab',
   initialState,
   reducers: {
+    setFullState(state, action: PayloadAction<GitLabState>) {
+      return action.payload;
+    },
     setUrl(state, action: PayloadAction<string | undefined>) {
       state.url = action.payload;
     },

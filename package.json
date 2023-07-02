@@ -20,6 +20,7 @@
     "identity-obj-proxy": "3.0.0",
     "inquirer": "9.2.7",
     "inquirer-directory": "2.2.0",
+    "localforage": "1.10.0",
     "moment": "2.29.4",
     "react": "18.2.0",
     "react-app-polyfill": "3.0.0",

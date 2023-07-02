@@ -25,8 +25,14 @@ function* loadEventsForGroups() {
       selectProjectsByGroupSortedByLatestActivity,
       { groupName },
     );
+    if (listenedProjects.length <= 0) break;
     let eventCount = 0;
     let i = 0;
+    // Calculate how many days back the last update was
+    // This way we don't have to query so much data
+    const lastActivityInGroupTs = moment(listenedProjects[0].last_activity_at);
+    const now = moment();
+    const diffDays = now.diff(lastActivityInGroupTs, 'days') + 1;
     // TODO: Make this magic number user configurable
     while (eventCount < 20 && i < listenedProjects.length) {
       const project = listenedProjects[i];
@@ -34,6 +40,7 @@ function* loadEventsForGroups() {
       const events: GitLabEvent[] = yield call(
         getEventsForProject,
         project.id,
+        diffDays,
         url,
       );
       eventCount += events.length;
@@ -45,9 +52,13 @@ function* loadEventsForGroups() {
   }
 }
 
-function* getEventsForProject(projectId: number, url: string) {
+function* getEventsForProject(
+  projectId: number,
+  dayOffset: number,
+  url: string,
+) {
   try {
-    const after = moment().subtract(1, 'day').format('YYYY-MM-DD');
+    const after = moment().subtract(dayOffset, 'day').format('YYYY-MM-DD');
     return yield call(getEvents, url, projectId, after);
   } catch (error) {
     yield call(displayNotification, error);

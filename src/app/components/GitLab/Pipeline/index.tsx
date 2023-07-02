@@ -108,14 +108,16 @@ const Pipeline: React.FC<PropTypes> = props => {
     pipeline.labels &&
     pipeline.labels.map((label, idx) => {
       const labelComponent = (
-        <ColoredBadged
+        <Badge
           pill
+          style={{
+            color: label.text_color,
+            background: label.color,
+          }}
           key={`${label}-${idx} Badge`}
-          background={label.color}
-          color={label.text_color}
         >
           {label.name}
-        </ColoredBadged>
+        </Badge>
       );
       if (!label.description) {
         return labelComponent;
@@ -136,7 +138,11 @@ const Pipeline: React.FC<PropTypes> = props => {
     });
 
   return (
-    <Wrapper backgroundColor={backgroundColour}>
+    <Wrapper
+      style={{
+        background: backgroundColour,
+      }}
+    >
       <Header>
         <TitelWrapper>
           <span>{project?.name}</span>
@@ -189,8 +195,6 @@ const Wrapper: any = styled.div`
   gap: 1em;
   border-radius: 0.5em;
   padding: 0.5em;
-  background: ${(props: any) =>
-    props.backgroundColor ? props.backgroundColor : 'unset'};
   & > * {
     width: 100%;
   }
@@ -257,14 +261,6 @@ const LabelsRowWrapper = styled.div`
   justify-content: flex-start;
   margin: 0;
   gap: 0.5em;
-`;
-
-const ColoredBadged = styled(Badge)`
-  background: ${(props: any) =>
-    props.background
-      ? `${props.background} !important`
-      : 'var(--clr-blue-lighter)'};
-  color: ${(props: any) => (props.color ? props.color : 'var(--clr-white)')};
 `;
 
 const TimeWrapper = styled.div`

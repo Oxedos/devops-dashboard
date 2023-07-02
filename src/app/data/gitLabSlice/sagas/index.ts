@@ -4,7 +4,6 @@ import { all, fork, spawn, takeEvery, takeLeading } from 'redux-saga/effects';
 import { SW_MESSAGE_TYPES } from 'service-worker';
 import { LOCALSTORAGE_KEY, gitLabActions as actions } from '..';
 import { selectConfigured, selectGitlabSlice } from '../selectors/selectors';
-import { GitLabState } from '../types';
 import { loadEvents } from './eventsSaga';
 import { loadGroups } from './groupSagas';
 import { loadMergeRequests } from './mrSagas';
@@ -19,6 +18,11 @@ function* pollLong() {
     const configured: boolean = yield select(selectConfigured);
     yield delay(1000 * 60 * 60); // every 60 Minutes
     if (configured) {
+      const isAuthenticated = yield call(tryLoadingUserinfo);
+      if (!isAuthenticated) {
+        signalServiceWorker();
+        break;
+      }
       yield fork(loadUserInfo);
       yield call(loadGroups);
       yield call(loadProjects);
@@ -32,6 +36,11 @@ function* pollShort() {
     const configured: boolean = yield select(selectConfigured);
     yield delay(1000 * 60); // every minute
     if (configured) {
+      const isAuthenticated = yield call(tryLoadingUserinfo);
+      if (!isAuthenticated) {
+        signalServiceWorker();
+        break;
+      }
       yield all([call(loadMergeRequests), call(loadEvents)]);
       yield call(loadPipelines);
       yield call(loadMissingProjects);
@@ -44,7 +53,6 @@ function* loadAll() {
   const configured: boolean = yield select(selectConfigured);
   if (!configured) return;
   const isAuthenticated = yield call(tryLoadingUserinfo);
-
   if (!isAuthenticated) {
     signalServiceWorker();
     return;
@@ -63,10 +71,7 @@ function* loadAll() {
 
 function* persist() {
   const state = yield select(selectGitlabSlice);
-  const stateCopy: GitLabState = { ...state };
-  // state can become quite large...
-  stateCopy.events = [];
-  yield call(PersistanceAPI.saveToLocalStorage, LOCALSTORAGE_KEY, stateCopy);
+  yield call(PersistanceAPI.saveToStorage, LOCALSTORAGE_KEY, state);
 }
 
 function* clear() {

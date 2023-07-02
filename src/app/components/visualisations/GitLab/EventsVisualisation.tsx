@@ -206,7 +206,7 @@ const CardWrapper = styled.div`
 
   .float-left {
     display: flex;
-    padding: 1em 0.5em 1em 1em;
+    padding: 1em 1.5em 1em 1em;
     border-right: 3px solid rgba(0, 0, 0, 0.1);
     justify-content: center;
     align-items: center;

@@ -101,7 +101,7 @@ function* loadPipelinesForGroup(
 
   yield put(
     gitLabActions.setPipelines({
-      items: taskResults.flat(),
+      items: taskResults.flat().filter(pipelines => !!pipelines),
       assoicatedId: groupName,
     }),
   );
@@ -135,7 +135,7 @@ function* getPipelinesForProject(
     return pipelines;
   } catch (error) {
     yield call(displayNotification, error);
-    return [];
+    return undefined;
   }
 }
 
