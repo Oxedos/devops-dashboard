@@ -160,7 +160,7 @@ const MrTableVisualisation: React.FC<innerPropTypes> = props => {
             <Row key={mr.id} onClick={e => rowClick(e, mr)}>
               <NameCol>
                 {/* my-group/my-subgroup/my-project!123 */}
-                {mr.references.relative.split('!')[0].split('/').slice(-1)}
+                {mr.references.full.split('!')[0].split('/').slice(-1)}
               </NameCol>
               <TitleCol>{mr.title}</TitleCol>
               <StatusCol>

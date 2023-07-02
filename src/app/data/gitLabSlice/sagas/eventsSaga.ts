@@ -10,16 +10,18 @@ import { displayNotification, removeLoader, setLoader } from './sagaHelper';
 
 export function* loadEvents() {
   const loaderId = yield call(setLoader, 'Events');
-  yield call(loadEventsForGroups);
+  const events = yield call(getEventsForGroups);
+  yield put(gitLabActions.setEvents({ events }));
   yield call(removeLoader, loaderId);
 }
 
-function* loadEventsForGroups() {
+function* getEventsForGroups() {
   const url: string = yield select(selectUrl);
   const listenedGroups: string[] = yield select(
     selectGroupNamesListeningForEvents,
   );
   if (!listenedGroups || listenedGroups.length <= 0) return;
+  let events: GitLabEvent[] = [];
   for (let groupName of listenedGroups) {
     const listenedProjects: GitLabProject[] = yield select(
       selectProjectsByGroupSortedByLatestActivity,
@@ -37,19 +39,18 @@ function* loadEventsForGroups() {
     while (eventCount < 20 && i < listenedProjects.length) {
       const project = listenedProjects[i];
       if (!project) continue;
-      const events: GitLabEvent[] = yield call(
+      const projectEvents: GitLabEvent[] = yield call(
         getEventsForProject,
         project.id,
         diffDays,
         url,
       );
-      eventCount += events.length;
+      events = [...events, ...projectEvents];
+      eventCount += projectEvents.length;
       i += 1;
-      yield put(
-        gitLabActions.setEvents({ assoicatedId: project.id, items: events }),
-      );
     }
   }
+  return events;
 }
 
 function* getEventsForProject(

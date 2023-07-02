@@ -8,7 +8,7 @@ import { loadEvents } from './eventsSaga';
 import { loadGroups } from './groupSagas';
 import { loadMergeRequests } from './mrSagas';
 import { loadPipelines, playJobs, rerunPipelines } from './pipelineSagas';
-import { loadMissingProjects, loadProjects } from './projectSagas';
+import { loadProjects } from './projectSagas';
 import { loadUserInfo, tryLoadingUserinfo } from './userSagas';
 
 const { select, call, delay } = Effects;
@@ -43,7 +43,6 @@ function* pollShort() {
       }
       yield all([call(loadMergeRequests), call(loadEvents)]);
       yield call(loadPipelines);
-      yield call(loadMissingProjects);
       yield call(persist);
     }
   }
@@ -63,8 +62,6 @@ function* loadAll() {
   yield all([call(loadProjects), call(loadMergeRequests)]);
 
   yield all([call(loadEvents), call(loadPipelines)]);
-
-  yield call(loadMissingProjects);
 
   yield call(persist);
 }
@@ -89,7 +86,6 @@ const signalServiceWorker = () => {
 
 export function* gitLabSaga() {
   yield takeLeading(actions.addGitlabVisualisation.type, loadAll);
-  yield takeEvery(actions.cleanState.type, persist);
   yield takeLeading(actions.reload.type, loadAll);
   yield takeLeading(actions.deleteConfiguration.type, clear);
   yield takeEvery(actions.reloadPipeline.type, rerunPipelines);

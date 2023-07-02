@@ -106,23 +106,6 @@ export const selectListenedGroupsForPipelines = createSelector(
   selectGlobal,
   state => {},
 );
-
-export const selectAbandonedGroups = createSelector(
-  selectGitlabSlice,
-  selectListenedGroups,
-  (state, listenedGroups) => {
-    if (!state) return [];
-    const groupsWithData = [
-      ...new Set(
-        new Array(state.mrsByGroup.keys())
-          .concat(new Array(state.projectsByGroup.keys()))
-          .concat(new Array(state.pipelinesByGroup.keys())),
-      ),
-    ];
-    return groupsWithData.filter(group => !listenedGroups.includes(group));
-  },
-);
-
 export const selectGroupByGroupName = createSelector(
   selectGroups,
   createParameterSelector(p => p.groupName),

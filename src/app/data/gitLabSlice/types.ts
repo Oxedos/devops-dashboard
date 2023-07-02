@@ -1,16 +1,13 @@
 import {
+  GitLabEvent,
   GitLabGroup,
   GitLabMR,
+  GitLabPipeline,
   GitLabProject,
   GitLabUserData,
-  GitLabEvent,
   GroupName,
-  MrId,
-  ProjectId,
-  PipelineId,
   JobId,
-  GitLabPipeline,
-  EventId,
+  ProjectId,
 } from 'app/apis/gitlab/types';
 
 export type PkceValues = {
@@ -32,19 +29,13 @@ export interface GitLabState {
   // Config Data
   url: string | undefined; // baseUrl of API including /api/<version>
   applicationId: string | undefined;
-  // Data of current user
+  // GitLab Data
   userData: GitLabUserData | undefined; // Data returned from GET /user
-  // General Data -> main data storage
   groups: GitLabGroup[]; // All groups the user is member of / has access to
   mrs: GitLabMR[]; // all currently loaded MRs
   projects: GitLabProject[]; // All currently loaded projects
   events: GitLabEvent[];
   pipelines: GitLabPipeline[];
-  // Data Associations
-  mrsByGroup: Map<GroupName, MrId[]>;
-  projectsByGroup: Map<GroupName, ProjectId[]>;
-  pipelinesByGroup: Map<GroupName, PipelineId[]>;
-  eventsByProject: Map<ProjectId, EventId[]>;
   // Temporary Data for GitLab Actions and such
   pipelinesToReload: {
     projectId: ProjectId;

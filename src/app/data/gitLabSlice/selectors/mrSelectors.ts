@@ -8,11 +8,6 @@ import {
 import { selectConfiguredVisualisations } from 'app/data/globalSlice/selectors';
 import { VisualisationType } from 'app/data/VisualisationTypes';
 
-export const selectMrIdsByGroup = createSelector(
-  selectGitlabSlice,
-  state => state.mrsByGroup,
-);
-
 export const selectAllMrs = createSelector(selectGitlabSlice, state => {
   if (!state || !state.mrs || state.mrs.length <= 0) return [];
   return state.mrs;
@@ -20,15 +15,18 @@ export const selectAllMrs = createSelector(selectGitlabSlice, state => {
 
 export const selectMrsByGroup = createSelector(
   selectGitlabSlice,
-  selectMrIdsByGroup,
   createParameterSelector(p => p.groupName),
-  (state, mrsByGroup, groupName) => {
+  (state, groupName) => {
     if (!groupName) return [];
-    if (!mrsByGroup) return [];
     if (!state.mrs || state.mrs.length <= 0) return [];
-    const mrIds = mrsByGroup.get(groupName);
-    if (!mrIds || mrIds.length <= 0) return [];
-    return state.mrs.filter(mr => mrIds.includes(mr.id));
+    return state.mrs.filter(mr => {
+      if (!mr) return false;
+      const project = state.projects.find(
+        project => project.id === mr.project_id,
+      );
+      if (!project) return false;
+      return project.path_with_namespace.includes(groupName);
+    });
   },
 );
 

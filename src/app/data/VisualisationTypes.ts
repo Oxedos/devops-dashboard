@@ -41,10 +41,7 @@ export const getAfterVisualisationUpdatedActions = (
     case VisualisationType.GITLAB_MR_TABLE:
     case VisualisationType.GITLAB_PIPELINES_TABLE:
     case VisualisationType.GITLAB_EVENTS:
-      return [
-        gitLabActions.cleanState(),
-        gitLabActions.addGitlabVisualisation(),
-      ];
+      return [gitLabActions.addGitlabVisualisation()];
     case VisualisationType.RSS_FEED_VISUALISATION: {
       // update props to base64-encode username and password
       const basicAuthEncoded =
@@ -92,10 +89,6 @@ export const getAfterVisualisationRemovedActions = (
   props: any,
 ) => {
   switch (type) {
-    case VisualisationType.GITLAB_MR_TABLE:
-    case VisualisationType.GITLAB_PIPELINES_TABLE:
-    case VisualisationType.GITLAB_EVENTS:
-      return [gitLabActions.cleanState()];
     case VisualisationType.RSS_FEED_VISUALISATION:
       return [rssActions.removeFeed({ visId })];
     default: {

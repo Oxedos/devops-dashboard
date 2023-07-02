@@ -26,11 +26,18 @@ import { displayNotification, removeLoader, setLoader } from './sagaHelper';
 
 export function* loadPipelines() {
   const loaderId = yield call(setLoader, 'Pipelines');
-  yield call(loadGroupPipelines);
+  const groupPipelines = yield call(getGroupPipelines);
+  const pipelines = groupPipelines.reduce((acc: GitLabPipeline[], curr) => {
+    if (!acc.find(accMr => accMr.id === curr.id)) {
+      return [...acc, curr];
+    }
+    return acc;
+  }, []);
+  yield put(gitLabActions.setPipelines({ pipelines }));
   yield call(removeLoader, loaderId);
 }
 
-function* loadGroupPipelines() {
+function* getGroupPipelines() {
   const groupsListeningForPipelines: {
     group: string;
     includeBranches: boolean;
@@ -42,10 +49,10 @@ function* loadGroupPipelines() {
     includeCreated: boolean;
     includeManual: boolean;
   }[] = yield select(selectGroupsListeningForPipelines);
-  if (groupsListeningForPipelines.length <= 0) return;
+  if (groupsListeningForPipelines.length <= 0) return [];
 
   const url: string = yield select(selectUrl);
-
+  let pipelines: GitLabPipeline[] = [];
   for (let groupConfig of groupsListeningForPipelines) {
     if (!groupConfig || !groupConfig.group) continue;
     const selectedStatus = getSelectedPipelineStatus(
@@ -56,18 +63,21 @@ function* loadGroupPipelines() {
       groupConfig.includeSuccess,
       groupConfig.includeManual,
     );
-    yield fork(
-      loadPipelinesForGroup,
+    const groupPipelines = yield call(
+      getPipelinesForGroup,
       groupConfig.group,
       groupConfig.includeBranches,
       groupConfig.includeMrs,
       selectedStatus,
       url,
     );
+    pipelines.concat(groupPipelines);
+    pipelines = [...pipelines, ...groupPipelines];
   }
+  return pipelines;
 }
 
-function* loadPipelinesForGroup(
+function* getPipelinesForGroup(
   groupName: GroupName,
   includeBranches: boolean,
   includeMrs: boolean,
@@ -99,12 +109,7 @@ function* loadPipelinesForGroup(
   }
   const taskResults: any[] = yield join(tasks);
 
-  yield put(
-    gitLabActions.setPipelines({
-      items: taskResults.flat().filter(pipelines => !!pipelines),
-      assoicatedId: groupName,
-    }),
-  );
+  return taskResults.flat().filter(pipelines => !!pipelines);
 }
 
 function* getPipelinesForProject(

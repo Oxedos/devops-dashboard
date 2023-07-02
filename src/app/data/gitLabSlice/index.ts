@@ -1,34 +1,16 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import {
-  EventId,
   GitLabEvent,
   GitLabGroup,
   GitLabMR,
   GitLabPipeline,
   GitLabProject,
   GitLabUserData,
-  GroupName,
-  MrId,
-  PipelineId,
-  ProjectId,
 } from 'app/apis/gitlab/types';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { useInjectReducer, useInjectSaga } from 'utils/redux-injectors';
-import {
-  createSettingReducer,
-  equalByAttribute,
-  getIdByAttribute,
-  remove,
-  removeFromStateByIdentifier,
-  updateState,
-  upsert,
-} from '../helper';
+import { equalByAttribute, upsert } from '../helper';
 import { gitLabSaga } from './sagas';
-import { selectAbandonedGroups } from './selectors/groupSelectors';
-import {
-  selectMrsWithUserAsReviewer,
-  selectUserAssignedMrs,
-} from './selectors/mrSelectors';
 import { GitLabState } from './types';
 
 export const LOCALSTORAGE_KEY = 'gitlab-state';
@@ -42,10 +24,6 @@ export const initialState: GitLabState = {
   projects: [],
   events: [],
   pipelines: [],
-  mrsByGroup: new Map(),
-  projectsByGroup: new Map(),
-  pipelinesByGroup: new Map(),
-  eventsByProject: new Map(),
   pipelinesToReload: [],
   jobsToPlay: [],
 };
@@ -59,53 +37,6 @@ function checkAllAreObject(objs: any[]) {
     if (!(obj instanceof Object)) return false;
   }
   return true;
-}
-
-function clearStateByGroupName(state, groupName) {
-  state.mrs = removeFromStateByIdentifier<GitLabMR, MrId, GroupName>(
-    state.mrs,
-    state.mrsByGroup,
-    groupName,
-    mr => mr && mr.id,
-    mr => {
-      // except user assigned MRs
-      if (!mr || !mr.assignee || !state.userData || !state.userData.id) {
-        return false;
-      }
-      return mr.assignee.id === state.userData.id;
-    },
-  );
-
-  // This needs to happen before we clean up the projects
-  if (state.projectsByGroup.has(groupName)) {
-    const projectIds = state.projectsByGroup.get(groupName);
-    if (projectIds && projectIds.length > 0) {
-      for (const projectId of projectIds) {
-        state.events = removeFromStateByIdentifier<
-          GitLabEvent,
-          EventId,
-          ProjectId
-        >(state.events, state.eventsByProject, projectId, event => event.id);
-      }
-    }
-  }
-
-  state.projects = removeFromStateByIdentifier<
-    GitLabProject,
-    ProjectId,
-    GroupName
-  >(state.projects, state.projectsByGroup, groupName, project => project.id);
-
-  state.pipelines = removeFromStateByIdentifier<
-    GitLabPipeline,
-    PipelineId,
-    GroupName
-  >(
-    state.pipelines,
-    state.pipelinesByGroup,
-    groupName,
-    pipeline => pipeline.id,
-  );
 }
 
 const slice = createSlice({
@@ -124,10 +55,6 @@ const slice = createSlice({
       state.projects = action.payload.state.projects;
       state.events = action.payload.state.events;
       state.pipelines = action.payload.state.pipelines;
-      state.mrsByGroup = action.payload.state.mrsByGroup;
-      state.projectsByGroup = action.payload.state.projectsByGroup;
-      state.pipelinesByGroup = action.payload.state.pipelinesByGroup;
-      state.eventsByProject = action.payload.state.eventsByProject;
     },
     setUrl(state, action: PayloadAction<string | undefined>) {
       state.url = action.payload;
@@ -150,80 +77,35 @@ const slice = createSlice({
         projects: [],
         events: [],
         pipelines: [],
-        mrsByGroup: new Map(),
-        projectsByGroup: new Map(),
-        pipelinesByGroup: new Map(),
-        eventsByProject: new Map(),
         pipelinesToReload: [],
         jobsToPlay: [],
       };
     },
     addGitlabVisualisation(state, action: PayloadAction<void>) {},
-    cleanState(state, action: PayloadAction<void>) {
-      selectAbandonedGroups({ gitLab: state }).forEach(abandonedGroup =>
-        clearStateByGroupName(state, abandonedGroup),
-      );
-    },
     // groups
     setGroups(state, action: PayloadAction<GitLabGroup[]>) {
       if (!checkAllAreObject(action.payload)) return;
       state.groups = action.payload;
     },
     // mrs
-    setMrs(
-      state,
-      action: PayloadAction<{ mrs: GitLabMR[]; groupName?: GroupName }>,
-    ) {
-      const { mrs, groupName } = action.payload;
-      if (groupName) {
-        updateState<GitLabMR, MrId, GroupName>(
-          mrs,
-          state.mrs,
-          groupName,
-          state.mrsByGroup,
-          getIdByAttribute('id'),
-          equalByAttribute('id'),
-        );
-      } else {
-        // If the MRs aren't associated to a group, they must be assigned to the user
-        // or are being reviewed by the user
-        // 1: Delete all MRs that were previously assigned
-        const previousUserAssignedMRs = selectUserAssignedMrs({
-          gitLab: state,
-        });
-        const previousReviewingMRs = selectMrsWithUserAsReviewer({
-          gitLab: state,
-        });
-        const mrsLeftInState = remove(
-          state.mrs,
-          previousUserAssignedMRs.concat(previousReviewingMRs),
-          (a, b) => a.id === b.id,
-        );
-        // Now re-add all user assigned MRs
-        // If a MR changed assignees but wasn't closed, it will now be deleted
-        // -> okay for now, next reload will bring that MR back
-        const newStateMRs = upsert(mrsLeftInState, mrs, equalByAttribute('id'));
-        state.mrs = newStateMRs;
-      }
+    setMrs(state, action: PayloadAction<{ mrs: GitLabMR[] }>) {
+      state.mrs = [...action.payload.mrs];
     },
     // projects
-    setProjects: createSettingReducer<GitLabProject, ProjectId, GroupName>(
-      'projects',
-      'projectsByGroup',
-      'id',
-    ),
+    setProjects(state, action: PayloadAction<{ projects: GitLabProject[] }>) {
+      state.projects = [...action.payload.projects];
+    },
     // events
-    setEvents: createSettingReducer<GitLabEvent, EventId, ProjectId>(
-      'events',
-      'eventsByProject',
-      'id',
-    ),
+    setEvents(state, action: PayloadAction<{ events: GitLabEvent[] }>) {
+      state.events = [...action.payload.events];
+    },
     // pipelines
-    setPipelines: createSettingReducer<GitLabPipeline, PipelineId, GroupName>(
-      'pipelines',
-      'pipelinesByGroup',
-      'id',
-    ),
+    setPipelines(
+      state,
+      action: PayloadAction<{ pipelines: GitLabPipeline[] }>,
+    ) {
+      state.pipelines = [...action.payload.pipelines];
+    },
     updatePipeline(state, action: PayloadAction<{ pipeline: GitLabPipeline }>) {
       const {
         payload: { pipeline },

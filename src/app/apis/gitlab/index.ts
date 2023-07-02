@@ -28,7 +28,9 @@ export async function getGroups(
   params?: GetGroupParams,
 ): Promise<GitLabGroup[]> {
   const link = normalizeUrl(url, API_SUFFIX) + '/groups';
-  return getWithKeysetPagination(link, { params });
+  return getWithKeysetPagination(link, {
+    params: { top_level_only: true, ...params },
+  });
 }
 
 export async function getGroupMergeRequests(
