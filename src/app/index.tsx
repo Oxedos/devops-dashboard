@@ -73,7 +73,7 @@ export const App: React.FC = props => {
       // defer dispatch to make sure everything is set up
       setTimeout(
         () => dispatch(gitLabActions.setFullState({ state: gitlabState })),
-        500,
+        1000,
       );
     })();
   }, [dispatch]);
