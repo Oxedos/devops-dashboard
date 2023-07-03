@@ -7,7 +7,7 @@
  */
 
 import { enableMapSet } from 'immer';
-import { default as React, useEffect } from 'react';
+import { default as React } from 'react';
 import { Helmet } from 'react-helmet-async';
 import {
   BrowserRouter,
@@ -25,13 +25,19 @@ import { GitlabOAuth } from './pages/GitlabOAuth/Loadable';
 import { HomePage } from './pages/HomePage/Loadable';
 import { NotFoundPage } from './pages/NotFoundPage/Loadable';
 
-import { useDispatch, useSelector } from 'react-redux';
+import * as GitlabSlice from 'app/data/gitLabSlice';
+import * as GlobalSlice from 'app/data/globalSlice';
+import * as RssSlice from 'app/data/rssSlice';
+import * as WhitesourceSlice from 'app/data/whitesourceSlice';
+import { useSelector } from 'react-redux';
 import { loadIcons } from 'styles/FontawesomeIcons';
-import { loadFromStorage } from './apis/persistance';
-import { LOCALSTORAGE_KEY, gitLabActions } from './data/gitLabSlice';
+import {
+  GitlabSliceManager,
+  GlobalSliceManager,
+  RssSliceManager,
+  WhitesourceSliceManager,
+} from './data/Managers';
 import { selectDashboards } from './data/globalSlice/selectors';
-import { useRssSlice } from './data/rssSlice';
-import { useWhitesourceSlice } from './data/whitesourceSlice';
 import { DashboardSettings } from './pages/DashboardsSettings/Loadable';
 import { Whitesource } from './pages/Whitesource/Loadable';
 
@@ -58,61 +64,65 @@ const withDashboardIdCheckpoint = (WrappedComponent: React.FC<any>) => {
   };
 };
 
+export const gitLabActions = GitlabSlice.actions;
+export const globalActions = GlobalSlice.actions;
+export const whitesourceActions = WhitesourceSlice.actions;
+export const rssActions = RssSlice.actions;
+
 export const App: React.FC = props => {
-  useWhitesourceSlice();
-  useRssSlice();
   enableMapSet();
   loadIcons();
-  const dispatch = useDispatch();
   const HomeWithDashboardIdCheckpoint = withDashboardIdCheckpoint(HomePage);
 
-  // Load Gitlab state from LocalForage
-  useEffect(() => {
-    (async () => {
-      const gitlabState = await loadFromStorage(LOCALSTORAGE_KEY);
-      // defer dispatch to make sure everything is set up
-      setTimeout(
-        () => dispatch(gitLabActions.setFullState({ state: gitlabState })),
-        1000,
-      );
-    })();
-  }, [dispatch]);
-
   return (
-    <BrowserRouter>
-      <Helmet
-        titleTemplate="%s - DevOps Dashboard"
-        defaultTitle="DevOps Dashboard"
-      >
-        <meta name="description" content="A DevOps Dashboard" />
-      </Helmet>
-      <GlobalStyle />
-      <RootWrapper>
-        <ChildWrapper>
-          <Routes>
-            <Route
-              path={path('/data/gitlab/oauth')}
-              element={<GitlabOAuth />}
-            />
-            <Route path={path('/data/gitlab')} element={<GitLabDataSource />} />
-            <Route path={path('/data/whitesource')} element={<Whitesource />} />
-            <Route
-              path={path('/settings/dashboards')}
-              element={<DashboardSettings />}
-            />
-            <Route
-              path={path('/')}
-              element={<HomeWithDashboardIdCheckpoint />}
-            />
-            <Route
-              path={path('/:dashboardId')}
-              element={<HomeWithDashboardIdCheckpoint />}
-            />
-            <Route element={<NotFoundPage />} />
-          </Routes>
-        </ChildWrapper>
-      </RootWrapper>
-    </BrowserRouter>
+    <GlobalSliceManager>
+      <WhitesourceSliceManager>
+        <RssSliceManager>
+          <GitlabSliceManager>
+            <BrowserRouter>
+              <Helmet
+                titleTemplate="%s - DevOps Dashboard"
+                defaultTitle="DevOps Dashboard"
+              >
+                <meta name="description" content="A DevOps Dashboard" />
+              </Helmet>
+              <GlobalStyle />
+              <RootWrapper>
+                <ChildWrapper>
+                  <Routes>
+                    <Route
+                      path={path('/data/gitlab/oauth')}
+                      element={<GitlabOAuth />}
+                    />
+                    <Route
+                      path={path('/data/gitlab')}
+                      element={<GitLabDataSource />}
+                    />
+                    <Route
+                      path={path('/data/whitesource')}
+                      element={<Whitesource />}
+                    />
+                    <Route
+                      path={path('/settings/dashboards')}
+                      element={<DashboardSettings />}
+                    />
+                    <Route
+                      path={path('/')}
+                      element={<HomeWithDashboardIdCheckpoint />}
+                    />
+                    <Route
+                      path={path('/:dashboardId')}
+                      element={<HomeWithDashboardIdCheckpoint />}
+                    />
+                    <Route element={<NotFoundPage />} />
+                  </Routes>
+                </ChildWrapper>
+              </RootWrapper>
+            </BrowserRouter>
+          </GitlabSliceManager>
+        </RssSliceManager>
+      </WhitesourceSliceManager>
+    </GlobalSliceManager>
   );
 };
 

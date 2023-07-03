@@ -7,11 +7,9 @@ import {
   selectDashboards,
   selectLoading,
 } from 'app/data/globalSlice/selectors';
-import { useGitLabSlice } from 'app/data/gitLabSlice';
 import NotificationContainer from '../NotificationContainer';
-import { whitesourceActions } from 'app/data/whitesourceSlice';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { rssActions } from 'app/data/rssSlice';
+import { rssActions, whitesourceActions, gitLabActions } from 'app';
 
 function addBaseUrl(to) {
   if (process.env.NODE_ENV === 'production') {
@@ -28,7 +26,6 @@ const NavigationBar: React.FC<PropTypes> = props => {
   const [isModalOpen, setModalOpen] = useState(false);
   const [isSidebarOpen, setSidebarOpen] = useState(false);
   const navigate = useNavigate();
-  const { actions: gitLabActions } = useGitLabSlice();
   const dashboards = useSelector(selectDashboards);
   const dispatch = useDispatch();
   const isLoading = useSelector(selectLoading);

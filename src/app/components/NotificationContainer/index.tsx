@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useDispatch, useSelector } from 'react-redux';
 import { selectNotifications } from 'app/data/globalSlice/selectors';
 import { Notification, NotificationType } from 'app/data/globalSlice/types';
-import { useGlobalSlice } from 'app/data/globalSlice';
+import { globalActions } from 'app';
 import { GlobalColours } from 'styles/global-styles';
 
 const ErrorIcon = (
@@ -48,7 +48,6 @@ type NotificationPropTypes = {
 
 const NotificationToast: React.FC<NotificationPropTypes> = props => {
   const dispatch = useDispatch();
-  const { actions: globalActions } = useGlobalSlice();
   const Icon = getIcon(props.notification.type);
   const title = getTitle(props.notification.type);
 

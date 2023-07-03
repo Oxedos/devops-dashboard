@@ -1,5 +1,6 @@
 import * as Effects from 'redux-saga/effects';
-import { globalActions as actions, LOCALSTORAGE_KEY } from '.';
+import { LOCALSTORAGE_KEY } from '.';
+import { globalActions } from 'app';
 import * as PersistanceAPI from 'app/apis/persistance';
 import { selectGlobal } from './selectors';
 import { takeEvery } from 'redux-saga/effects';
@@ -17,11 +18,11 @@ function* persist() {
 }
 
 export function* globalSaga() {
-  yield takeLatest(actions.addVisualisation.type, persist);
-  yield takeLatest(actions.removeVisualisation.type, persist);
-  yield takeLatest(actions.setVisualisationProps.type, persist);
-  yield takeEvery(actions.updateDashboardLayout.type, persist);
-  yield takeEvery(actions.addDashboard.type, persist);
-  yield takeEvery(actions.removeDashboard.type, persist);
-  yield takeEvery(actions.setMainDashboard.type, persist);
+  yield takeLatest(globalActions.addVisualisation.type, persist);
+  yield takeLatest(globalActions.removeVisualisation.type, persist);
+  yield takeLatest(globalActions.setVisualisationProps.type, persist);
+  yield takeEvery(globalActions.updateDashboardLayout.type, persist);
+  yield takeEvery(globalActions.addDashboard.type, persist);
+  yield takeEvery(globalActions.removeDashboard.type, persist);
+  yield takeEvery(globalActions.setMainDashboard.type, persist);
 }

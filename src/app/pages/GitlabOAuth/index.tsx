@@ -1,6 +1,6 @@
 import ContentWrapper from 'app/components/Design/ContentWrapper';
 import NavigationBar from 'app/components/NavigationBar';
-import { globalActions } from 'app/data/globalSlice';
+import { globalActions } from 'app';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';

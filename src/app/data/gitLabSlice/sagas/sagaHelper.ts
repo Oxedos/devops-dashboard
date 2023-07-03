@@ -1,4 +1,4 @@
-import { globalActions } from 'app/data/globalSlice';
+import { globalActions } from 'app';
 import { put } from 'redux-saga/effects';
 
 const loaderPrefix = '[GitLab] ';

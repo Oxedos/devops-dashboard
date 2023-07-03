@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from 'styled-components/macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { globalActions } from 'app/data/globalSlice';
+import { globalActions } from 'app';
 import { useDispatch, useSelector } from 'react-redux';
 import { useParams } from 'react-router';
 import {

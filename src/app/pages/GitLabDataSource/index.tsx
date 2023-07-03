@@ -1,7 +1,7 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Button from 'react-bootstrap/Button';
 import NavigationBar from 'app/components/NavigationBar';
-import { gitLabActions } from 'app/data/gitLabSlice';
+import { gitLabActions } from 'app';
 import {
   selectApplicationId,
   selectConfigured,

@@ -1,7 +1,7 @@
 import { getUserInfo } from 'app/apis/gitlab';
 import { GitLabUserData } from 'app/apis/gitlab/types';
 import { call, put, select } from 'redux-saga/effects';
-import { gitLabActions as actions } from '..';
+import { gitLabActions } from 'app';
 import { selectUrl } from '../selectors/selectors';
 import { displayNotification, removeLoader, setLoader } from './sagaHelper';
 
@@ -11,7 +11,7 @@ export function* loadUserInfo() {
 
   try {
     const userInfo: GitLabUserData = yield call(getUserInfo, url);
-    yield put(actions.setUserData(userInfo));
+    yield put(gitLabActions.setUserData(userInfo));
   } catch (error) {
     yield call(displayNotification, error);
   } finally {
@@ -23,7 +23,7 @@ export function* tryLoadingUserinfo() {
   const url = yield select(selectUrl);
   try {
     const userInfo = yield call(getUserInfo, url);
-    yield put(actions.setUserData(userInfo));
+    yield put(gitLabActions.setUserData(userInfo));
     return true;
   } catch (error) {
     return false;

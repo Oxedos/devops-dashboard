@@ -1,7 +1,7 @@
 import { getGroups } from 'app/apis/gitlab';
 import { GitLabGroup } from 'app/apis/gitlab/types';
 import { call, put, select } from 'redux-saga/effects';
-import { gitLabActions as actions } from '..';
+import { gitLabActions } from 'app';
 import { selectUrl } from '../selectors/selectors';
 import { displayNotification, removeLoader, setLoader } from './sagaHelper';
 
@@ -11,7 +11,7 @@ export function* loadGroups() {
 
   try {
     const groups: GitLabGroup[] = yield call(getGroups, url);
-    yield put(actions.setGroups(groups));
+    yield put(gitLabActions.setGroups(groups));
   } catch (error) {
     yield call(displayNotification, error);
   } finally {

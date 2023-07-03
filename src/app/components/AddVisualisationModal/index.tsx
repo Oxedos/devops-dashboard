@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import styled from 'styled-components/macro';
-import { useGlobalSlice } from 'app/data/globalSlice';
 import Modal from 'react-bootstrap/Modal';
 import { GroupIcons, VisualisationType } from 'app/data/VisualisationTypes';
 import { v4 as uuidv4 } from 'uuid';
@@ -13,6 +12,7 @@ import {
   getDashbaordId,
   selectDashboards,
 } from 'app/data/globalSlice/selectors';
+import { globalActions } from 'app';
 
 type propTypes = {
   show: boolean;
@@ -20,7 +20,6 @@ type propTypes = {
 };
 
 export default function AddVisualisationModal(props: propTypes) {
-  const { actions: globalActions } = useGlobalSlice();
   const [selectedGroup, setSelectedGroup] = useState<string | undefined>(
     undefined,
   );

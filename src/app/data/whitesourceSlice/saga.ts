@@ -1,8 +1,8 @@
 import * as Effects from 'redux-saga/effects';
 import { call, put, select, takeLatest, join } from 'redux-saga/effects';
-import { globalActions } from 'app/data/globalSlice';
+import { globalActions, whitesourceActions } from 'app';
 import * as API from 'app/apis/whitesource';
-import { whitesourceActions, LOCALSTORAGE_KEY } from '.';
+import { LOCALSTORAGE_KEY } from '.';
 import * as PersistanceAPI from 'app/apis/persistance';
 import {
   selectConfigured,

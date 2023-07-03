@@ -13,7 +13,7 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import { selectDashboards } from 'app/data/globalSlice/selectors';
 import { Dashboard } from 'app/data/globalSlice/types';
-import { globalActions } from 'app/data/globalSlice';
+import { globalActions } from 'app';
 import AddSharedDashboardModal from './components/AddSharedDashboardModal';
 import DeleteButton from './components/DeleteButton';
 import ShareButton from './components/ShareButton';

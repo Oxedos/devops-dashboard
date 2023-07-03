@@ -1,7 +1,7 @@
 import * as Api from 'app/apis/gitlab';
 import { GitLabProject } from 'app/apis/gitlab/types';
 import { call, put, select } from 'redux-saga/effects';
-import { gitLabActions } from '..';
+import { gitLabActions } from 'app';
 import {
   selectGroupByGroupName,
   selectListenedGroups,

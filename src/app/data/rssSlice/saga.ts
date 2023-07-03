@@ -1,6 +1,6 @@
 import * as Effects from 'redux-saga/effects';
-import { LOCALSTORAGE_KEY, rssActions } from '.';
-import { globalActions } from 'app/data/globalSlice';
+import { LOCALSTORAGE_KEY } from '.';
+import { globalActions, rssActions } from 'app';
 import * as API from 'app/apis/rss';
 import * as PersistanceAPI from 'app/apis/persistance';
 import { fork } from 'redux-saga/effects';

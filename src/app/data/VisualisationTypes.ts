@@ -1,8 +1,6 @@
-import { gitLabActions } from './gitLabSlice';
-import { globalActions } from './globalSlice';
-import { rssActions } from './rssSlice';
+import { gitLabActions, globalActions, rssActions } from 'app';
 
-// Do note remove enums!
+// Do not remove enums!
 // The order number of each enum is important!
 export enum VisualisationType {
   DP_9,

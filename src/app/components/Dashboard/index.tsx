@@ -4,7 +4,7 @@ import GridLayout, { WidthProvider } from 'react-grid-layout';
 import { ConfiguredVisualisation } from 'app/data/VisualisationTypes';
 import Visualisation from '../visualisations';
 import { useDispatch } from 'react-redux';
-import { globalActions } from 'app/data/globalSlice';
+import { globalActions } from 'app';
 
 const ReactGridLayout = WidthProvider(GridLayout);
 

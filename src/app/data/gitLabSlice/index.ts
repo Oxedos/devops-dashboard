@@ -8,7 +8,6 @@ import {
   GitLabUserData,
 } from 'app/apis/gitlab/types';
 import { createSlice } from 'utils/@reduxjs/toolkit';
-import { useInjectReducer, useInjectSaga } from 'utils/redux-injectors';
 import { equalByAttribute, upsert } from '../helper';
 import { gitLabSaga } from './sagas';
 import { GitLabState } from './types';
@@ -204,10 +203,6 @@ const slice = createSlice({
   },
 });
 
-export const { actions: gitLabActions, reducer } = slice;
-
-export const useGitLabSlice = () => {
-  useInjectReducer({ key: slice.name, reducer: slice.reducer });
-  useInjectSaga({ key: slice.name, saga: gitLabSaga });
-  return { actions: slice.actions };
-};
+export const name = slice.name;
+export const { actions, reducer } = slice;
+export const saga = gitLabSaga;

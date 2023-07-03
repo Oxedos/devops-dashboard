@@ -1,6 +1,5 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from 'utils/@reduxjs/toolkit';
-import { useInjectReducer, useInjectSaga } from 'utils/redux-injectors';
 import { whitesourceSaga } from './saga';
 import { WhitesourceState } from './types';
 import * as PersistanceAPI from 'app/apis/persistance';
@@ -68,10 +67,6 @@ const slice = createSlice({
   },
 });
 
-export const { actions: whitesourceActions } = slice;
-
-export const useWhitesourceSlice = () => {
-  useInjectReducer({ key: slice.name, reducer: slice.reducer });
-  useInjectSaga({ key: slice.name, saga: whitesourceSaga });
-  return { actions: slice.actions };
-};
+export const name = slice.name;
+export const { actions, reducer } = slice;
+export const saga = whitesourceSaga;

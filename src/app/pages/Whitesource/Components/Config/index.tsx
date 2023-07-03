@@ -4,14 +4,13 @@ import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import ContentElement from '../../../../components/Design/ContentElement';
 import { useDispatch, useSelector } from 'react-redux';
-import { globalActions } from 'app/data/globalSlice';
+import { globalActions, whitesourceActions } from 'app';
 import {
   selectConfigured,
   selectProductToken,
   selectUrl,
   selectUserKey,
 } from 'app/data/whitesourceSlice/selectors';
-import { whitesourceActions } from 'app/data/whitesourceSlice';
 import { API_SUFFIX } from 'app/apis/whitesource';
 
 const Config: React.FC = props => {

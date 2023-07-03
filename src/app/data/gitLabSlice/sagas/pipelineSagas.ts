@@ -13,7 +13,7 @@ import {
 } from 'app/apis/gitlab/types';
 import moment from 'moment';
 import { call, fork, join, put, select } from 'redux-saga/effects';
-import { gitLabActions as actions, gitLabActions } from '..';
+import { gitLabActions } from 'app';
 import { selectGroupsListeningForPipelines } from '../selectors/groupSelectors';
 import { selectMrsByGroup } from '../selectors/mrSelectors';
 import {
@@ -49,6 +49,7 @@ function* getGroupPipelines() {
     includeCreated: boolean;
     includeManual: boolean;
   }[] = yield select(selectGroupsListeningForPipelines);
+  console.log(groupsListeningForPipelines);
   if (groupsListeningForPipelines.length <= 0) return [];
 
   const url: string = yield select(selectUrl);
@@ -171,7 +172,9 @@ function* rerunPipeline(
   groupName: string,
 ) {
   // immediately remove pipeline from list as to not start them several times
-  yield put(actions.removePipelineToReload({ groupName, projectId, ref }));
+  yield put(
+    gitLabActions.removePipelineToReload({ groupName, projectId, ref }),
+  );
 
   try {
     // check that ref is a MR ref
@@ -186,7 +189,7 @@ function* rerunPipeline(
         mrIid,
       );
       yield put(
-        actions.updatePipeline({
+        gitLabActions.updatePipeline({
           pipeline: newPipelineData,
         }),
       );
@@ -197,12 +200,14 @@ function* rerunPipeline(
         projectId,
         ref,
       );
-      yield put(actions.updatePipeline({ pipeline: newPipelineData }));
+      yield put(gitLabActions.updatePipeline({ pipeline: newPipelineData }));
     }
   } catch (error) {
     yield call(displayNotification, error);
   } finally {
-    yield put(actions.removePipelineToReload({ groupName, projectId, ref }));
+    yield put(
+      gitLabActions.removePipelineToReload({ groupName, projectId, ref }),
+    );
   }
 }
 
@@ -236,7 +241,9 @@ function* playJob(
   groupName: string,
 ) {
   // immediately remove pipeline from list as to not start them several times
-  yield put(actions.removeJobToPlay({ projectId, jobId, mrIid, groupName }));
+  yield put(
+    gitLabActions.removeJobToPlay({ projectId, jobId, mrIid, groupName }),
+  );
 
   try {
     // play job
@@ -244,10 +251,13 @@ function* playJob(
     // reload this Pipeline
     // TODO: Do I have to load everything in API.loadPipelineForMr?
     const pipelineData = yield call(loadPipelineForMr, url, projectId, mrIid);
-    yield put(actions.updatePipeline({ pipeline: pipelineData }));
+    yield put(gitLabActions.updatePipeline({ pipeline: pipelineData }));
   } catch (error) {
     yield call(displayNotification, error);
   } finally {
-    yield put(actions.removeJobToPlay({ projectId, jobId, mrIid, groupName })); // just to be sure
+    // just to be sure
+    yield put(
+      gitLabActions.removeJobToPlay({ projectId, jobId, mrIid, groupName }),
+    );
   }
 }

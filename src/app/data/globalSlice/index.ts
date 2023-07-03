@@ -1,6 +1,5 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from 'utils/@reduxjs/toolkit';
-import { useInjectReducer, useInjectSaga } from 'utils/redux-injectors';
 import { Dashboard, GlobalState, NotificationType } from './types';
 import { globalSaga } from './saga';
 import * as PersistanceAPI from 'app/apis/persistance';
@@ -265,10 +264,6 @@ const slice = createSlice({
   },
 });
 
-export const { actions: globalActions, reducer } = slice;
-
-export const useGlobalSlice = () => {
-  useInjectReducer({ key: slice.name, reducer: slice.reducer });
-  useInjectSaga({ key: slice.name, saga: globalSaga });
-  return { actions: slice.actions };
-};
+export const name = slice.name;
+export const { actions, reducer } = slice;
+export const saga = globalSaga;

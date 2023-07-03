@@ -1,9 +1,8 @@
-import { gitLabActions } from 'app/data/gitLabSlice';
 import {
   selectApplicationId,
   selectUrl,
 } from 'app/data/gitLabSlice/selectors/selectors';
-import { globalActions } from 'app/data/globalSlice';
+import { globalActions, gitLabActions } from 'app';
 import { PUBLIC_URL, redirectToGitlabAuth } from 'app/util/OAuthUtil';
 import { reduxApplicationStore } from 'index';
 import { SW_MESSAGE_TYPES } from 'service-worker';

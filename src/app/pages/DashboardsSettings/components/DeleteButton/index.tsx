@@ -3,7 +3,7 @@ import {
   ConfiguredVisualisation,
   getAfterVisualisationRemovedActions,
 } from 'app/data/VisualisationTypes';
-import { globalActions } from 'app/data/globalSlice';
+import { globalActions } from 'app';
 import { Dashboard } from 'app/data/globalSlice/types';
 import React, { useState } from 'react';
 import Button from 'react-bootstrap/Button';

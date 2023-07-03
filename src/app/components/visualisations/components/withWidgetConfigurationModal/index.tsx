@@ -9,7 +9,7 @@ import {
 } from 'app/data/globalSlice/selectors';
 import Button from 'react-bootstrap/Button';
 import { useParams } from 'react-router';
-import { globalActions } from 'app/data/globalSlice';
+import { globalActions } from 'app';
 import {
   getAfterVisualisationRemovedActions,
   getAfterVisualisationUpdatedActions,

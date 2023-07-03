@@ -1,6 +1,5 @@
 import { PayloadAction } from '@reduxjs/toolkit';
 import { createSlice } from 'utils/@reduxjs/toolkit';
-import { useInjectReducer, useInjectSaga } from 'utils/redux-injectors';
 import { rssSaga } from './saga';
 import * as PersistanceAPI from 'app/apis/persistance';
 import { RssState } from './types';
@@ -85,10 +84,6 @@ const slice = createSlice({
   },
 });
 
-export const { actions: rssActions } = slice;
-
-export const useRssSlice = () => {
-  useInjectReducer({ key: slice.name, reducer: slice.reducer });
-  useInjectSaga({ key: slice.name, saga: rssSaga });
-  return { actions: slice.actions };
-};
+export const name = slice.name;
+export const { actions, reducer } = slice;
+export const saga = rssSaga;

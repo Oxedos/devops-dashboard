@@ -2,8 +2,15 @@ import * as PersistanceAPI from 'app/apis/persistance';
 import * as Effects from 'redux-saga/effects';
 import { all, fork, spawn, takeEvery, takeLeading } from 'redux-saga/effects';
 import { SW_MESSAGE_TYPES } from 'service-worker';
-import { LOCALSTORAGE_KEY, gitLabActions as actions } from '..';
-import { selectConfigured, selectGitlabSlice } from '../selectors/selectors';
+import { LOCALSTORAGE_KEY } from '..';
+import { gitLabActions } from 'app';
+import {
+  selectApplicationId,
+  selectConfigured,
+  selectGitlabSlice,
+  selectUrl,
+} from '../selectors/selectors';
+import { GitLabState } from '../types';
 import { loadEvents } from './eventsSaga';
 import { loadGroups } from './groupSagas';
 import { loadMergeRequests } from './mrSagas';
@@ -84,14 +91,48 @@ const signalServiceWorker = () => {
   });
 };
 
+function* loadPersistedData() {
+  console.log('loading state');
+  // Check if GitLab is configured
+  const isConfigured = yield select(selectConfigured);
+  if (isConfigured) return;
+
+  let tries = 0;
+  while (tries < 5) {
+    const loadedStateData: GitLabState = yield call(
+      PersistanceAPI.loadFromStorage,
+      LOCALSTORAGE_KEY,
+    );
+    // Check if there actually is a persisted state
+    if (
+      !loadedStateData ||
+      !loadedStateData.url ||
+      !loadedStateData.applicationId
+    ) {
+      return;
+    }
+    // try and update the redux state
+    yield Effects.put(gitLabActions.setFullState({ state: loadedStateData }));
+    // wait a bit
+    yield delay(100);
+    const currentUrl = yield select(selectUrl);
+    const currentAppId = yield select(selectApplicationId);
+    if (currentUrl && currentAppId) return;
+    // We were not successful -> wait a bit and try again
+    tries += 1;
+    yield delay(250);
+  }
+}
+
 export function* gitLabSaga() {
-  yield takeLeading(actions.addGitlabVisualisation.type, loadAll);
-  yield takeLeading(actions.reload.type, loadAll);
-  yield takeLeading(actions.deleteConfiguration.type, clear);
-  yield takeEvery(actions.reloadPipeline.type, rerunPipelines);
-  yield takeEvery(actions.playJob.type, playJobs);
-  yield takeLeading(actions.setUrl.type, persist);
-  yield takeLeading(actions.setApplicationId.type, persist);
+  yield takeLeading(gitLabActions.addGitlabVisualisation.type, loadAll);
+  yield takeLeading(gitLabActions.reload.type, loadAll);
+  yield takeLeading(gitLabActions.deleteConfiguration.type, clear);
+  yield takeEvery(gitLabActions.reloadPipeline.type, rerunPipelines);
+  yield takeEvery(gitLabActions.playJob.type, playJobs);
+  yield takeLeading(gitLabActions.setUrl.type, persist);
+  yield takeLeading(gitLabActions.setApplicationId.type, persist);
   yield spawn(pollLong);
   yield spawn(pollShort);
+  yield spawn(loadPersistedData);
 }
