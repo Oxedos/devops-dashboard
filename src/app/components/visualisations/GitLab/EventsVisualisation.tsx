@@ -12,6 +12,10 @@ import VisualisationContainer from '../components/VisualisationContainer';
 import withWidgetConfigurationModal from '../components/withWidgetConfigurationModal';
 import withGitLabConfiguredCheck from './components/withGitLabConfiguredCheck';
 import withGroupFieldsProvider from './components/withEventFieldsProvider';
+import { GitLabEvent, GitLabProject } from 'app/apis/gitlab/types';
+import { selectUrl } from 'app/data/gitLabSlice/selectors/selectors';
+import ReactMarkdown, { uriTransformer } from 'react-markdown';
+import rehypeSanitize from 'rehype-sanitize';
 
 type OuterPropTypes = {
   id: string;
@@ -22,6 +26,91 @@ type InnerPropTypes = {
   onSettingsClick: Function;
   afterVisRemoved: Function;
 } & OuterPropTypes;
+
+const getWebUrl = (event: GitLabEvent, gitLabUrl: string | undefined) => {
+  if (!event.project) return;
+  if (!gitLabUrl) {
+    return event.project.web_url;
+  }
+  const actionName = event.action_name;
+  const targetType = event.target_type || event.push_data?.ref_type;
+  const basePath = `/${event.project.path_with_namespace}/-`;
+  if (targetType === 'MergeRequest') {
+    return new URL(
+      `${basePath}/merge_requests/${event.target_iid}`,
+      gitLabUrl,
+    ).toString();
+  }
+  if (targetType === 'branch' && actionName === 'pushed new') {
+    return new URL(
+      `${basePath}/tree/${event.push_data?.ref}`,
+      gitLabUrl,
+    ).toString();
+  }
+  if (targetType === 'branch' && actionName === 'pushed to') {
+    return new URL(
+      `${basePath}/commit/${event.push_data?.commit_to}`,
+      gitLabUrl,
+    ).toString();
+  }
+  if (actionName === 'joined') {
+    return new URL(
+      `${basePath}/project_members?search=${event.author.name}`,
+      gitLabUrl,
+    ).toString();
+  }
+  if (
+    actionName === 'commented on' &&
+    event.note?.noteable_type === 'MergeRequest'
+  ) {
+    return new URL(
+      `${basePath}/merge_requests/${event.note?.noteable_iid}#note_${event.note?.id}`,
+      gitLabUrl,
+    ).toString();
+  }
+  return event.project.web_url;
+};
+
+const getAdditionalInfo = (event: GitLabEvent) => {
+  if (!event) return;
+  if (event.push_data && event.push_data.commit_title) {
+    return event.push_data.commit_title;
+  }
+  if (event.note && event.note.body) {
+    return event.note.body;
+  }
+};
+
+const getFriendlyTarget = (event: GitLabEvent) => {
+  const targetType = event.target_type || event.push_data?.ref_type;
+  if (!targetType) return undefined;
+  switch (targetType) {
+    case 'DiffNote':
+    case 'DiscussionNote':
+    case 'Note':
+      return `${getFriendlyTargetRaw(targetType)} in ${getFriendlyTargetRaw(
+        event.note?.noteable_type,
+      )}`;
+    default:
+      return getFriendlyTargetRaw(targetType);
+  }
+};
+
+const getFriendlyTargetRaw = (targetType: string | undefined) => {
+  if (!targetType) return undefined;
+  switch (targetType) {
+    case 'MergeRequest':
+      return 'merge request';
+    case 'DiscussionNote':
+      return 'discussion';
+    case 'DiffNote':
+      return 'code changes';
+    case 'Note':
+      return 'note';
+    default:
+      return targetType;
+  }
+};
 
 const getIcon = (
   actionName: string,
@@ -70,10 +159,28 @@ const getIcon = (
   return { color: GlobalColours.gray, icon: 'circle' };
 };
 
+const prependGitlabUrl = (
+  uri: any,
+  project: GitLabProject | undefined,
+  gitLabUrl: string | undefined,
+) => {
+  const baseResult = uriTransformer(uri);
+  // eslint-disable-next-line no-script-url
+  if (baseResult === 'javascript:void(0)') return baseResult;
+  if (!project) return baseResult;
+  if (!gitLabUrl) return baseResult;
+  if (!baseResult.startsWith('/uploads')) return baseResult;
+  return new URL(
+    `${project.path_with_namespace}${baseResult}`,
+    gitLabUrl,
+  ).toString();
+};
+
 const EventsVisualisation: React.FC<InnerPropTypes> = props => {
   const events = useSelector(state =>
     selectEventsByGroup(state, { groupName: props.group, maxCount: 15 }),
   );
+  const gitLabUrl = useSelector(selectUrl);
 
   if (!props.group) {
     return (
@@ -95,63 +202,81 @@ const EventsVisualisation: React.FC<InnerPropTypes> = props => {
       afterVisRemoved={props.afterVisRemoved}
     >
       <Wrapper>
-        {events.map(item => {
-          if (!item) {
+        {events.map(event => {
+          if (!event) {
             return null;
           }
           const iconProps = getIcon(
-            item.action_name,
-            item.target_type || item.push_data?.ref_type || undefined,
+            event.action_name,
+            event.target_type || event.push_data?.ref_type,
           );
+          const actionDescription = `${event.author.name} ${
+            event.action_name
+          } ${getFriendlyTarget(event)} `;
+          const eventTarget =
+            event.target_title ||
+            event.push_data?.ref ||
+            event.push_data?.commit_title;
+          const relatedProject = event.project
+            ? `${event.project.name} / `
+            : '';
+          const additionalInfo = getAdditionalInfo(event);
+          const webUrl = getWebUrl(event, gitLabUrl);
           const card = (
-            <CardWrapper key={`eventCard ${item.id}`}>
-              <div className="float-left">
-                <GitLabUser user={item.author} imgOnly iconProps={iconProps} />
+            <CardWrapper key={`eventCard ${event.id}`}>
+              <div className="user-container">
+                <GitLabUser user={event.author} imgOnly iconProps={iconProps} />
               </div>
               <div className="container">
                 <div className="float-right">
-                  <span>{moment(item.created_at).fromNow()}</span>
+                  <span>{moment(event.created_at).fromNow()}</span>
                 </div>
                 <div className="content">
-                  {item.author.name} {item.action_name}{' '}
-                  {item.target_type || item.push_data?.ref_type || undefined}{' '}
+                  {actionDescription}
                   <div className="gray">
-                    {item.target_title ||
-                      item.push_data?.ref ||
-                      item.push_data?.commit_title}
+                    {relatedProject}
+                    {eventTarget}
                   </div>
-                  {item.project && (
-                    <>
-                      {' in '}
-                      {item.project.name}
-                    </>
-                  )}
-                  {item.push_data && item.push_data.commit_title && (
-                    <>
-                      {': '}
-                      <div className="gray">
-                        {`"${item.push_data.commit_title}"`}
-                      </div>
-                    </>
-                  )}
                 </div>
+                {additionalInfo && (
+                  <div className="extra-content">
+                    <ReactMarkdown
+                      transformImageUri={url =>
+                        prependGitlabUrl(url, event.project, gitLabUrl)
+                      }
+                      children={additionalInfo}
+                      linkTarget="_blank"
+                      rehypePlugins={[rehypeSanitize]}
+                      allowedElements={[
+                        'h1',
+                        'h2',
+                        'h3',
+                        'p',
+                        'img',
+                        'ul',
+                        'ol',
+                        'li',
+                        'a',
+                      ]}
+                    />
+                  </div>
+                )}
               </div>
             </CardWrapper>
           );
-          if (item.project && item.project.web_url) {
+          if (webUrl) {
             return (
               <UnstyledA
-                key={`eventCard ${item.id} a`}
-                href={item.project.web_url}
+                key={`eventCard ${event.id} a`}
+                href={webUrl}
                 target="_blank"
                 rel="noreferrer"
               >
                 {card}
               </UnstyledA>
             );
-          } else {
-            return card;
           }
+          return card;
         })}
       </Wrapper>
     </VisualisationContainer>
@@ -180,8 +305,8 @@ const CardWrapper = styled.div`
   color: var(--clr-white);
   overflow-wrap: anywhere;
 
-  :hover {
-    background: rgba(0, 0, 0, 0.05);
+  &:hover {
+    background: rgba(0, 0, 0, 0.15);
   }
 
   .gray {
@@ -204,12 +329,11 @@ const CardWrapper = styled.div`
     justify-content: space-between;
   }
 
-  .float-left {
+  .user-container {
     display: flex;
     padding: 1em 1.5em 1em 1em;
-    border-right: 3px solid rgba(0, 0, 0, 0.1);
     justify-content: center;
-    align-items: center;
+    align-items: start;
   }
 
   .float-right {
@@ -224,6 +348,18 @@ const CardWrapper = styled.div`
 
   .content {
     display: inline;
+  }
+
+  .extra-content {
+    white-space: pre-line;
+    margin-top: 0.5em;
+    margin-left: 0.5em;
+    padding-left: 1em;
+    border-left: 3px solid rgba(0, 0, 0, 0.3);
+    img {
+      max-width: 100%;
+      object-fit: contain;
+    }
   }
 `;
 

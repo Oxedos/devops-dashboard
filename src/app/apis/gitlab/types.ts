@@ -229,6 +229,24 @@ export type GitLabEvent = {
     commit_title?: string;
     ref_count: number;
   };
+  note?: {
+    attachment: any;
+    author: GitLabUserReference;
+    body: string;
+    commands_changes: object;
+    confidential: boolean;
+    created_at: string;
+    id: number;
+    internal: boolean;
+    noteable_id: number;
+    noteable_iid: number;
+    noteable_type: string;
+    project_id: number;
+    resolvable: boolean;
+    system: boolean;
+    type: any;
+    updated_at: string;
+  };
   // Added types
   project: GitLabProject | undefined;
 };
