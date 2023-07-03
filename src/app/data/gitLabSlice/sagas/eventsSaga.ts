@@ -20,7 +20,7 @@ function* getEventsForGroups() {
   const listenedGroups: string[] = yield select(
     selectGroupNamesListeningForEvents,
   );
-  if (!listenedGroups || listenedGroups.length <= 0) return;
+  if (!listenedGroups || listenedGroups.length <= 0) return [];
   let events: GitLabEvent[] = [];
   for (let groupName of listenedGroups) {
     const listenedProjects: GitLabProject[] = yield select(

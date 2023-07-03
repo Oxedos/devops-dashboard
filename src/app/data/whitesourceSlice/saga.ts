@@ -125,8 +125,8 @@ function* pollShort() {
       const taks2 = yield fork(loadProjects);
       yield join([task1, taks2]);
       yield call(persist);
-      yield delay(1000 * 60 * 60); // every hour
     }
+    yield delay(1000 * 60 * 60); // every hour
   }
 }
 

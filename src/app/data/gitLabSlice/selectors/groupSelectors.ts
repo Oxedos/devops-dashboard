@@ -32,8 +32,22 @@ export const selectListenedGroups = createSelector(
 
 export const selectGroupsListeningForPipelines = createSelector(
   selectConfiguredVisualisations,
-  configuredVisualisations =>
-    configuredVisualisations
+  configuredVisualisations => {
+    const groupsForMrTableVis = configuredVisualisations
+      .filter(vis => vis && vis.type === VisualisationType.GITLAB_MR_TABLE)
+      .map(vis => ({
+        group: vis.props?.group,
+        includeBranches: true,
+        includeMrs: true,
+        includeFailed: true,
+        includeSuccess: true,
+        includeCanceled: true,
+        includeRunning: true,
+        includeCreated: true,
+        includeManual: true,
+      }))
+      .filter(groupConfig => !!groupConfig.group);
+    const groupsForPipelinesVis = configuredVisualisations
       .filter(
         vis => vis && vis.type === VisualisationType.GITLAB_PIPELINES_TABLE,
       )
@@ -47,27 +61,32 @@ export const selectGroupsListeningForPipelines = createSelector(
         includeRunning: !!vis.props?.pipelines_running,
         includeCreated: !!vis.props?.pipelines_created,
         includeManual: !!vis.props?.pipelines_manual,
-      }))
-      .filter(groupConfig => !!groupConfig.group)
-      .reduce((acc, curr) => {
-        if (!acc.has(curr.group)) {
-          acc.set(curr.group, curr);
+      }));
+    return Array.from(
+      [...groupsForMrTableVis, ...groupsForPipelinesVis]
+        .filter(groupConfig => !!groupConfig.group)
+        .reduce((acc, curr) => {
+          if (!acc.has(curr.group)) {
+            acc.set(curr.group, curr);
+            return acc;
+          }
+          const accGroup = acc.get(curr.group);
+          acc.set(curr.group, {
+            group: curr.group,
+            includeBranches: curr.includeBranches || accGroup.includeBranches,
+            includeMrs: curr.includeMrs || accGroup.includeMrs,
+            includeFailed: curr.includeFailed || accGroup.includeFailed,
+            includeSuccess: curr.includeSuccess || accGroup.includeSuccess,
+            includeCanceled: curr.includeCanceled || accGroup.includeCanceled,
+            includeRunning: curr.includeRunning || accGroup.includeRunning,
+            includeCreated: curr.includeCreated || accGroup.includeCreated,
+            includeManual: curr.includeManual || accGroup.includeManual,
+          });
           return acc;
-        }
-        const accGroup = acc.get(curr.group);
-        acc.set(curr.group, {
-          includeBranches: curr.includeBranches || accGroup.includeBranches,
-          includeMrs: curr.includeMrs || accGroup.includeMrs,
-          includeFailed: curr.includeFailed || accGroup.includeFailed,
-          includeSuccess: curr.includeSuccess || accGroup.includeSuccess,
-          includeCanceled: curr.includeCanceled || accGroup.includeCanceled,
-          includeRunning: curr.includeRunning || accGroup.includeRunning,
-          includeCreated: curr.includeCreated || accGroup.includeCreated,
-          includeManual: curr.includeManual || accGroup.includeManual,
-        });
-        return acc;
-      }, new Map<String, any>())
-      .values(),
+        }, new Map<String, any>())
+        .values(),
+    );
+  },
 );
 
 export const selectGroupsListeningForMrs = createSelector(

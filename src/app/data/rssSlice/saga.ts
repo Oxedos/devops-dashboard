@@ -63,8 +63,8 @@ function* pollShort() {
     if (visIds && visIds.length > 0) {
       yield call(loadFeeds);
       yield call(persist);
-      yield delay(1000 * 60); // every minute
     }
+    yield delay(1000 * 60); // every minute
   }
 }
 

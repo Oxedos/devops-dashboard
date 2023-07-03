@@ -33,6 +33,7 @@ export function configureAppStore() {
       process.env.NODE_ENV !== 'production'
         ? {
             serialize: true,
+            shouldHotReload: false,
           }
         : false,
     enhancers,

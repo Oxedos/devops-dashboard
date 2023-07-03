@@ -92,7 +92,6 @@ const signalServiceWorker = () => {
 };
 
 function* loadPersistedData() {
-  console.log('loading state');
   // Check if GitLab is configured
   const isConfigured = yield select(selectConfigured);
   if (isConfigured) return;

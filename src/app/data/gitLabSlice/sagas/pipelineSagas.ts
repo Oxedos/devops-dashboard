@@ -49,7 +49,6 @@ function* getGroupPipelines() {
     includeCreated: boolean;
     includeManual: boolean;
   }[] = yield select(selectGroupsListeningForPipelines);
-  console.log(groupsListeningForPipelines);
   if (groupsListeningForPipelines.length <= 0) return [];
 
   const url: string = yield select(selectUrl);
