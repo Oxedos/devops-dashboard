@@ -8,8 +8,8 @@ import GitLabUser from 'app/components/GitLab/GitLabUser';
 import MrMergeStatus from 'app/components/GitLab/MrMergeStatus';
 import { PipelineStatus, StatusStyle } from 'app/components/GitLab/Status';
 import compose from 'app/components/compose';
-import { selectMrsByGroupFiltered } from 'app/data/gitLabSlice/selectors/mrSelectors';
-import { selectPipelinesByGroup } from 'app/data/gitLabSlice/selectors/pipelineSelectors';
+import { selectMrsFiltered } from 'app/data/gitLabSlice/selectors/mrSelectors';
+import { selectPipelines } from 'app/data/gitLabSlice/selectors/pipelineSelectors';
 import React, { ComponentType } from 'react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
@@ -37,7 +37,7 @@ type innerPropTypes = {
 
 const MrTableVisualisation: React.FC<innerPropTypes> = props => {
   const mrs = useSelector(state =>
-    selectMrsByGroupFiltered(state, {
+    selectMrsFiltered(state, {
       groupName: props.group,
       includeReady: true,
       includeWIP: props.includeWIP,
@@ -46,9 +46,7 @@ const MrTableVisualisation: React.FC<innerPropTypes> = props => {
     }),
   );
 
-  const pipelines = useSelector(state =>
-    selectPipelinesByGroup(state, { groupName: props.group }),
-  );
+  const pipelines = useSelector(selectPipelines);
 
   let title = 'Merge Requests';
   let message = 'No Merge Requests to display';

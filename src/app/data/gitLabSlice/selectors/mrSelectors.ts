@@ -1,12 +1,12 @@
 import { GitLabMR } from 'app/apis/gitlab/types';
+import { VisualisationType } from 'app/data/VisualisationTypes';
+import { selectConfiguredVisualisations } from 'app/data/globalSlice/selectors';
 import { createSelector } from 'reselect';
 import {
   createParameterSelector,
   selectGitlabSlice,
   selectUserData,
 } from './selectors';
-import { selectConfiguredVisualisations } from 'app/data/globalSlice/selectors';
-import { VisualisationType } from 'app/data/VisualisationTypes';
 
 export const selectAllMrs = createSelector(selectGitlabSlice, state => {
   if (!state || !state.mrs || state.mrs.length <= 0) return [];
@@ -69,7 +69,8 @@ export const selectMrsWithUserAsReviewer = createSelector(
   },
 );
 
-export const selectMrsByGroupFiltered = createSelector(
+// precedence: assignedToUserOnly > userAsReviewer > groupName
+export const selectMrsFiltered = createSelector(
   selectAllMrs,
   selectMrsByGroup,
   selectUserData,
