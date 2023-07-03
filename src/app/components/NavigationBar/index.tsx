@@ -52,7 +52,7 @@ const NavigationBar: React.FC<PropTypes> = props => {
       {/* SideBar */}
       <Spacer
         style={{
-          width: isSidebarOpen ? '14em' : '3em',
+          width: isSidebarOpen ? '13.5em' : '3em',
         }}
       />
       <SideBar
@@ -134,14 +134,13 @@ const SideBar = styled.div`
   top: 0;
   left: 0;
   height: 100vh;
-  background: var(--clr-menu);
+  background: var(--clr-background);
   display: flex;
   flex-flow: column;
   justify-content: space-between;
   align-items: end;
   padding-top: 1em;
   padding-bottom: 1em;
-  padding-right: 0.25em;
   transition: 0.5s ease-in-out;
   width: 12em;
   transform: translateX(-75%);
@@ -162,14 +161,14 @@ const SideBarButton = styled.button`
   max-width: 10em;
   align-items: center;
   justify-content: end;
-  padding: 5px 10px;
+  padding: 5px 15px;
   border-radius: 0.5em;
 
   &:hover {
-    background: var(--clr-background);
+    background: var(--clr-widget);
   }
   &:disabled {
-    background: var(--clr-menu);
+    background: var(--clr-background);
     color: var(--clr-gray);
   }
 
