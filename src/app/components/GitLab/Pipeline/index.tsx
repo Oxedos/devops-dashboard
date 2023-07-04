@@ -1,31 +1,23 @@
-import React from 'react';
-import styled from 'styled-components/macro';
 import { GitLabJob, GitLabMR, GitLabPipeline } from 'app/apis/gitlab/types';
-import Job from '../Job';
-import { useSelector } from 'react-redux';
 import GitLabUser from 'app/components/GitLab/GitLabUser';
-import moment from 'moment';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { selectProjects } from 'app/data/gitLabSlice/selectors/projectSelectors';
+import React from 'react';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import Badge from 'react-bootstrap/Badge';
+import { useSelector } from 'react-redux';
+import styled from 'styled-components/macro';
+import { GlobalColours } from 'styles/global-styles';
+import Job from '../Job';
+import RelativeTime from '../RelativeTimestamp';
 import RerunButton from '../RerunButton';
 import Stage from '../Stage';
-import { GlobalColours } from 'styles/global-styles';
-import Badge from 'react-bootstrap/Badge';
 import { PipelineStatus, StatusStyle } from '../Status';
-import { selectProjects } from 'app/data/gitLabSlice/selectors/projectSelectors';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 
 type PropTypes = {
   pipeline: GitLabPipeline;
   groupName: string;
   compact?: boolean;
   mr?: GitLabMR;
-};
-
-const calcuclateUptime = (pipeline: GitLabPipeline) => {
-  const now = moment();
-  const start = moment(pipeline.created_at);
-  const diff = now.diff(start, 'seconds');
-  return moment.duration(diff, 'seconds').humanize();
 };
 
 const getBackgroundColour = (pipeline: GitLabPipeline) => {
@@ -175,10 +167,7 @@ const Pipeline: React.FC<PropTypes> = props => {
           />
           <RerunButton pipeline={pipeline} groupName={props.groupName} />
         </Buttons>
-        <TimeWrapper>
-          <FontAwesomeIcon color="gray" icon="clock" className="mr-2" />
-          <span>{calcuclateUptime(pipeline)} ago</span>
-        </TimeWrapper>
+        <RelativeTime timestamp={pipeline.created_at} />
       </Footer>
     </Wrapper>
   );
@@ -259,14 +248,6 @@ const LabelsRowWrapper = styled.div`
   justify-content: flex-start;
   margin: 0;
   gap: 0.5em;
-`;
-
-const TimeWrapper = styled.div`
-  padding-right: 1em;
-  white-space: nowrap;
-  & > span {
-    padding-left: 0.5em;
-  }
 `;
 
 const ColoredBadged = styled(Badge)`

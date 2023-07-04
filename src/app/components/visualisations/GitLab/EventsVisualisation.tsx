@@ -1,21 +1,21 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { GitLabEvent, GitLabProject } from 'app/apis/gitlab/types';
 import GitLabUser from 'app/components/GitLab/GitLabUser';
+import RelativeTime from 'app/components/GitLab/RelativeTimestamp';
 import compose from 'app/components/compose';
 import { selectEventsByGroup } from 'app/data/gitLabSlice/selectors/eventSelectors';
-import moment from 'moment';
+import { selectUrl } from 'app/data/gitLabSlice/selectors/selectors';
 import React, { ComponentType } from 'react';
+import ReactMarkdown, { uriTransformer } from 'react-markdown';
 import { useSelector } from 'react-redux';
+import rehypeSanitize from 'rehype-sanitize';
 import styled from 'styled-components/macro';
 import { GlobalColours } from 'styles/global-styles';
 import SimpleMessage from '../components/SimpleMessage';
 import VisualisationContainer from '../components/VisualisationContainer';
 import withWidgetConfigurationModal from '../components/withWidgetConfigurationModal';
-import withGitLabConfiguredCheck from './components/withGitLabConfiguredCheck';
 import withGroupFieldsProvider from './components/withEventFieldsProvider';
-import { GitLabEvent, GitLabProject } from 'app/apis/gitlab/types';
-import { selectUrl } from 'app/data/gitLabSlice/selectors/selectors';
-import ReactMarkdown, { uriTransformer } from 'react-markdown';
-import rehypeSanitize from 'rehype-sanitize';
+import withGitLabConfiguredCheck from './components/withGitLabConfiguredCheck';
 
 type OuterPropTypes = {
   id: string;
@@ -224,19 +224,15 @@ const EventsVisualisation: React.FC<InnerPropTypes> = props => {
           const webUrl = getWebUrl(event, gitLabUrl);
           const card = (
             <CardWrapper key={`eventCard ${event.id}`}>
-              <div className="user-container">
+              <div className="header-row">
                 <GitLabUser user={event.author} imgOnly iconProps={iconProps} />
+                <RelativeTime timestamp={event.created_at} />
               </div>
               <div className="container">
-                <div className="float-right">
-                  <span>{moment(event.created_at).fromNow()}</span>
-                </div>
-                <div className="content">
-                  {actionDescription}
-                  <div className="gray">
-                    {relatedProject}
-                    {eventTarget}
-                  </div>
+                {actionDescription}
+                <div className="gray">
+                  {relatedProject}
+                  {eventTarget}
                 </div>
                 {additionalInfo && (
                   <div className="extra-content">
@@ -298,7 +294,7 @@ const UnstyledA = styled.a`
 
 const CardWrapper = styled.div`
   display: flex;
-  flex-flow: row;
+  flex-flow: column;
   background: rgba(0, 0, 0, 0.1);
   margin: 0.5em 1em;
   border-radius: 0.5em;
@@ -309,48 +305,30 @@ const CardWrapper = styled.div`
     background: rgba(0, 0, 0, 0.15);
   }
 
-  .gray {
-    display: inline !important;
-    color: var(--clr-gray);
+  .header-row {
+    width: 100%;
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1em 1em 0 1em;
   }
 
   .container {
     display: flex;
     flex-flow: column;
     padding: 1em;
-  }
-
-  .flex-row {
-    display: flex;
-    flex-flow: column;
-    width: 100%;
-    height: 100%;
-    align-items: flex-start;
-    justify-content: space-between;
-  }
-
-  .user-container {
-    display: flex;
-    padding: 1em 1.5em 1em 1em;
-    justify-content: center;
-    align-items: start;
-  }
-
-  .float-right {
-    display: flex;
-    flex-flow: row;
-    justify-content: end;
-    span {
-      min-width: 3em;
-      color: var(--clr-gray);
-    }
-  }
-
-  .content {
     display: inline;
+    width: 100%;
+  }
+
+  .gray {
+    display: inline !important;
+    color: var(--clr-gray);
   }
 
   .extra-content {
+    color: var(--clr-gray);
     white-space: pre-line;
     margin-top: 0.5em;
     margin-left: 0.5em;
