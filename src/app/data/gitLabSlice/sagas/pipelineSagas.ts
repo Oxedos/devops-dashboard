@@ -174,6 +174,7 @@ function* rerunPipeline(
   yield put(
     gitLabActions.removePipelineToReload({ groupName, projectId, ref }),
   );
+  const loader = yield call(setLoader, `rerunPipelines ${projectId} ${ref}`);
 
   try {
     // check that ref is a MR ref
@@ -207,6 +208,7 @@ function* rerunPipeline(
     yield put(
       gitLabActions.removePipelineToReload({ groupName, projectId, ref }),
     );
+    yield call(removeLoader, loader);
   }
 }
 
