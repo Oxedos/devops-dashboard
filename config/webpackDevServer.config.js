@@ -100,20 +100,25 @@ module.exports = function (proxy, allowedHost) {
     },
     // `proxy` is run between `before` and `after` `webpack-dev-server` hooks
     proxy,
-    onBeforeSetupMiddleware(devServer) {
-      // Keep `evalSourceMapMiddleware`
-      // middlewares before `redirectServedPath` otherwise will not have any effect
-      // This lets us fetch source contents from webpack for the error overlay
-      devServer.app.use(evalSourceMapMiddleware(devServer));
-
+    setupMiddlewares(middlewares, devServer) {
       if (fs.existsSync(paths.proxySetup)) {
         // This registers user provided middleware for proxy reasons
         require(paths.proxySetup)(devServer.app);
       }
-    },
-    onAfterSetupMiddleware(devServer) {
-      // Redirect to `PUBLIC_URL` or `homepage` from `package.json` if url not match
-      devServer.app.use(redirectServedPath(paths.publicUrlOrPath));
+
+      middlewares.unshift(
+        // Keep `evalSourceMapMiddleware`
+        // middlewares before `redirectServedPath` otherwise will not have any effect
+        // This lets us fetch source contents from webpack for the error overlay
+        evalSourceMapMiddleware(devServer)
+      );
+
+      middlewares.push(
+        // Redirect to `PUBLIC_URL` or `homepage` from `package.json` if url not match
+        redirectServedPath(paths.publicUrlOrPath),
+      );
+
+      return middlewares;
     },
   };
 };
