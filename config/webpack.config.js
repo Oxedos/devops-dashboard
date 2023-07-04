@@ -717,7 +717,7 @@ module.exports = function (webpackEnv) {
             syntactic: true,
           },
           mode: 'write-references',
-          // profile: true,
+          memoryLimit: 4069,
         },
         issue: {
           // This one is specifically to match during CI tests,
