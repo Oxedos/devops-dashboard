@@ -31,7 +31,7 @@
     "react-markdown": "8.0.7",
     "react-redux": "8.1.1",
     "react-refresh": "0.14.0",
-    "react-router-dom": "6.14.0",
+    "react-router-dom": "6.14.1",
     "redux-injectors": "2.1.0",
     "redux-saga": "1.2.3",
     "rehype-sanitize": "5.0.1",
