@@ -23,6 +23,7 @@ import {
   faExclamation,
   faExclamationCircle,
   faExclamationTriangle,
+  faFlag,
   faForward,
   faHome,
   faInfoCircle,
@@ -37,6 +38,8 @@ import {
   faShareSquare,
   faSlash,
   faSpinner,
+  faSquare,
+  faSquareCheck,
   faStream,
   faSync,
   faTable,
@@ -120,6 +123,9 @@ export function loadIcons() {
     faUserGear,
     faMagnifyingGlass,
     faQuestion,
+    faFlag,
+    faSquare,
+    faSquareCheck,
   );
 
   // custom SVGs

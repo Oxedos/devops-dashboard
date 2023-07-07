@@ -2,12 +2,11 @@ import { GitLabJob, GitLabMR, GitLabPipeline } from 'app/apis/gitlab/types';
 import GitLabUser from 'app/components/GitLab/GitLabUser';
 import { selectProjects } from 'app/data/gitLabSlice/selectors/projectSelectors';
 import React from 'react';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
-import Badge from 'react-bootstrap/Badge';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components/macro';
 import { GlobalColours } from 'styles/global-styles';
 import Job from '../Job';
+import LabelRow from '../LabelRow';
 import RelativeTime from '../RelativeTimestamp';
 import RerunButton from '../RerunButton';
 import Stage from '../Stage';
@@ -96,37 +95,6 @@ const Pipeline: React.FC<PropTypes> = props => {
     ));
   }
 
-  const labels =
-    pipeline.labels &&
-    pipeline.labels.map((label, idx) => {
-      const labelComponent = (
-        <ColoredBadged
-          pill
-          $background={label.color}
-          $color={label.text_color}
-          key={`${label}-${idx} Badge`}
-        >
-          {label.name}
-        </ColoredBadged>
-      );
-      if (!label.description) {
-        return labelComponent;
-      }
-      return (
-        <OverlayTrigger
-          key={`${label}-${idx} Overlay`}
-          placement="bottom"
-          overlay={overlayProps => (
-            <Tooltip id="button-tooltip" {...overlayProps}>
-              {label.description}
-            </Tooltip>
-          )}
-        >
-          {labelComponent}
-        </OverlayTrigger>
-      );
-    });
-
   return (
     <Wrapper
       style={{
@@ -154,8 +122,10 @@ const Pipeline: React.FC<PropTypes> = props => {
         )}
       </Header>
       <JobsRowWrapper>{blobs}</JobsRowWrapper>
-      {labels && labels.length > 0 && (
-        <LabelsRowWrapper>{labels}</LabelsRowWrapper>
+      {pipeline.labels && (
+        <LabelsRowWrapper>
+          <LabelRow labels={pipeline.labels} />
+        </LabelsRowWrapper>
       )}
       <Footer>
         <Buttons>
@@ -248,14 +218,6 @@ const LabelsRowWrapper = styled.div`
   justify-content: flex-start;
   margin: 0;
   gap: 0.5em;
-`;
-
-const ColoredBadged = styled(Badge)`
-  background: ${(props: any) =>
-    props.$background
-      ? `${props.$background} !important`
-      : 'var(--clr-blue-lighter)'};
-  color: ${(props: any) => (props.$color ? props.$color : 'var(--clr-white)')};
 `;
 
 export default Pipeline;

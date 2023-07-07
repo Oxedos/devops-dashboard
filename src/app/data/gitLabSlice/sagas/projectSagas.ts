@@ -13,15 +13,18 @@ import { displayNotification, removeLoader, setLoader } from './sagaHelper';
 
 export function* loadProjects() {
   const loaderId = yield call(setLoader, 'Projects');
+  const memberProjects = yield call(getProjectsWithMembership);
   const groupProjects = yield call(loadGroupProjects);
   const missingProjects = yield call(getMissingProjects);
-  const allProjects = [...groupProjects, ...missingProjects];
-  const projects = allProjects.reduce((acc: GitLabProject[], curr) => {
-    if (!acc.find(accMr => accMr.id === curr.id)) {
-      return [...acc, curr];
-    }
-    return acc;
-  }, []);
+  const allProjects = [...memberProjects, ...groupProjects, ...missingProjects];
+  const projects = allProjects
+    .reduce((acc: GitLabProject[], curr) => {
+      if (!acc.find(accMr => accMr.id === curr.id)) {
+        return [...acc, curr];
+      }
+      return acc;
+    }, [])
+    .sort((a, b) => a.name_with_namespace.localeCompare(b.name_with_namespace));
   yield put(gitLabActions.setProjects({ projects }));
   yield call(removeLoader, loaderId);
 }
@@ -79,6 +82,16 @@ function* getProjectsForGroup(groupName: string, url: string) {
       },
     );
     return projects;
+  } catch (error) {
+    yield call(displayNotification, error);
+    return [];
+  }
+}
+
+function* getProjectsWithMembership() {
+  const url: string = yield select(selectUrl);
+  try {
+    return yield call(Api.getProjectsWithMembership, url);
   } catch (error) {
     yield call(displayNotification, error);
     return [];

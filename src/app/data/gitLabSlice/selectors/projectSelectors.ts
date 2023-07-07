@@ -18,6 +18,17 @@ export const selectProjectsByGroup = createSelector(
   },
 );
 
+export const selectProjectByNameWithNamespace = createSelector(
+  selectProjects,
+  createParameterSelector(p => p.projectName),
+  (projects, projectName) => {
+    if (!projectName) return undefined;
+    return projects.find(
+      project => project && project.name_with_namespace === projectName,
+    );
+  },
+);
+
 export const selectProjectsByGroupSortedByLatestActivity = createSelector(
   selectProjectsByGroup,
   projectsByGroup => {

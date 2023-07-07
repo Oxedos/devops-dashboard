@@ -35,6 +35,7 @@
     "redux-injectors": "2.1.0",
     "redux-saga": "1.2.3",
     "rehype-sanitize": "5.0.1",
+    "remark-gfm": "3.0.1",
     "resolve": "1.22.3",
     "rss-parser": "3.13.0",
     "sanitize.css": "13.0.0",

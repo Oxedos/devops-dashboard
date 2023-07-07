@@ -2,6 +2,7 @@ import { PayloadAction } from '@reduxjs/toolkit';
 import {
   GitLabEvent,
   GitLabGroup,
+  GitLabIssue,
   GitLabMR,
   GitLabPipeline,
   GitLabProject,
@@ -23,6 +24,7 @@ export const initialState: GitLabState = {
   projects: [],
   events: [],
   pipelines: [],
+  issues: [],
   pipelinesToReload: [],
   jobsToPlay: [],
 };
@@ -54,6 +56,7 @@ const slice = createSlice({
       state.projects = action.payload.state.projects;
       state.events = action.payload.state.events;
       state.pipelines = action.payload.state.pipelines;
+      state.issues = action.payload.state.issues;
     },
     setUrl(state, action: PayloadAction<string | undefined>) {
       state.url = action.payload;
@@ -76,6 +79,7 @@ const slice = createSlice({
         projects: [],
         events: [],
         pipelines: [],
+        issues: [],
         pipelinesToReload: [],
         jobsToPlay: [],
       };
@@ -86,24 +90,29 @@ const slice = createSlice({
       if (!checkAllAreObject(action.payload)) return;
       state.groups = action.payload;
     },
-    // mrs
     setMrs(state, action: PayloadAction<{ mrs: GitLabMR[] }>) {
       state.mrs = [...action.payload.mrs];
     },
-    // projects
     setProjects(state, action: PayloadAction<{ projects: GitLabProject[] }>) {
       state.projects = [...action.payload.projects];
     },
-    // events
     setEvents(state, action: PayloadAction<{ events: GitLabEvent[] }>) {
       state.events = [...action.payload.events];
     },
-    // pipelines
     setPipelines(
       state,
       action: PayloadAction<{ pipelines: GitLabPipeline[] }>,
     ) {
       state.pipelines = [...action.payload.pipelines];
+    },
+    setIssues(state, action: PayloadAction<{ issues: GitLabIssue[] }>) {
+      state.issues = [...action.payload.issues];
+    },
+    upsertIssue(state, action: PayloadAction<{ issue: GitLabIssue }>) {
+      const {
+        payload: { issue },
+      } = action;
+      state.issues = upsert(state.issues, [issue], equalByAttribute('id'));
     },
     updatePipeline(state, action: PayloadAction<{ pipeline: GitLabPipeline }>) {
       const {

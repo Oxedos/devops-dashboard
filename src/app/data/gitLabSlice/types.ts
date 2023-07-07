@@ -1,6 +1,7 @@
 import {
   GitLabEvent,
   GitLabGroup,
+  GitLabIssue,
   GitLabMR,
   GitLabPipeline,
   GitLabProject,
@@ -36,6 +37,7 @@ export interface GitLabState {
   projects: GitLabProject[]; // All currently loaded projects
   events: GitLabEvent[];
   pipelines: GitLabPipeline[];
+  issues: GitLabIssue[];
   // Temporary Data for GitLab Actions and such
   pipelinesToReload: {
     projectId: ProjectId;

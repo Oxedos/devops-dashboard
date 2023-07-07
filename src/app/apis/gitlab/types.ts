@@ -7,6 +7,7 @@ export type JobId = number;
 export type PipelineId = number;
 export type MilestoneId = number;
 export type EventId = number;
+export type IssueId = number;
 
 export type GitLabGroup = {
   id: GroupId;
@@ -103,11 +104,11 @@ export type GitLabPipeline = {
   jobs: GitLabJob[];
   title: string | undefined; // Title of associated MR if present
   mr_web_url: string | undefined; // Web URL of associated MR if present
-  labels: GitlabLabel[];
+  labels: GitlabLabelDetail[];
   associatedMr: GitLabMR;
 } & GitLabPipelineBasic;
 
-export type GitlabLabel = {
+export type GitlabLabelDetail = {
   name: string;
   color: string;
   description: string;
@@ -139,7 +140,7 @@ export type GitLabMR = {
   reviewers: GitLabUserReference[];
   source_project_id: number;
   target_project_id: number;
-  labels: GitlabLabel[];
+  labels: GitlabLabelDetail[];
   draft: boolean;
   work_in_progress: boolean;
   milestone: {
@@ -260,3 +261,67 @@ export enum GitLabEventTargetType {
   snippet = 'snippet',
   user = 'user',
 }
+
+export enum GitLabIssueType {
+  issue = 'issue',
+  incident = 'incident',
+  testCase = 'test_case',
+}
+
+export enum GitLabIssueState {
+  opened = 'opened',
+  closed = 'closed',
+}
+
+export type GitLabIssue = {
+  id: IssueId;
+  project_id: ProjectId;
+  iid: number;
+  milestone: GitLabMilestone;
+  author: GitLabUserReference;
+  description: string;
+  state: GitLabIssueState;
+  assignees: GitLabUserReference[];
+  assignee: GitLabUserReference;
+  type: string;
+  labels: GitlabLabelDetail[];
+  upvotes: number;
+  downvotes: number;
+  merge_requests_count: number;
+  title: string;
+  updated_at: string;
+  created_at: string;
+  closed_at: string;
+  closed_by: GitLabUserReference;
+  user_notes_count: number;
+  due_date: string;
+  web_url: string;
+  references: {
+    short: string;
+    relative: string;
+    full: string;
+  };
+  time_stats: {
+    time_estimate: number;
+    total_time_spent: number;
+    human_time_estimate: any;
+    human_total_time_spent: any;
+  };
+  has_tasks: boolean;
+  task_status: string;
+  confidential: boolean;
+  discussion_locked: boolean;
+  issue_type: GitLabIssueType;
+  severity: string;
+  _links: {
+    self: string;
+    notes: string;
+    award_emoji: string;
+    project: string;
+    closed_as_duplicate_of: string;
+  };
+  task_completion_status: {
+    count: number;
+    completed_count: number;
+  };
+};

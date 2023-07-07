@@ -21,6 +21,7 @@ export enum VisualisationType {
   WS_VULNERABLE_SERVICES_TABLE,
   WS_VULNERABLE_DEPENDENCIES_TABLE,
   GITLAB_EVENTS,
+  GITLAB_ISSUES,
 }
 
 /**
@@ -39,6 +40,7 @@ export const getAfterVisualisationUpdatedActions = (
     case VisualisationType.GITLAB_MR_TABLE:
     case VisualisationType.GITLAB_PIPELINES_TABLE:
     case VisualisationType.GITLAB_EVENTS:
+    case VisualisationType.GITLAB_ISSUES:
       return [gitLabActions.addGitlabVisualisation()];
     case VisualisationType.RSS_FEED_VISUALISATION: {
       // update props to base64-encode username and password
@@ -197,5 +199,11 @@ export const AllVisualisations = [
     icon: 'stream',
     type: VisualisationType.GITLAB_EVENTS,
     label: 'GitLab Events',
+  },
+  {
+    group: 'gitlab',
+    icon: 'stream',
+    type: VisualisationType.GITLAB_ISSUES,
+    label: 'Project Issues',
   },
 ];

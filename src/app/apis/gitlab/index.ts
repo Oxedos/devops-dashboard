@@ -4,12 +4,13 @@ import { getGitLabErrorMessage, getWithKeysetPagination } from './helper';
 import {
   GitLabEvent,
   GitLabGroup,
+  GitLabIssue,
   GitLabJob,
   GitLabMR,
+  GitLabMrExtended,
   GitLabPipeline,
   GitLabProject,
   GitLabUserData,
-  GitLabMrExtended,
 } from './types';
 
 export const API_SUFFIX = '/api/v4';
@@ -104,7 +105,22 @@ export async function getProjectsForGroup(
   params?: GetProjectParams,
 ): Promise<GitLabProject[]> {
   const link = normalizeUrl(url, API_SUFFIX) + `/groups/${groupId}/projects`;
-  return getWithKeysetPagination(link, { params });
+  return getWithKeysetPagination(link, {
+    params: { archived: false, ...params },
+  });
+}
+
+export async function getProjectsWithMembership(
+  url: string,
+): Promise<GitLabProject[]> {
+  const link = normalizeUrl(url, API_SUFFIX) + `/projects`;
+  return getWithKeysetPagination(link, {
+    params: {
+      membership: true,
+      order_by: 'name',
+      archived: false,
+    },
+  });
 }
 
 export async function getProject(
@@ -356,4 +372,73 @@ export async function getEvents(
   } catch (error) {
     throw new Error(getGitLabErrorMessage(error));
   }
+}
+
+export async function getProjectIssues(
+  projectId: number,
+  today: string,
+  url: string,
+): Promise<GitLabIssue[]> {
+  const link = normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}/issues`;
+  const openIssues = await getWithKeysetPagination<GitLabIssue>(link, {
+    params: { with_labels_details: true, state: 'opened' },
+  });
+  const closedIssues = await getWithKeysetPagination<GitLabIssue>(link, {
+    params: {
+      with_labels_details: true,
+      state: 'closed',
+      updated_after: today,
+    },
+  });
+  return [...openIssues, ...closedIssues];
+}
+
+export async function setIssueState(
+  projectId: number,
+  issueIid: number,
+  state: 'close' | 'reopen',
+  url: string,
+): Promise<GitLabIssue> {
+  const link =
+    normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}/issues/${issueIid}`;
+  const response = await axios.put<GitLabIssue>(link, undefined, {
+    params: { state_event: state },
+  });
+  return response.data;
+}
+
+export async function createNewIssue(
+  projectId: number,
+  issue: {
+    title: string;
+    description?: string;
+    due_date?: string;
+    labels?: string[];
+  },
+  url: string,
+): Promise<GitLabIssue> {
+  const link = normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}/issues`;
+  const response = await axios.post<GitLabIssue>(link, undefined, {
+    params: issue,
+  });
+  return response.data;
+}
+
+export async function updateIssue(
+  projectId: number,
+  issueIid: number,
+  data: {
+    description?: string;
+    due_date?: string;
+    title?: string;
+    labels?: string[];
+  },
+  url: string,
+): Promise<GitLabIssue> {
+  const link =
+    normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}/issues/${issueIid}`;
+  const response = await axios.put<GitLabIssue>(link, undefined, {
+    params: { ...data },
+  });
+  return response.data;
 }

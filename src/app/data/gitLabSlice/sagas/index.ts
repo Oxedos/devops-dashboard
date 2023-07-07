@@ -17,6 +17,7 @@ import { loadMergeRequests } from './mrSagas';
 import { loadPipelines, playJobs, rerunPipelines } from './pipelineSagas';
 import { loadProjects } from './projectSagas';
 import { loadUserInfo, tryLoadingUserinfo } from './userSagas';
+import { loadIssues } from './issueSagas';
 
 const { select, call, delay } = Effects;
 
@@ -48,7 +49,7 @@ function* pollShort() {
         signalServiceWorker();
         break;
       }
-      yield all([call(loadMergeRequests), call(loadEvents)]);
+      yield all([call(loadMergeRequests), call(loadEvents), call(loadIssues)]);
       yield call(loadPipelines);
       yield call(persist);
     }
@@ -66,7 +67,7 @@ function* loadAll() {
 
   yield call(loadGroups); // All other calls depend on groups, block for this call
 
-  yield all([call(loadProjects), call(loadMergeRequests)]);
+  yield all([call(loadProjects), call(loadMergeRequests), call(loadIssues)]);
 
   yield all([call(loadEvents), call(loadPipelines)]);
 

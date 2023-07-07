@@ -1,3 +1,4 @@
+import { globalActions } from 'app';
 import axios, { AxiosResponse, RawAxiosRequestConfig } from 'axios';
 const DEV = process.env.NODE_ENV !== 'production';
 
@@ -90,5 +91,13 @@ export async function getWithKeysetPagination<T>(
     return responseData;
   } catch (error) {
     throw new Error(getGitLabErrorMessage(error));
+  }
+}
+
+export function displayGitLabErrorNotification(error: any, dispatch: Function) {
+  if (error instanceof Error) {
+    dispatch(globalActions.addErrorNotification(`[GitLab] ${error.message}`));
+  } else {
+    dispatch(globalActions.addErrorNotification(`[GitLab] Unknown Error`));
   }
 }

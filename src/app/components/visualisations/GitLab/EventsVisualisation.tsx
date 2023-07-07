@@ -1,14 +1,13 @@
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
-import { GitLabEvent, GitLabProject } from 'app/apis/gitlab/types';
+import { GitLabEvent } from 'app/apis/gitlab/types';
+import GitLabMarkdown from 'app/components/GitLab/GitLabMarkdown';
 import GitLabUser from 'app/components/GitLab/GitLabUser';
 import RelativeTime from 'app/components/GitLab/RelativeTimestamp';
 import compose from 'app/components/compose';
 import { selectEventsByGroup } from 'app/data/gitLabSlice/selectors/eventSelectors';
 import { selectUrl } from 'app/data/gitLabSlice/selectors/selectors';
 import React, { ComponentType } from 'react';
-import ReactMarkdown, { uriTransformer } from 'react-markdown';
 import { useSelector } from 'react-redux';
-import rehypeSanitize from 'rehype-sanitize';
 import styled from 'styled-components/macro';
 import { GlobalColours } from 'styles/global-styles';
 import SimpleMessage from '../components/SimpleMessage';
@@ -159,23 +158,6 @@ const getIcon = (
   return { color: GlobalColours.gray, icon: 'circle' };
 };
 
-const prependGitlabUrl = (
-  uri: any,
-  project: GitLabProject | undefined,
-  gitLabUrl: string | undefined,
-) => {
-  const baseResult = uriTransformer(uri);
-  // eslint-disable-next-line no-script-url
-  if (baseResult === 'javascript:void(0)') return baseResult;
-  if (!project) return baseResult;
-  if (!gitLabUrl) return baseResult;
-  if (!baseResult.startsWith('/uploads')) return baseResult;
-  return new URL(
-    `${project.path_with_namespace}${baseResult}`,
-    gitLabUrl,
-  ).toString();
-};
-
 const EventsVisualisation: React.FC<InnerPropTypes> = props => {
   const events = useSelector(state =>
     selectEventsByGroup(state, { groupName: props.group, maxCount: 15 }),
@@ -236,24 +218,9 @@ const EventsVisualisation: React.FC<InnerPropTypes> = props => {
                 </div>
                 {additionalInfo && (
                   <div className="extra-content">
-                    <ReactMarkdown
-                      transformImageUri={url =>
-                        prependGitlabUrl(url, event.project, gitLabUrl)
-                      }
-                      children={additionalInfo}
-                      linkTarget="_blank"
-                      rehypePlugins={[rehypeSanitize]}
-                      allowedElements={[
-                        'h1',
-                        'h2',
-                        'h3',
-                        'p',
-                        'img',
-                        'ul',
-                        'ol',
-                        'li',
-                        'a',
-                      ]}
+                    <GitLabMarkdown
+                      project={event.project}
+                      content={additionalInfo}
                     />
                   </div>
                 )}
