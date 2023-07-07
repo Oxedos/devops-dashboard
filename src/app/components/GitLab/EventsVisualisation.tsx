@@ -1,20 +1,20 @@
+import React, { ComponentType } from 'react';
+import { useSelector } from 'react-redux';
+import styled from 'styled-components/macro';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
+import { compose } from '@reduxjs/toolkit';
 import { GitLabEvent } from 'app/apis/gitlab/types';
 import GitLabMarkdown from 'app/components/GitLab/components/GitLabMarkdown';
 import GitLabUser from 'app/components/GitLab/components/GitLabUser';
 import RelativeTime from 'app/components/GitLab/components/RelativeTimestamp';
 import { selectEventsByGroup } from 'app/data/gitLabSlice/selectors/eventSelectors';
 import { selectUrl } from 'app/data/gitLabSlice/selectors/selectors';
-import React, { ComponentType } from 'react';
-import { useSelector } from 'react-redux';
-import styled from 'styled-components/macro';
 import { GlobalColours } from 'styles/global-styles';
 import SimpleMessage from '../visualisations/SimpleMessageVisualisation';
 import VisualisationContainer from '../visualisations/VisualisationContainer';
 import withWidgetConfigurationModal from '../visualisations/higher-order-components/WithWidgetConfigurationModal';
 import withGroupFieldsProvider from './higher-order-components/withEventFieldsProvider';
 import withGitLabConfiguredCheck from './higher-order-components/withGitLabConfiguredCheck';
-import { compose } from '@reduxjs/toolkit';
 
 type OuterPropTypes = {
   id: string;

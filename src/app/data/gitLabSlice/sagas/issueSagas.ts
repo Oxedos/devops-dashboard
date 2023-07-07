@@ -1,11 +1,11 @@
 import { gitLabActions } from 'app';
 import { getProjectIssues } from 'app/apis/gitlab';
 import { GitLabIssue, ProjectId } from 'app/apis/gitlab/types';
+import moment from 'moment';
 import { call, put, select } from 'redux-saga/effects';
 import { selectProjectIdsListeningForIssues } from '../selectors/issueSelectors';
 import { selectUrl } from '../selectors/selectors';
 import { displayNotification, removeLoader, setLoader } from './sagaHelper';
-import moment from 'moment';
 
 export function* loadIssues() {
   const loaderId = yield call(setLoader, 'Issues');

@@ -1,6 +1,6 @@
 import { gitLabActions } from 'app';
-import { PkceValues } from 'app/data/gitLabSlice/types';
 import { globalActions } from 'app';
+import { PkceValues } from 'app/data/gitLabSlice/types';
 import { SW_MESSAGE_TYPES } from 'service-worker';
 
 export const PUBLIC_URL =

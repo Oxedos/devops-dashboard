@@ -1,10 +1,10 @@
-import { GitLabPipeline } from 'app/apis/gitlab/types';
-import Pipeline from 'app/components/GitLab/components/Pipeline';
-import { compose } from '@reduxjs/toolkit';
-import { selectPipelinesFiltered } from 'app/data/gitLabSlice/selectors/pipelineSelectors';
 import React, { ComponentType } from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components/macro';
+import { compose } from '@reduxjs/toolkit';
+import { GitLabPipeline } from 'app/apis/gitlab/types';
+import Pipeline from 'app/components/GitLab/components/Pipeline';
+import { selectPipelinesFiltered } from 'app/data/gitLabSlice/selectors/pipelineSelectors';
 import VisualisationContainer from '../visualisations/VisualisationContainer';
 import withWidgetConfigurationModal from '../visualisations/higher-order-components/WithWidgetConfigurationModal';
 import withGitLabConfiguredCheck from './higher-order-components/withGitLabConfiguredCheck';

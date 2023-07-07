@@ -1,8 +1,13 @@
+import React, { ComponentType } from 'react';
+import { useSelector } from 'react-redux';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import styled from 'styled-components/macro';
 import {
   IconDefinition,
   findIconDefinition,
 } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { compose } from '@reduxjs/toolkit';
 import { GitLabMR, GitLabPipeline } from 'app/apis/gitlab/types';
 import GitLabUser from 'app/components/GitLab/components/GitLabUser';
 import MrMergeStatus from 'app/components/GitLab/components/MrMergeStatus';
@@ -10,13 +15,8 @@ import {
   PipelineStatus,
   StatusStyle,
 } from 'app/components/GitLab/components/Status';
-import { compose } from '@reduxjs/toolkit';
 import { selectMrsFiltered } from 'app/data/gitLabSlice/selectors/mrSelectors';
 import { selectPipelines } from 'app/data/gitLabSlice/selectors/pipelineSelectors';
-import React, { ComponentType } from 'react';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
-import { useSelector } from 'react-redux';
-import styled from 'styled-components/macro';
 import SimpleMessage from '../visualisations/SimpleMessageVisualisation';
 import VisualisationContainer from '../visualisations/VisualisationContainer';
 import withWidgetConfigurationModal from '../visualisations/higher-order-components/WithWidgetConfigurationModal';

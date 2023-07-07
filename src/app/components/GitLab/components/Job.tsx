@@ -1,10 +1,10 @@
-import { GitLabJob, GitLabMR } from 'app/apis/gitlab/types';
 import React, { memo, useState } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import styled from 'styled-components/macro';
 import { default as PopoverBase } from 'react-bootstrap/Popover';
-import { JobStatus, StatusStyle } from './Status';
+import styled from 'styled-components/macro';
+import { GitLabJob, GitLabMR } from 'app/apis/gitlab/types';
 import PlayButton from './PlayButton';
+import { JobStatus, StatusStyle } from './Status';
 
 type PropTypes = {
   job: GitLabJob;

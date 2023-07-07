@@ -1,13 +1,13 @@
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import styled from 'styled-components/macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { gitLabActions } from 'app';
 import { setIssueState } from 'app/apis/gitlab';
 import { displayGitLabErrorNotification } from 'app/apis/gitlab/helper';
 import { GitLabIssue, GitLabIssueState } from 'app/apis/gitlab/types';
 import { selectUrl } from 'app/data/gitLabSlice/selectors/selectors';
-import React, { useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
 import { GlobalColours } from 'styles/global-styles';
-import styled from 'styled-components/macro';
 
 export type IssueStateButtonProps = {
   issue: GitLabIssue;

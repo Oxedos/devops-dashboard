@@ -1,19 +1,19 @@
 import React, { ComponentType } from 'react';
 import { useSelector } from 'react-redux';
-import {
-  selectUrl,
-  selectVulnerabilities,
-} from 'app/data/whitesourceSlice/selectors';
+import Badge from 'react-bootstrap/Badge';
 import { compose } from '@reduxjs/toolkit';
-import withWhitesourceConfiguredCheck from './higher-order-components/WithWhitesourceConfiguredCheck';
 import {
   WhitesourceVulnerability,
   WhitesourceVulnerabilitySeverity,
 } from 'app/apis/whitesource/types';
+import {
+  selectUrl,
+  selectVulnerabilities,
+} from 'app/data/whitesourceSlice/selectors';
 import SimpleMessage from '../visualisations/SimpleMessageVisualisation';
-import Badge from 'react-bootstrap/Badge';
 import TableVisualisation from '../visualisations/TableVisualisation';
 import withWidgetConfigurationModal from '../visualisations/higher-order-components/WithWidgetConfigurationModal';
+import withWhitesourceConfiguredCheck from './higher-order-components/WithWhitesourceConfiguredCheck';
 
 type OuterPropTypes = {
   id: string;

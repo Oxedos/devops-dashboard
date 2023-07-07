@@ -1,15 +1,15 @@
 import React, { ComponentType } from 'react';
 import { useSelector } from 'react-redux';
-import SimpleMessage from '../visualisations/SimpleMessageVisualisation';
+import Figure from 'react-bootstrap/Figure';
+import styled from 'styled-components/macro';
 import { compose } from '@reduxjs/toolkit';
 import { selectFeeds } from 'app/data/rssSlice/selectors';
+import moment from 'moment';
+import SimpleMessage from '../visualisations/SimpleMessageVisualisation';
+import VisualisationContainer from '../visualisations/VisualisationContainer';
+import withWidgetConfigurationModal from '../visualisations/higher-order-components/WithWidgetConfigurationModal';
 import withFieldProvider from './higher-order-components/WithFieldsProvider';
 import withUrlConfiguredCheck from './higher-order-components/WithUrlConfiguredCheck';
-import VisualisationContainer from '../visualisations/VisualisationContainer';
-import styled from 'styled-components/macro';
-import Figure from 'react-bootstrap/Figure';
-import moment from 'moment';
-import withWidgetConfigurationModal from '../visualisations/higher-order-components/WithWidgetConfigurationModal';
 
 type OuterPropTypes = {
   id: string;

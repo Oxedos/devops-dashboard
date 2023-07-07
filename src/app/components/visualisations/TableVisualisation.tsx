@@ -1,7 +1,7 @@
 import React, { FunctionComponent, memo } from 'react';
+import Table from 'react-bootstrap/Table';
 import styled from 'styled-components/macro';
 import VisualisationContainer from 'app/components/visualisations/VisualisationContainer';
-import Table from 'react-bootstrap/Table';
 
 type PropTypes = {
   id: string;

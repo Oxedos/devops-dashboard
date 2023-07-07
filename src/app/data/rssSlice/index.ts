@@ -1,9 +1,9 @@
 import { PayloadAction } from '@reduxjs/toolkit';
+import * as PersistanceAPI from 'app/apis/persistance';
+import { RssFeed } from 'app/apis/rss/types';
 import { createSlice } from 'utils/@reduxjs/toolkit';
 import { rssSaga } from './saga';
-import * as PersistanceAPI from 'app/apis/persistance';
 import { RssState } from './types';
-import { RssFeed } from 'app/apis/rss/types';
 
 export const LOCALSTORAGE_KEY = 'rss_state';
 

@@ -1,14 +1,14 @@
 import { PayloadAction } from '@reduxjs/toolkit';
-import { createSlice } from 'utils/@reduxjs/toolkit';
-import { Dashboard, GlobalState, NotificationType } from './types';
-import { globalSaga } from './saga';
 import * as PersistanceAPI from 'app/apis/persistance';
+import { createSlice } from 'utils/@reduxjs/toolkit';
+import { v4 as uuidv4 } from 'uuid';
 import {
   ConfiguredVisualisation,
   getDefaultSize,
   VisualisationType,
 } from '../VisualisationTypes';
-import { v4 as uuidv4 } from 'uuid';
+import { globalSaga } from './saga';
+import { Dashboard, GlobalState, NotificationType } from './types';
 
 export const LOCALSTORAGE_KEY = 'global_state';
 

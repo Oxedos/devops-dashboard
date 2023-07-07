@@ -1,12 +1,12 @@
-import { VisualisationType } from 'app/data/VisualisationTypes';
 import React from 'react';
-import MrTableVisualisation from '../GitLab/MrTableVisualisation';
-import PipelineVisualisation from '../GitLab/PipelineVisualisation';
-import VulnerabilitesTable from '../Whitesource/VulnerabilitiesTable';
-import RssFeedVisualisation from '../RSS/RssFeedVisualisation';
-import SimpleMessage from './SimpleMessageVisualisation';
+import { VisualisationType } from 'app/data/VisualisationTypes';
 import EventsVisualisation from '../GitLab/EventsVisualisation';
 import IssuesTableVisualisation from '../GitLab/IssueTableVisualisation';
+import MrTableVisualisation from '../GitLab/MrTableVisualisation';
+import PipelineVisualisation from '../GitLab/PipelineVisualisation';
+import RssFeedVisualisation from '../RSS/RssFeedVisualisation';
+import VulnerabilitesTable from '../Whitesource/VulnerabilitiesTable';
+import SimpleMessage from './SimpleMessageVisualisation';
 
 type PropTypes = {
   type: VisualisationType;

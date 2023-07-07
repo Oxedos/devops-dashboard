@@ -1,5 +1,5 @@
-import { GlobalColours } from 'styles/global-styles';
 import { GitLabJob, GitLabPipelineBasic } from 'app/apis/gitlab/types';
+import { GlobalColours } from 'styles/global-styles';
 
 export type StatusProperties = {
   color: string;

@@ -1,9 +1,9 @@
 import React from 'react';
-import { GitlabLabelDetail } from 'app/apis/gitlab/types';
-import styled from 'styled-components/macro';
 import Badge from 'react-bootstrap/Badge';
-import Tooltip from 'react-bootstrap/Tooltip';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
+import styled from 'styled-components/macro';
+import { GitlabLabelDetail } from 'app/apis/gitlab/types';
 import { GlobalColours } from 'styles/global-styles';
 
 export type PropTypes = {

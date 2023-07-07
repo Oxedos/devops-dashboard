@@ -1,15 +1,15 @@
-import { GitLabIssue } from 'app/apis/gitlab/types';
 import React, { useState } from 'react';
-import Form from 'react-bootstrap/Form';
-import Modal from 'react-bootstrap/Modal';
-import InputGroup from 'react-bootstrap/InputGroup';
-import Button from 'react-bootstrap/Button';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { addTimeSpent } from 'app/apis/gitlab';
-import { gitLabActions } from 'app';
-import { displayGitLabErrorNotification } from 'app/apis/gitlab/helper';
 import { useDispatch } from 'react-redux';
 import { useSelector } from 'react-redux';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
+import Modal from 'react-bootstrap/Modal';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { gitLabActions } from 'app';
+import { addTimeSpent } from 'app/apis/gitlab';
+import { displayGitLabErrorNotification } from 'app/apis/gitlab/helper';
+import { GitLabIssue } from 'app/apis/gitlab/types';
 import { selectUrl } from 'app/data/gitLabSlice/selectors/selectors';
 
 export type PropTypes = {

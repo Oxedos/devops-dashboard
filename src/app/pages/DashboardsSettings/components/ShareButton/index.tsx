@@ -1,7 +1,7 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import Button from 'react-bootstrap/Button';
-import { Dashboard } from 'app/data/globalSlice/types';
 import React, { useState } from 'react';
+import Button from 'react-bootstrap/Button';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { Dashboard } from 'app/data/globalSlice/types';
 import ShareModal from '../ShareModal';
 
 type ShareButtonPropTypes = {

@@ -1,7 +1,7 @@
+import { gitLabActions } from 'app';
 import * as Api from 'app/apis/gitlab';
 import { GitLabGroup, GitLabMR, GitLabUserData } from 'app/apis/gitlab/types';
 import { call, put, select } from 'redux-saga/effects';
-import { gitLabActions } from 'app';
 import { selectGroupsListeningForMrs } from '../selectors/groupSelectors';
 import {
   mustLoadMRsUserIsReviewing,

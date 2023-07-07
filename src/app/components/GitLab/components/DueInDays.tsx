@@ -1,10 +1,10 @@
+import React from 'react';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import styled from 'styled-components/macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GitLabIssue, GitLabIssueState } from 'app/apis/gitlab/types';
 import moment from 'moment';
-import React from 'react';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { GlobalColours } from 'styles/global-styles';
-import styled from 'styled-components/macro';
 
 const isToday = (issue: GitLabIssue) => {
   if (!issue.due_date) return false;

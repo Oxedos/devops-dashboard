@@ -1,13 +1,13 @@
+import React from 'react';
+import ReactMarkdown, { uriTransformer } from 'react-markdown';
+import { useSelector } from 'react-redux';
+import Table from 'react-bootstrap/esm/Table';
+import styled from 'styled-components/macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GitLabProject } from 'app/apis/gitlab/types';
 import { selectUrl } from 'app/data/gitLabSlice/selectors/selectors';
-import React from 'react';
-import Table from 'react-bootstrap/esm/Table';
-import ReactMarkdown, { uriTransformer } from 'react-markdown';
-import { useSelector } from 'react-redux';
 import rehypeSanitize from 'rehype-sanitize';
 import remarkGfm from 'remark-gfm';
-import styled from 'styled-components/macro';
 import { GlobalColours } from 'styles/global-styles';
 
 const prependGitlabUrl = (

@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import styled from 'styled-components/macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GitLabIssue } from 'app/apis/gitlab/types';
-import styled from 'styled-components/macro';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import TimeReportModal from './TimeReportModal';
 
 const TimeSpent: React.FC<{ issue: GitLabIssue }> = props => {

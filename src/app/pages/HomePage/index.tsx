@@ -1,14 +1,14 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useSelector } from 'react-redux';
+import { useParams } from 'react-router';
+import styled from 'styled-components/macro';
+import Dashboard from 'app/components/Dashboard/Dashboard';
+import NavigationBar from 'app/components/Dashboard/NavigationBar';
 import {
   getDashbaordId,
   selectDashboards,
 } from 'app/data/globalSlice/selectors';
-import { useParams } from 'react-router';
-import styled from 'styled-components/macro';
-import NavigationBar from 'app/components/Dashboard/NavigationBar';
-import Dashboard from 'app/components/Dashboard/Dashboard';
 
 export function HomePage() {
   const { dashboardId }: any = useParams();

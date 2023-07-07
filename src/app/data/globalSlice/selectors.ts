@@ -1,5 +1,4 @@
 import { createSelector } from '@reduxjs/toolkit';
-
 import { RootState } from 'types';
 import { initialState } from '.';
 import { Dashboard } from './types';

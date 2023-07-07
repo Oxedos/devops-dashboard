@@ -5,6 +5,10 @@ import {
   faRedhat,
 } from '@fortawesome/free-brands-svg-icons';
 import {
+  faSquare as farSquare,
+  faSquareCheck as farSquareCheck,
+} from '@fortawesome/free-regular-svg-icons';
+import {
   faBars,
   faChartLine,
   faChartPie,
@@ -53,11 +57,6 @@ import {
   faUserPlus,
   faCircleInfo,
 } from '@fortawesome/free-solid-svg-icons';
-
-import {
-  faSquare as farSquare,
-  faSquareCheck as farSquareCheck,
-} from '@fortawesome/free-regular-svg-icons';
 
 const customMetric: any = {
   prefix: 'fab',

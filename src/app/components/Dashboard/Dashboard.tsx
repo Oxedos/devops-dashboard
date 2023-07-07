@@ -1,10 +1,10 @@
 import React from 'react';
-import styled from 'styled-components/macro';
 import GridLayout, { WidthProvider } from 'react-grid-layout';
+import { useDispatch } from 'react-redux';
+import styled from 'styled-components/macro';
+import { globalActions } from 'app';
 import { ConfiguredVisualisation } from 'app/data/VisualisationTypes';
 import Visualisation from '../visualisations/Visualisation';
-import { useDispatch } from 'react-redux';
-import { globalActions } from 'app';
 
 const ReactGridLayout = WidthProvider(GridLayout);
 

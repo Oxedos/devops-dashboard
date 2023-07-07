@@ -1,11 +1,11 @@
 import React from 'react';
-import styled from 'styled-components/macro';
-import Toast from 'react-bootstrap/Toast';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useDispatch, useSelector } from 'react-redux';
+import Toast from 'react-bootstrap/Toast';
+import styled from 'styled-components/macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { globalActions } from 'app';
 import { selectNotifications } from 'app/data/globalSlice/selectors';
 import { Notification, NotificationType } from 'app/data/globalSlice/types';
-import { globalActions } from 'app';
 import { GlobalColours } from 'styles/global-styles';
 
 const ErrorIcon = (

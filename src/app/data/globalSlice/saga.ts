@@ -1,9 +1,9 @@
-import * as Effects from 'redux-saga/effects';
-import { LOCALSTORAGE_KEY } from '.';
 import { globalActions } from 'app';
 import * as PersistanceAPI from 'app/apis/persistance';
-import { selectGlobal } from './selectors';
+import * as Effects from 'redux-saga/effects';
 import { takeEvery } from 'redux-saga/effects';
+import { LOCALSTORAGE_KEY } from '.';
+import { selectGlobal } from './selectors';
 
 const { select, call } = Effects;
 const takeLatest: any = Effects.takeLatest;

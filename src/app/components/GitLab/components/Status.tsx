@@ -1,17 +1,17 @@
 import React, { memo } from 'react';
+import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
+import Tooltip from 'react-bootstrap/Tooltip';
 import styled from 'styled-components/macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   GitLabJob,
   GitLabPipeline,
   GitLabPipelineBasic,
 } from 'app/apis/gitlab/types';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import {
   getStatusPropertiesForJob,
   getStatusPropertiesForPipeline,
 } from './PipelineStatusHelper';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
 
 export enum StatusStyle {
   simple,

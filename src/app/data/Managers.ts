@@ -1,8 +1,8 @@
-import { createManager } from 'redux-injectors';
+import * as GitlabSlice from 'app/data/gitLabSlice';
 import * as GlobalSlice from 'app/data/globalSlice';
 import * as RssSlice from 'app/data/rssSlice';
 import * as WhitesourceSlice from 'app/data/whitesourceSlice';
-import * as GitlabSlice from 'app/data/gitLabSlice';
+import { createManager } from 'redux-injectors';
 
 export const GlobalSliceManager = createManager({
   name: 'GlobalSliceManager',

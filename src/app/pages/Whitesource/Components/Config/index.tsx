@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
-import InputGroup from 'react-bootstrap/InputGroup';
-import Form from 'react-bootstrap/Form';
-import Button from 'react-bootstrap/Button';
 import { useDispatch, useSelector } from 'react-redux';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
 import { globalActions, whitesourceActions } from 'app';
+import { API_SUFFIX } from 'app/apis/whitesource';
+import ContentElement from 'app/components/Dashboard/ContentElement';
 import {
   selectConfigured,
   selectProductToken,
   selectUrl,
   selectUserKey,
 } from 'app/data/whitesourceSlice/selectors';
-import { API_SUFFIX } from 'app/apis/whitesource';
-import ContentElement from 'app/components/Dashboard/ContentElement';
 
 const Config: React.FC = props => {
   const configured = useSelector(selectConfigured);

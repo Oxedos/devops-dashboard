@@ -1,3 +1,8 @@
+import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Modal } from 'react-bootstrap';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { gitLabActions } from 'app';
 import { updateIssue as ApiUpdateIssue, createNewIssue } from 'app/apis/gitlab';
@@ -6,11 +11,6 @@ import { GitLabIssue } from 'app/apis/gitlab/types';
 import { selectGroups } from 'app/data/gitLabSlice/selectors/groupSelectors';
 import { selectProjects } from 'app/data/gitLabSlice/selectors/projectSelectors';
 import { selectUrl } from 'app/data/gitLabSlice/selectors/selectors';
-import React, { useEffect, useState } from 'react';
-import { Modal } from 'react-bootstrap';
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import { useDispatch, useSelector } from 'react-redux';
 
 export type PropTypes = {
   onHide: () => void;

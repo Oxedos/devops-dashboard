@@ -1,14 +1,14 @@
+import React, { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { globalActions } from 'app';
 import {
   ConfiguredVisualisation,
   getAfterVisualisationRemovedActions,
 } from 'app/data/VisualisationTypes';
-import { globalActions } from 'app';
 import { Dashboard } from 'app/data/globalSlice/types';
-import React, { useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import Modal from 'react-bootstrap/Modal';
-import { useDispatch } from 'react-redux';
 
 type DeleteButtonPropTypes = {
   dashboardId: string;

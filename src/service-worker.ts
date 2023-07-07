@@ -1,11 +1,12 @@
 /// <reference lib="webworker" />
+
 /* eslint-disable no-restricted-globals */
 // import needed to make the ignored self reference work
+import { normalizeUrl } from 'app/apis/apiHelper';
 import { OAuthToken, PkceValues } from 'app/data/gitLabSlice/types';
 import moment from 'moment';
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { createHandlerBoundToURL } from 'workbox-precaching';
-import { normalizeUrl } from 'app/apis/apiHelper';
 
 declare const self: ServiceWorkerGlobalScope;
 

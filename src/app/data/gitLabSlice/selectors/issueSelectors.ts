@@ -1,8 +1,8 @@
-import { createSelector } from 'reselect';
-import { createParameterSelector, selectGitlabSlice } from './selectors';
-import { selectConfiguredVisualisations } from 'app/data/globalSlice/selectors';
 import { VisualisationType } from 'app/data/VisualisationTypes';
+import { selectConfiguredVisualisations } from 'app/data/globalSlice/selectors';
+import { createSelector } from 'reselect';
 import { selectProjects } from './projectSelectors';
+import { createParameterSelector, selectGitlabSlice } from './selectors';
 
 export const selectIssues = createSelector(
   selectGitlabSlice,

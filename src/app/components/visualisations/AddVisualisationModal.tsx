@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import styled from 'styled-components/macro';
-import Modal from 'react-bootstrap/Modal';
-import { GroupIcons, VisualisationType } from 'app/data/VisualisationTypes';
-import { v4 as uuidv4 } from 'uuid';
-import { AllVisualisations } from 'app/data/VisualisationTypes';
-import Button from 'react-bootstrap/Button';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useParams } from 'react-router';
+import Button from 'react-bootstrap/Button';
+import Modal from 'react-bootstrap/Modal';
+import styled from 'styled-components/macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { globalActions } from 'app';
+import { GroupIcons, VisualisationType } from 'app/data/VisualisationTypes';
+import { AllVisualisations } from 'app/data/VisualisationTypes';
 import {
   getDashbaordId,
   selectDashboards,
 } from 'app/data/globalSlice/selectors';
-import { globalActions } from 'app';
+import { v4 as uuidv4 } from 'uuid';
 
 type propTypes = {
   show: boolean;

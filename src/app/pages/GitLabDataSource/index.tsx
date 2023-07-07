@@ -1,6 +1,15 @@
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { useState } from 'react';
+import { Helmet } from 'react-helmet-async';
+import { useDispatch, useSelector } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
 import Button from 'react-bootstrap/Button';
+import Figure from 'react-bootstrap/Figure';
+import Form from 'react-bootstrap/Form';
+import InputGroup from 'react-bootstrap/InputGroup';
+import styled from 'styled-components/macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { gitLabActions } from 'app';
+import NavigationBar from 'app/components/Dashboard/NavigationBar';
 import {
   selectApplicationId,
   selectConfigured,
@@ -8,15 +17,6 @@ import {
   selectUserData,
 } from 'app/data/gitLabSlice/selectors/selectors';
 import { REDIRECT_URI, redirectToGitlabAuth } from 'app/util/OAuthUtil';
-import { useState } from 'react';
-import Figure from 'react-bootstrap/Figure';
-import Form from 'react-bootstrap/Form';
-import InputGroup from 'react-bootstrap/InputGroup';
-import { Helmet } from 'react-helmet-async';
-import { useDispatch, useSelector } from 'react-redux';
-import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components/macro';
-import NavigationBar from 'app/components/Dashboard/NavigationBar';
 
 function path(p) {
   if (process.env.NODE_ENV === 'production') {

@@ -1,9 +1,9 @@
-import { globalActions } from 'app';
-import ContentWrapper from 'app/components/Dashboard/ContentWrapper';
-import NavigationBar from 'app/components/Dashboard/NavigationBar';
 import React, { useEffect, useState } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate, useSearchParams } from 'react-router-dom';
+import { globalActions } from 'app';
+import ContentWrapper from 'app/components/Dashboard/ContentWrapper';
+import NavigationBar from 'app/components/Dashboard/NavigationBar';
 import { SW_MESSAGE_TYPES } from 'service-worker';
 
 function path(p) {

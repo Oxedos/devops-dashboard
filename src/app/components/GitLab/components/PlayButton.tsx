@@ -1,10 +1,10 @@
 import React, { memo } from 'react';
-import { GitLabJob } from 'app/apis/gitlab/types';
 import { useDispatch, useSelector } from 'react-redux';
 import { gitLabActions } from 'app';
+import { GitLabJob } from 'app/apis/gitlab/types';
 import { selectLoaders } from 'app/data/globalSlice/selectors';
-import Status, { StatusStyle } from './Status';
 import { GlobalColours } from 'styles/global-styles';
+import Status, { StatusStyle } from './Status';
 
 type PropTypes = {
   job: GitLabJob;

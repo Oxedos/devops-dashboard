@@ -1,23 +1,23 @@
+import React, { ComponentType, useState } from 'react';
+import { useSelector } from 'react-redux';
+import Button from 'react-bootstrap/Button';
+import styled from 'styled-components/macro';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { GitLabIssue, GitLabIssueState } from 'app/apis/gitlab/types';
 import { compose } from '@reduxjs/toolkit';
+import { GitLabIssue, GitLabIssueState } from 'app/apis/gitlab/types';
 import { selectIssuesByProjectId } from 'app/data/gitLabSlice/selectors/issueSelectors';
 import { selectProjectByNameWithNamespace } from 'app/data/gitLabSlice/selectors/projectSelectors';
-import React, { ComponentType, useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import { useSelector } from 'react-redux';
-import styled from 'styled-components/macro';
-import withFieldsProviderForIssuesTable from './higher-order-components/withFieldsProviderForIssuesTable';
-import withGitLabConfiguredCheck from './higher-order-components/withGitLabConfiguredCheck';
 import SimpleMessage from '../visualisations/SimpleMessageVisualisation';
 import VisualisationContainer from '../visualisations/VisualisationContainer';
 import withWidgetConfigurationModal from '../visualisations/higher-order-components/WithWidgetConfigurationModal';
-import GitLabMarkdown from './components/GitLabMarkdown';
-import LabelRow from './components/LabelRow';
 import DueInDays from './components/DueInDays';
+import GitLabMarkdown from './components/GitLabMarkdown';
 import IssueModal from './components/IssueModal';
 import IssueStateButton from './components/IssueStateButton';
+import LabelRow from './components/LabelRow';
 import TimeSpent from './components/TimeSpent';
+import withFieldsProviderForIssuesTable from './higher-order-components/withFieldsProviderForIssuesTable';
+import withGitLabConfiguredCheck from './higher-order-components/withGitLabConfiguredCheck';
 
 type OuterPropTypes = {
   id: string;

@@ -1,8 +1,8 @@
+import React from 'react';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GitLabMR } from 'app/apis/gitlab/types';
-import React from 'react';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { GlobalColours } from 'styles/global-styles';
 
 const getStatusDetails = (

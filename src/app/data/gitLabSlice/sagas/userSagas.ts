@@ -1,7 +1,7 @@
+import { gitLabActions } from 'app';
 import { getUserInfo } from 'app/apis/gitlab';
 import { GitLabUserData } from 'app/apis/gitlab/types';
 import { call, put, select } from 'redux-saga/effects';
-import { gitLabActions } from 'app';
 import { selectUrl } from '../selectors/selectors';
 import { displayNotification, removeLoader, setLoader } from './sagaHelper';
 

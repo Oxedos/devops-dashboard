@@ -1,12 +1,12 @@
 import { PayloadAction } from '@reduxjs/toolkit';
-import { createSlice } from 'utils/@reduxjs/toolkit';
-import { whitesourceSaga } from './saga';
-import { WhitesourceState } from './types';
 import * as PersistanceAPI from 'app/apis/persistance';
 import {
   WhitesourceProject,
   WhitesourceVulnerability,
 } from 'app/apis/whitesource/types';
+import { createSlice } from 'utils/@reduxjs/toolkit';
+import { whitesourceSaga } from './saga';
+import { WhitesourceState } from './types';
 
 export const LOCALSTORAGE_KEY = 'whitesource_state';
 

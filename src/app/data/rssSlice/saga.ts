@@ -1,12 +1,12 @@
-import * as Effects from 'redux-saga/effects';
-import { LOCALSTORAGE_KEY } from '.';
 import { globalActions, rssActions } from 'app';
-import * as API from 'app/apis/rss';
 import * as PersistanceAPI from 'app/apis/persistance';
+import * as API from 'app/apis/rss';
+import { RssFeed } from 'app/apis/rss/types';
+import * as Effects from 'redux-saga/effects';
 import { fork } from 'redux-saga/effects';
+import { LOCALSTORAGE_KEY } from '.';
 import { selectFeeds, selectRss } from './selectors';
 import { ConfiguredFeed } from './types';
-import { RssFeed } from 'app/apis/rss/types';
 
 const { select, call, put, delay } = Effects;
 const takeLatest: any = Effects.takeLatest;

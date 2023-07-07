@@ -1,22 +1,22 @@
 import React, { useState } from 'react';
-import styled from 'styled-components/macro';
 import { Helmet } from 'react-helmet-async';
-import Container from 'react-bootstrap/Container';
-import Col from 'react-bootstrap/Col';
-import Row from 'react-bootstrap/Row';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { useDispatch, useSelector } from 'react-redux';
-import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
+import Col from 'react-bootstrap/Col';
+import Container from 'react-bootstrap/Container';
+import Form from 'react-bootstrap/Form';
+import Row from 'react-bootstrap/Row';
+import styled from 'styled-components/macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { globalActions } from 'app';
+import ContentElement from 'app/components/Dashboard/ContentElement';
+import ContentWrapper from 'app/components/Dashboard/ContentWrapper';
+import NavigationBar from 'app/components/Dashboard/NavigationBar';
 import { selectDashboards } from 'app/data/globalSlice/selectors';
 import { Dashboard } from 'app/data/globalSlice/types';
-import { globalActions } from 'app';
 import AddSharedDashboardModal from './components/AddSharedDashboardModal';
 import DeleteButton from './components/DeleteButton';
 import ShareButton from './components/ShareButton';
-import ContentWrapper from 'app/components/Dashboard/ContentWrapper';
-import ContentElement from 'app/components/Dashboard/ContentElement';
-import NavigationBar from 'app/components/Dashboard/NavigationBar';
 
 const ID_FIELD_WIDTH = {
   sm: 12,

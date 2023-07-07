@@ -1,11 +1,11 @@
 import React, { memo } from 'react';
-import { GitLabUserReference } from 'app/apis/gitlab/types';
-import styled from 'styled-components/macro';
 import Figure from 'react-bootstrap/Figure';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import styled from 'styled-components/macro';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { GitLabUserReference } from 'app/apis/gitlab/types';
 
 type PropTypes = {
   user: GitLabUserReference;

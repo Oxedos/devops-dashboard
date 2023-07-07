@@ -1,5 +1,6 @@
 import { globalActions } from 'app';
 import axios, { AxiosResponse, RawAxiosRequestConfig } from 'axios';
+
 const DEV = process.env.NODE_ENV !== 'production';
 
 export function getGitLabErrorMessage(error) {

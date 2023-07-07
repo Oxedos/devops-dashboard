@@ -1,3 +1,4 @@
+import { gitLabActions } from 'app';
 import {
   createPipelineForRef,
   getPipelines,
@@ -13,7 +14,6 @@ import {
 } from 'app/apis/gitlab/types';
 import moment from 'moment';
 import { call, fork, join, put, select } from 'redux-saga/effects';
-import { gitLabActions } from 'app';
 import { selectGroupsListeningForPipelines } from '../selectors/groupSelectors';
 import { selectMrsByGroup } from '../selectors/mrSelectors';
 import {

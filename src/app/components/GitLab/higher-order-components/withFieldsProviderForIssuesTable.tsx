@@ -1,6 +1,6 @@
 import React from 'react';
-import { FieldType } from 'app/components/visualisations/higher-order-components/WithWidgetConfigurationModal';
 import { useSelector } from 'react-redux';
+import { FieldType } from 'app/components/visualisations/higher-order-components/WithWidgetConfigurationModal';
 import { selectProjects } from 'app/data/gitLabSlice/selectors/projectSelectors';
 
 type PropTypes = {

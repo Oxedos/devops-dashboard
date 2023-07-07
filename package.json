@@ -54,7 +54,7 @@
     "checkTs": "tsc --noEmit",
     "eslint": "eslint --ext js,ts,tsx",
     "lint": "npm run eslint src",
-    "lint:fix": "npm run eslint --fix src",
+    "lint:fix": "npm run eslint src -- --fix",
     "lint:css": "stylelint src/**/*.css",
     "generate": "cross-env TS_NODE_PROJECT='./internals/ts-node.tsconfig.json' plop --plopfile internals/generators/plopfile.ts",
     "prettify": "prettier --write --config .prettierrc --ignore-path .prettierignore **/**.{js,jsx,ts,tsx,md,json}",
@@ -93,6 +93,7 @@
   "devDependencies": {
     "@babel/core": "7.22.8",
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.10",
+    "@trivago/prettier-plugin-sort-imports": "4.1.1",
     "@types/node": "20.4.0",
     "@types/react": "18.2.14",
     "@types/react-dom": "18.2.6",

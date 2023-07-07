@@ -1,9 +1,9 @@
-import { GitLabJob, GitLabMR, GitLabPipeline } from 'app/apis/gitlab/types';
-import GitLabUser from 'app/components/GitLab/components/GitLabUser';
-import { selectProjects } from 'app/data/gitLabSlice/selectors/projectSelectors';
 import React from 'react';
 import { useSelector } from 'react-redux';
 import styled from 'styled-components/macro';
+import { GitLabJob, GitLabMR, GitLabPipeline } from 'app/apis/gitlab/types';
+import GitLabUser from 'app/components/GitLab/components/GitLabUser';
+import { selectProjects } from 'app/data/gitLabSlice/selectors/projectSelectors';
 import { GlobalColours } from 'styles/global-styles';
 import Job from './Job';
 import LabelRow from './LabelRow';

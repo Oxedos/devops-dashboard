@@ -1,9 +1,14 @@
+import { globalActions, whitesourceActions } from 'app';
+import * as PersistanceAPI from 'app/apis/persistance';
+import * as API from 'app/apis/whitesource';
+import {
+  WhitesourceProject,
+  WhitesourceVulnerability,
+} from 'app/apis/whitesource/types';
 import * as Effects from 'redux-saga/effects';
 import { call, put, select, takeLatest, join } from 'redux-saga/effects';
-import { globalActions, whitesourceActions } from 'app';
-import * as API from 'app/apis/whitesource';
+import { fork } from 'redux-saga/effects';
 import { LOCALSTORAGE_KEY } from '.';
-import * as PersistanceAPI from 'app/apis/persistance';
 import {
   selectConfigured,
   selectProductToken,
@@ -11,11 +16,6 @@ import {
   selectUserKey,
   selectWhitesource,
 } from './selectors';
-import {
-  WhitesourceProject,
-  WhitesourceVulnerability,
-} from 'app/apis/whitesource/types';
-import { fork } from 'redux-saga/effects';
 
 const { delay } = Effects;
 

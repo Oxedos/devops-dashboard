@@ -1,21 +1,21 @@
 import React, { useState } from 'react';
-import Modal from 'react-bootstrap/Modal';
+import { useDispatch, useSelector } from 'react-redux';
+import { useParams } from 'react-router';
+import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
-import { useDispatch, useSelector } from 'react-redux';
-import {
-  getDashbaordId,
-  selectDashboards,
-} from 'app/data/globalSlice/selectors';
-import Button from 'react-bootstrap/Button';
-import { useParams } from 'react-router';
+import Modal from 'react-bootstrap/Modal';
+import styled from 'styled-components/macro';
 import { globalActions } from 'app';
 import {
   getAfterVisualisationRemovedActions,
   getAfterVisualisationUpdatedActions,
   VisualisationType,
 } from 'app/data/VisualisationTypes';
-import styled from 'styled-components/macro';
+import {
+  getDashbaordId,
+  selectDashboards,
+} from 'app/data/globalSlice/selectors';
 
 export type FieldType = {
   name: string; // unique. Used as key in props

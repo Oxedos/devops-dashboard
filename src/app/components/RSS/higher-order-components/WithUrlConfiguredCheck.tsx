@@ -1,6 +1,6 @@
 import React from 'react';
-import SimpleMessage from 'app/components/visualisations/SimpleMessageVisualisation';
 import { useSelector } from 'react-redux';
+import SimpleMessage from 'app/components/visualisations/SimpleMessageVisualisation';
 import { selectFeeds } from 'app/data/rssSlice/selectors';
 
 type PropTypes = {

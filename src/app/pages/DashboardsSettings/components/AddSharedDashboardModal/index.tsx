@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import { globalActions } from 'app';
-import Modal from 'react-bootstrap/Modal';
-import Form from 'react-bootstrap/Form';
 import { useDispatch } from 'react-redux';
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import Modal from 'react-bootstrap/Modal';
 import styled from 'styled-components/macro';
+import { globalActions } from 'app';
 import { replacer, reviver } from 'app/apis/persistance';
 import { ConfiguredVisualisation } from 'app/data/VisualisationTypes';
 import { getAfterVisualisationUpdatedActions } from 'app/data/VisualisationTypes';

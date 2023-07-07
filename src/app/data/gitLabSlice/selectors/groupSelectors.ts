@@ -1,10 +1,10 @@
 import { createSelector } from 'reselect';
-import { createParameterSelector, selectGitlabSlice } from './selectors';
+import { VisualisationType } from '../../VisualisationTypes';
 import {
   selectConfiguredVisualisations,
   selectGlobal,
 } from '../../globalSlice/selectors';
-import { VisualisationType } from '../../VisualisationTypes';
+import { createParameterSelector, selectGitlabSlice } from './selectors';
 
 export const selectGroups = createSelector(
   selectGitlabSlice,

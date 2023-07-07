@@ -1,8 +1,8 @@
+import { gitLabActions } from 'app';
 import { getEvents } from 'app/apis/gitlab';
 import { GitLabEvent, GitLabProject } from 'app/apis/gitlab/types';
 import moment from 'moment';
 import { call, put, select } from 'redux-saga/effects';
-import { gitLabActions } from 'app';
 import { selectGroupNamesListeningForEvents } from '../selectors/groupSelectors';
 import { selectProjectsByGroupSortedByLatestActivity } from '../selectors/projectSelectors';
 import { selectUrl } from '../selectors/selectors';

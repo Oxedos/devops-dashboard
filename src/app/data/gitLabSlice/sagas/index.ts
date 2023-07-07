@@ -1,9 +1,9 @@
+import { gitLabActions } from 'app';
 import * as PersistanceAPI from 'app/apis/persistance';
 import * as Effects from 'redux-saga/effects';
 import { all, fork, spawn, takeEvery, takeLeading } from 'redux-saga/effects';
 import { SW_MESSAGE_TYPES } from 'service-worker';
 import { LOCALSTORAGE_KEY } from '..';
-import { gitLabActions } from 'app';
 import {
   selectApplicationId,
   selectConfigured,
@@ -13,11 +13,11 @@ import {
 import { GitLabState } from '../types';
 import { loadEvents } from './eventsSaga';
 import { loadGroups } from './groupSagas';
+import { loadIssues } from './issueSagas';
 import { loadMergeRequests } from './mrSagas';
 import { loadPipelines, playJobs, rerunPipelines } from './pipelineSagas';
 import { loadProjects } from './projectSagas';
 import { loadUserInfo, tryLoadingUserinfo } from './userSagas';
-import { loadIssues } from './issueSagas';
 
 const { select, call, delay } = Effects;
 

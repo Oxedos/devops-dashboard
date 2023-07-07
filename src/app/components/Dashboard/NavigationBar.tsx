@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
-import styled from 'styled-components/macro';
-import AddVisualisationModal from 'app/components/visualisations/AddVisualisationModal';
-import { useNavigate } from 'react-router-dom';
 import { useSelector, useDispatch } from 'react-redux';
+import { useNavigate } from 'react-router-dom';
+import styled from 'styled-components/macro';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { rssActions, whitesourceActions, gitLabActions } from 'app';
+import AddVisualisationModal from 'app/components/visualisations/AddVisualisationModal';
 import {
   selectDashboards,
   selectLoading,
 } from 'app/data/globalSlice/selectors';
 import NotificationContainer from './NotificationContainer';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { rssActions, whitesourceActions, gitLabActions } from 'app';
 
 function addBaseUrl(to) {
   if (process.env.NODE_ENV === 'production') {

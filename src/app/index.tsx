@@ -5,10 +5,9 @@
  * This component is the skeleton around the actual pages, and should only
  * contain code that should be seen on all pages. (e.g. navigation bar)
  */
-
-import { enableMapSet } from 'immer';
 import { default as React } from 'react';
 import { Helmet } from 'react-helmet-async';
+import { useSelector } from 'react-redux';
 import {
   BrowserRouter,
   Route,
@@ -17,20 +16,13 @@ import {
   useParams,
 } from 'react-router-dom';
 import styled from 'styled-components/macro';
-import { GlobalStyle } from 'styles/global-styles';
-
-// Pages
-import { GitLabDataSource } from './pages/GitLabDataSource/Loadable';
-import { GitlabOAuth } from './pages/GitlabOAuth/Loadable';
-import { HomePage } from './pages/HomePage/Loadable';
-import { NotFoundPage } from './pages/NotFoundPage/Loadable';
-
 import * as GitlabSlice from 'app/data/gitLabSlice';
 import * as GlobalSlice from 'app/data/globalSlice';
 import * as RssSlice from 'app/data/rssSlice';
 import * as WhitesourceSlice from 'app/data/whitesourceSlice';
-import { useSelector } from 'react-redux';
+import { enableMapSet } from 'immer';
 import { loadIcons } from 'styles/FontawesomeIcons';
+import { GlobalStyle } from 'styles/global-styles';
 import {
   GitlabSliceManager,
   GlobalSliceManager,
@@ -39,6 +31,11 @@ import {
 } from './data/Managers';
 import { selectDashboards } from './data/globalSlice/selectors';
 import { DashboardSettings } from './pages/DashboardsSettings/Loadable';
+// Pages
+import { GitLabDataSource } from './pages/GitLabDataSource/Loadable';
+import { GitlabOAuth } from './pages/GitlabOAuth/Loadable';
+import { HomePage } from './pages/HomePage/Loadable';
+import { NotFoundPage } from './pages/NotFoundPage/Loadable';
 import { Whitesource } from './pages/Whitesource/Loadable';
 
 function path(p) {
