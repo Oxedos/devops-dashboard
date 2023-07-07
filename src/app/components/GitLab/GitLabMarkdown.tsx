@@ -51,13 +51,13 @@ const GitLabMarkdown: React.FC<PropTypes> = props => {
         input: ({ checked, key, ...props }) =>
           checked ? (
             <FontAwesomeIcon
-              icon="square-check"
+              icon={['far', 'square-check']}
               size="lg"
               key={key}
               color={GlobalColours.green}
             />
           ) : (
-            <FontAwesomeIcon icon="square" size="lg" key={key} />
+            <FontAwesomeIcon icon={['far', 'square']} size="lg" key={key} />
           ),
       }}
     />

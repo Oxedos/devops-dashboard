@@ -61,7 +61,7 @@ const IssueStateButton: React.FC<IssueStateButtonProps> = props => {
       <Container>
         <FontAwesomeIcon
           cursor="pointer"
-          icon="square"
+          icon={['far', 'square']}
           color={GlobalColours.gray}
           size="2x"
           onClick={e => {
@@ -77,7 +77,7 @@ const IssueStateButton: React.FC<IssueStateButtonProps> = props => {
       <Container>
         <FontAwesomeIcon
           cursor="pointer"
-          icon="square-check"
+          icon={['far', 'square-check']}
           size="2x"
           color={GlobalColours.green}
           onClick={e => {

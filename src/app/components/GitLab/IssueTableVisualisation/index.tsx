@@ -201,8 +201,11 @@ const CardWrapper = styled.div`
     display: flex;
     flex-flow: column;
     align-items: center;
-    justify-content: space-evenly;
+    justify-content: start;
     padding: 0 1em 0 0;
+    & :hover {
+      filter: brightness(85%);
+    }
   }
 
   .info {
@@ -240,7 +243,7 @@ const CardWrapper = styled.div`
   }
 
   .description {
-    padding: 1em;
+    padding: 1em 1em 1em 0;
   }
 `;
 

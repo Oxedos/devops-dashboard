@@ -52,6 +52,11 @@ import {
   faUserPlus,
 } from '@fortawesome/free-solid-svg-icons';
 
+import {
+  faSquare as farSquare,
+  faSquareCheck as farSquareCheck,
+} from '@fortawesome/free-regular-svg-icons';
+
 const customMetric: any = {
   prefix: 'fab',
   iconName: 'metric',
@@ -126,6 +131,8 @@ export function loadIcons() {
     faFlag,
     faSquare,
     faSquareCheck,
+    farSquare,
+    farSquareCheck,
   );
 
   // custom SVGs
