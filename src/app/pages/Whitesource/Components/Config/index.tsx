@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
-import ContentElement from '../../../../components/Design/ContentElement';
 import { useDispatch, useSelector } from 'react-redux';
 import { globalActions, whitesourceActions } from 'app';
 import {
@@ -12,6 +11,7 @@ import {
   selectUserKey,
 } from 'app/data/whitesourceSlice/selectors';
 import { API_SUFFIX } from 'app/apis/whitesource';
+import ContentElement from 'app/components/Dashboard/ContentElement';
 
 const Config: React.FC = props => {
   const configured = useSelector(selectConfigured);

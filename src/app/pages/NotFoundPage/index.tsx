@@ -2,7 +2,7 @@ import * as React from 'react';
 import styled from 'styled-components/macro';
 import { P } from './P';
 import { Helmet } from 'react-helmet-async';
-import NavigationBar from 'app/components/NavigationBar';
+import NavigationBar from 'app/components/Dashboard/NavigationBar';
 
 export function NotFoundPage() {
   return (

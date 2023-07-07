@@ -1,6 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import Button from 'react-bootstrap/Button';
-import NavigationBar from 'app/components/NavigationBar';
 import { gitLabActions } from 'app';
 import {
   selectApplicationId,
@@ -17,6 +16,7 @@ import { Helmet } from 'react-helmet-async';
 import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import styled from 'styled-components/macro';
+import NavigationBar from 'app/components/Dashboard/NavigationBar';
 
 function path(p) {
   if (process.env.NODE_ENV === 'production') {

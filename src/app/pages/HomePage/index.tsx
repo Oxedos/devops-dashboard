@@ -5,10 +5,10 @@ import {
   getDashbaordId,
   selectDashboards,
 } from 'app/data/globalSlice/selectors';
-import Dashboard from 'app/components/Dashboard';
-import NavigationBar from 'app/components/NavigationBar';
 import { useParams } from 'react-router';
 import styled from 'styled-components/macro';
+import NavigationBar from 'app/components/Dashboard/NavigationBar';
+import Dashboard from 'app/components/Dashboard/Dashboard';
 
 export function HomePage() {
   const { dashboardId }: any = useParams();
