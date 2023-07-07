@@ -12,12 +12,12 @@ import withGitLabConfiguredCheck from '../../visualisations/GitLab/components/wi
 import SimpleMessage from '../../visualisations/components/SimpleMessage';
 import VisualisationContainer from '../../visualisations/components/VisualisationContainer';
 import withWidgetConfigurationModal from '../../visualisations/components/withWidgetConfigurationModal';
-import IssueStateButton from './components/IssueStateButton';
-import IssueModal from './components/IssueModal';
-import moment from 'moment';
-import { GlobalColours } from 'styles/global-styles';
-import LabelRow from '../LabelRow';
 import GitLabMarkdown from '../GitLabMarkdown';
+import LabelRow from '../LabelRow';
+import DueInDays from './components/DueInDays';
+import IssueModal from './components/IssueModal';
+import IssueStateButton from './components/IssueStateButton';
+import TimeSpent from './components/TimeSpent';
 
 type OuterPropTypes = {
   id: string;
@@ -28,13 +28,6 @@ type InnerPropTypes = {
   onSettingsClick: Function;
   afterVisRemoved: Function;
 } & OuterPropTypes;
-
-const isToday = (issue: GitLabIssue) => {
-  if (!issue.due_date) return false;
-  const issueDue = moment(issue.due_date);
-  const today = moment();
-  return issueDue.isSameOrBefore(today, 'date');
-};
 
 const EventsVisualisation: React.FC<InnerPropTypes> = props => {
   const [showIssueModal, setShowIssueModal] = useState(false);
@@ -93,45 +86,34 @@ const EventsVisualisation: React.FC<InnerPropTypes> = props => {
       afterVisRemoved={props.afterVisRemoved}
     >
       <Wrapper>
-        <IssueModal
-          show={showIssueModal}
-          onHide={() => {
-            setShowIssueModal(false);
-            setEditingIssue(undefined);
-          }}
-          projectId={project?.id}
-          issue={editingIssue}
-        />
+        {showIssueModal && (
+          <IssueModal
+            key="issue-modal"
+            onHide={() => {
+              setShowIssueModal(false);
+              setEditingIssue(undefined);
+            }}
+            projectId={project?.id}
+            issue={editingIssue}
+          />
+        )}
         <div className="button-row">
-          <Button onClick={() => setShowIssueModal(true)}>
+          <Button
+            onClick={e => {
+              e.preventDefault();
+              e.stopPropagation();
+              setShowIssueModal(true);
+            }}
+          >
             <FontAwesomeIcon icon="plus" />
           </Button>
         </div>
         {issues.map(issue => {
           return (
-            <CardWrapper
-              key={`issue-${issue.id}`}
-              onClick={e => {
-                e.stopPropagation();
-                e.preventDefault();
-                setEditingIssue(issue);
-                setShowIssueModal(true);
-              }}
-            >
+            <CardWrapper key={`issue-${issue.id}`}>
               <div className="info">
-                {issue.due_date && (
-                  <div
-                    className="header"
-                    style={{
-                      color: isToday(issue)
-                        ? GlobalColours.red
-                        : GlobalColours.gray,
-                    }}
-                  >
-                    <FontAwesomeIcon icon="flag" />
-                    {issue.due_date}
-                  </div>
-                )}
+                <DueInDays issue={issue} />
+                <TimeSpent key="test" issue={issue} />
               </div>
               <div
                 className={
@@ -159,6 +141,17 @@ const EventsVisualisation: React.FC<InnerPropTypes> = props => {
               </div>
               <div className="status">
                 <IssueStateButton issue={issue} />
+              </div>
+              <div className="edit-button">
+                <FontAwesomeIcon
+                  icon="pen-to-square"
+                  onClick={e => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    setEditingIssue(issue);
+                    setShowIssueModal(true);
+                  }}
+                />
               </div>
             </CardWrapper>
           );
@@ -191,7 +184,7 @@ const CardWrapper = styled.div`
   color: var(--clr-white);
   overflow-wrap: anywhere;
   padding: 1em;
-  cursor: pointer;
+  position: relative;
 
   &:hover {
     background: rgba(0, 0, 0, 0.15);
@@ -201,9 +194,10 @@ const CardWrapper = styled.div`
     display: flex;
     flex-flow: column;
     align-items: center;
-    justify-content: start;
+    justify-content: space-between;
     padding: 0 1em 0 0;
-    & :hover {
+
+    & svg:hover {
       filter: brightness(85%);
     }
   }
@@ -211,7 +205,7 @@ const CardWrapper = styled.div`
   .info {
     display: flex;
     flex-flow: column;
-    align-items: start;
+    align-items: end;
     justify-content: space-between;
     gap: 1em;
   }
@@ -244,6 +238,25 @@ const CardWrapper = styled.div`
 
   .description {
     padding: 1em 1em 1em 0;
+  }
+
+  &:hover .edit-button > svg {
+    opacity: 1;
+    transition: opacity 0.25s ease-in-out;
+  }
+
+  .edit-button {
+    & > svg {
+      opacity: 0;
+      position: absolute;
+      bottom: 1em;
+      left: 1em;
+      cursor: pointer;
+    }
+
+    & > svg:hover {
+      filter: brightness(85%);
+    }
   }
 `;
 

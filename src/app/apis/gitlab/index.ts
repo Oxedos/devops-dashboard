@@ -10,6 +10,7 @@ import {
   GitLabMrExtended,
   GitLabPipeline,
   GitLabProject,
+  GitLabTimeStats,
   GitLabUserData,
 } from './types';
 
@@ -439,6 +440,21 @@ export async function updateIssue(
     normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}/issues/${issueIid}`;
   const response = await axios.put<GitLabIssue>(link, undefined, {
     params: { ...data },
+  });
+  return response.data;
+}
+
+export async function addTimeSpent(
+  projectId: number,
+  issueIid: number,
+  duration: string,
+  url: string,
+): Promise<GitLabTimeStats> {
+  const link =
+    normalizeUrl(url, API_SUFFIX) +
+    `/projects/${projectId}/issues/${issueIid}/add_spent_time`;
+  const response = await axios.post<GitLabTimeStats>(link, undefined, {
+    params: { duration },
   });
   return response.data;
 }

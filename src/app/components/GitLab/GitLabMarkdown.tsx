@@ -59,6 +59,20 @@ const GitLabMarkdown: React.FC<PropTypes> = props => {
           ) : (
             <FontAwesomeIcon icon={['far', 'square']} size="lg" key={key} />
           ),
+        a: ({ href, children }) => (
+          <a
+            href={href}
+            target="_blank"
+            rel="noreferrer"
+            onClick={e => {
+              e.stopPropagation();
+              e.preventDefault();
+              window.open(href);
+            }}
+          >
+            {children}
+          </a>
+        ),
       }}
     />
   );

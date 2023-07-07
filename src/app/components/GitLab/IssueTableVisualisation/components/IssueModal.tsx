@@ -13,7 +13,6 @@ import Form from 'react-bootstrap/Form';
 import { useDispatch, useSelector } from 'react-redux';
 
 export type PropTypes = {
-  show: boolean;
   onHide: () => void;
   projectId?: number;
   issue?: GitLabIssue; // Set this to pre-fill values and edit the issue
@@ -186,7 +185,7 @@ const IssueModal: React.FC<PropTypes> = props => {
   };
 
   return (
-    <Modal show={props.show} onHide={props.onHide}>
+    <Modal show onHide={props.onHide}>
       <Modal.Header closeButton>
         <h4>{props.issue ? 'Edit Issue' : 'New Issue'}</h4>
       </Modal.Header>

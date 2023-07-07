@@ -273,6 +273,13 @@ export enum GitLabIssueState {
   closed = 'closed',
 }
 
+export type GitLabTimeStats = {
+  time_estimate: number;
+  total_time_spent: number;
+  human_time_estimate: any;
+  human_total_time_spent: any;
+};
+
 export type GitLabIssue = {
   id: IssueId;
   project_id: ProjectId;
@@ -301,12 +308,7 @@ export type GitLabIssue = {
     relative: string;
     full: string;
   };
-  time_stats: {
-    time_estimate: number;
-    total_time_spent: number;
-    human_time_estimate: any;
-    human_total_time_spent: any;
-  };
+  time_stats: GitLabTimeStats;
   has_tasks: boolean;
   task_status: string;
   confidential: boolean;

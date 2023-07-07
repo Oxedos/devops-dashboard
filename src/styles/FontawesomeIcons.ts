@@ -31,6 +31,7 @@ import {
   faLongArrowAltRight,
   faMagnifyingGlass,
   faPause,
+  faPenToSquare,
   faPlay,
   faPlus,
   faQuestion,
@@ -50,6 +51,7 @@ import {
   faUser,
   faUserGear,
   faUserPlus,
+  faCircleInfo,
 } from '@fortawesome/free-solid-svg-icons';
 
 import {
@@ -133,6 +135,8 @@ export function loadIcons() {
     faSquareCheck,
     farSquare,
     farSquareCheck,
+    faPenToSquare,
+    faCircleInfo,
   );
 
   // custom SVGs
