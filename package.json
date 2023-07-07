@@ -89,7 +89,7 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "7.22.6",
+    "@babel/core": "7.22.8",
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.10",
     "@types/node": "20.4.0",
     "@types/react": "18.2.14",
