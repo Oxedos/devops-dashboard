@@ -7,20 +7,20 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { gitLabActions } from 'app';
 import { updateIssue as ApiUpdateIssue, createNewIssue } from 'app/apis/gitlab';
 import { displayGitLabErrorNotification } from 'app/apis/gitlab/helper';
-import { GitLabIssue } from 'app/apis/gitlab/types';
+import { GitLabIssue, GitLabProject } from 'app/apis/gitlab/types';
 import { selectGroups } from 'app/data/gitLabSlice/selectors/groupSelectors';
 import { selectProjects } from 'app/data/gitLabSlice/selectors/projectSelectors';
 import { selectUrl } from 'app/data/gitLabSlice/selectors/selectors';
 
 export type PropTypes = {
   onHide: () => void;
-  projectId?: number;
+  project: GitLabProject;
   issue?: GitLabIssue; // Set this to pre-fill values and edit the issue
 };
 
 const submitNewIssue = async (
   event: React.FormEvent<HTMLFormElement>,
-  projectId: number | undefined,
+  project: GitLabProject | undefined,
   gitLabUrl: string | undefined,
   setValidated,
   setLoading,
@@ -39,14 +39,14 @@ const submitNewIssue = async (
     setValidated(true);
   }
 
-  if (!projectId) return;
+  if (!project) return;
   if (!gitLabUrl) return;
 
   try {
     const target: any = event.target;
     setLoading(true);
     const newIssue = await createNewIssue(
-      projectId,
+      project.id,
       {
         title: target.title.value,
         description: target.description.value || undefined,
@@ -55,6 +55,7 @@ const submitNewIssue = async (
           ? [`project::${target.project.value}`]
           : [''],
       },
+      project.path_with_namespace,
       gitLabUrl,
     );
     dispatch(gitLabActions.upsertIssue({ issue: newIssue }));
@@ -71,6 +72,7 @@ const submitNewIssue = async (
 const updateIssue = async (
   event: React.FormEvent<HTMLFormElement>,
   issue: GitLabIssue,
+  project: GitLabProject,
   gitLabUrl: string | undefined,
   setValidated,
   setLoading,
@@ -106,6 +108,7 @@ const updateIssue = async (
           ? [`project::${target.project.value}`]
           : [''],
       },
+      project.path_with_namespace,
       gitLabUrl,
     );
     dispatch(gitLabActions.upsertIssue({ issue: newIssue }));
@@ -157,7 +160,7 @@ const IssueModal: React.FC<PropTypes> = props => {
     }
   }, [props.issue, groups, projects]);
 
-  if (!props.projectId) return null;
+  if (!props.project) return null;
   const buttonLabel = props.issue ? 'Update Issue' : 'Create Issue';
 
   const submit = e => {
@@ -165,6 +168,7 @@ const IssueModal: React.FC<PropTypes> = props => {
       updateIssue(
         e,
         props.issue,
+        props.project,
         url,
         setValidated,
         setLoading,
@@ -174,7 +178,7 @@ const IssueModal: React.FC<PropTypes> = props => {
     } else {
       submitNewIssue(
         e,
-        props.projectId,
+        props.project,
         url,
         setValidated,
         setLoading,

@@ -9,7 +9,7 @@ export const selectIssues = createSelector(
   slice => slice.issues,
 );
 
-export const selectProjectIdsListeningForIssues = createSelector(
+export const selectProjectsListeningForIssues = createSelector(
   selectConfiguredVisualisations,
   selectProjects,
   (configuredVisualisations, projects) =>
@@ -20,7 +20,6 @@ export const selectProjectIdsListeningForIssues = createSelector(
       .map(projectName =>
         projects.find(p => p.name_with_namespace === projectName),
       )
-      .map(project => project?.id)
       .filter(project => !!project),
 );
 

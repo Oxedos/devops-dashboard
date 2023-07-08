@@ -5,16 +5,22 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { gitLabActions } from 'app';
 import { setIssueState } from 'app/apis/gitlab';
 import { displayGitLabErrorNotification } from 'app/apis/gitlab/helper';
-import { GitLabIssue, GitLabIssueState } from 'app/apis/gitlab/types';
+import {
+  GitLabIssue,
+  GitLabIssueState,
+  GitLabProject,
+} from 'app/apis/gitlab/types';
 import { selectUrl } from 'app/data/gitLabSlice/selectors/selectors';
 import { GlobalColours } from 'styles/global-styles';
 
 export type IssueStateButtonProps = {
+  project: GitLabProject;
   issue: GitLabIssue;
 };
 
 const toggleIssueState = async (
   issue: GitLabIssue,
+  project: GitLabProject,
   gitLabUrl: string | undefined,
   dispatch,
   setLoading,
@@ -28,6 +34,7 @@ const toggleIssueState = async (
       issue.project_id,
       issue.iid,
       newState,
+      project.path_with_namespace,
       gitLabUrl,
     );
     dispatch(gitLabActions.upsertIssue({ issue: newIssue }));
@@ -67,7 +74,7 @@ const IssueStateButton: React.FC<IssueStateButtonProps> = props => {
           onClick={e => {
             e.preventDefault();
             e.stopPropagation();
-            toggleIssueState(issue, url, dispatch, setLoading);
+            toggleIssueState(issue, props.project, url, dispatch, setLoading);
           }}
         />
       </Container>
@@ -83,7 +90,7 @@ const IssueStateButton: React.FC<IssueStateButtonProps> = props => {
           onClick={e => {
             e.preventDefault();
             e.stopPropagation();
-            toggleIssueState(issue, url, dispatch, setLoading);
+            toggleIssueState(issue, props.project, url, dispatch, setLoading);
           }}
         />
       </Container>

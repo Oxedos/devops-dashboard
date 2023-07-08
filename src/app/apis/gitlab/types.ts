@@ -280,6 +280,10 @@ export type GitLabTimeStats = {
   human_total_time_spent: any;
 };
 
+type GitLabIssueExtraAttributes = {
+  renderedDescription?: string;
+};
+
 export type GitLabIssue = {
   id: IssueId;
   project_id: ProjectId;
@@ -326,4 +330,4 @@ export type GitLabIssue = {
     count: number;
     completed_count: number;
   };
-};
+} & GitLabIssueExtraAttributes;

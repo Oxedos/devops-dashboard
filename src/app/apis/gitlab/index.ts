@@ -1,5 +1,6 @@
 import { normalizeUrl } from 'app/apis/apiHelper';
 import axios from 'axios';
+import sanitizeHtml from 'sanitize-html';
 import { getGitLabErrorMessage, getWithKeysetPagination } from './helper';
 import {
   GitLabEvent,
@@ -378,19 +379,28 @@ export async function getEvents(
 export async function getProjectIssues(
   projectId: number,
   today: string,
+  projectName: string | undefined,
   url: string,
 ): Promise<GitLabIssue[]> {
   const link = normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}/issues`;
-  const openIssues = await getWithKeysetPagination<GitLabIssue>(link, {
+  let openIssues: any = await getWithKeysetPagination<GitLabIssue>(link, {
     params: { with_labels_details: true, state: 'opened' },
   });
-  const closedIssues = await getWithKeysetPagination<GitLabIssue>(link, {
+  openIssues = openIssues.map(issue =>
+    renderIssueContentAsMarkdown(issue, projectName, url),
+  );
+  let closedIssues: any = await getWithKeysetPagination<GitLabIssue>(link, {
     params: {
       with_labels_details: true,
       state: 'closed',
       updated_after: today,
     },
   });
+  closedIssues = closedIssues.map(issue =>
+    renderIssueContentAsMarkdown(issue, projectName, url),
+  );
+  openIssues = await Promise.all(openIssues);
+  closedIssues = await Promise.all(closedIssues);
   return [...openIssues, ...closedIssues];
 }
 
@@ -398,6 +408,7 @@ export async function setIssueState(
   projectId: number,
   issueIid: number,
   state: 'close' | 'reopen',
+  projectName: string | undefined,
   url: string,
 ): Promise<GitLabIssue> {
   const link =
@@ -405,7 +416,7 @@ export async function setIssueState(
   const response = await axios.put<GitLabIssue>(link, undefined, {
     params: { state_event: state },
   });
-  return response.data;
+  return renderIssueContentAsMarkdown(response.data, projectName, url);
 }
 
 export async function createNewIssue(
@@ -416,13 +427,14 @@ export async function createNewIssue(
     due_date?: string;
     labels?: string[];
   },
+  projectName: string | undefined,
   url: string,
 ): Promise<GitLabIssue> {
   const link = normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}/issues`;
   const response = await axios.post<GitLabIssue>(link, undefined, {
     params: issue,
   });
-  return response.data;
+  return renderIssueContentAsMarkdown(response.data, projectName, url);
 }
 
 export async function updateIssue(
@@ -434,6 +446,7 @@ export async function updateIssue(
     title?: string;
     labels?: string[];
   },
+  projectName: string | undefined,
   url: string,
 ): Promise<GitLabIssue> {
   const link =
@@ -441,7 +454,7 @@ export async function updateIssue(
   const response = await axios.put<GitLabIssue>(link, undefined, {
     params: { ...data },
   });
-  return response.data;
+  return renderIssueContentAsMarkdown(response.data, projectName, url);
 }
 
 export async function addTimeSpent(
@@ -457,4 +470,57 @@ export async function addTimeSpent(
     params: { duration },
   });
   return response.data;
+}
+
+export async function renderIssueContentAsMarkdown(
+  issue: GitLabIssue,
+  projectName: string | undefined,
+  url: string,
+): Promise<GitLabIssue> {
+  if (!issue.description) return Promise.resolve(issue);
+  const link = normalizeUrl(url, API_SUFFIX) + `/markdown`;
+  const response = await axios.post<{ html: string }>(link, undefined, {
+    params: {
+      gfm: true,
+      text: issue.description,
+      project: projectName,
+    },
+  });
+
+  return {
+    ...issue,
+    renderedDescription: sanitizeHtml(response.data.html, {
+      allowedTags: sanitizeHtml.defaults.allowedTags.concat(['img', 'input']),
+      allowedAttributes: {
+        ...sanitizeHtml.defaults.allowedAttributes,
+        input: ['type', 'class', 'checked'],
+        img: ['alt', 'class', 'src'],
+        table: ['class'],
+        '*': ['data-sourcepos'],
+      },
+      transformTags: {
+        img: (tagName, attribs) => ({
+          tagName,
+          attribs: {
+            ...attribs,
+            src: attribs['data-src'],
+          },
+        }),
+        table: (tagName, attribs) => ({
+          tagName,
+          attribs: {
+            ...attribs,
+            class: 'table table-sm table-striped table-bordered table-hover',
+          },
+        }),
+        input: (tagName, attribs) => ({
+          tagName,
+          attribs: {
+            ...attribs,
+            class: 'form-check-input',
+          },
+        }),
+      },
+    }),
+  };
 }

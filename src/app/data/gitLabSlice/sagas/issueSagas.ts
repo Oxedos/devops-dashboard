@@ -1,9 +1,9 @@
 import { gitLabActions } from 'app';
 import { getProjectIssues } from 'app/apis/gitlab';
-import { GitLabIssue, ProjectId } from 'app/apis/gitlab/types';
+import { GitLabIssue, GitLabProject } from 'app/apis/gitlab/types';
 import moment from 'moment';
 import { call, put, select } from 'redux-saga/effects';
-import { selectProjectIdsListeningForIssues } from '../selectors/issueSelectors';
+import { selectProjectsListeningForIssues } from '../selectors/issueSelectors';
 import { selectUrl } from '../selectors/selectors';
 import { displayNotification, removeLoader, setLoader } from './sagaHelper';
 
@@ -16,19 +16,20 @@ export function* loadIssues() {
 
 function* getIssuesForProjects() {
   const url: string = yield select(selectUrl);
-  const listenedProjectIds: ProjectId[] = yield select(
-    selectProjectIdsListeningForIssues,
+  const listenedProjects: GitLabProject[] = yield select(
+    selectProjectsListeningForIssues,
   );
-  if (!listenedProjectIds || listenedProjectIds.length <= 0) return [];
+  if (!listenedProjects || listenedProjects.length <= 0) return [];
 
   let issues: GitLabIssue[] = [];
-  for (const projectId of listenedProjectIds) {
-    if (!projectId) continue;
+  for (const project of listenedProjects) {
+    if (!project) continue;
     try {
       const projectIssues = yield call(
         getProjectIssues,
-        projectId,
+        project.id,
         moment().startOf('day').toString(),
+        project.path_with_namespace,
         url,
       );
       issues = [...issues, ...projectIssues];
