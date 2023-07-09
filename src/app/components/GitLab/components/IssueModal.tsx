@@ -51,9 +51,6 @@ const submitNewIssue = async (
         title: target.title.value,
         description: target.description.value || undefined,
         due_date: target.dueDate.value || undefined,
-        labels: target.project.value
-          ? [`project::${target.project.value}`]
-          : [''],
       },
       project.path_with_namespace,
       gitLabUrl,
@@ -104,9 +101,6 @@ const updateIssue = async (
         title: target.title.value,
         description: target.description.value || '',
         due_date: target.dueDate.value || '',
-        labels: target.project.value
-          ? [`project::${target.project.value}`]
-          : [''],
       },
       project.path_with_namespace,
       gitLabUrl,
@@ -126,8 +120,6 @@ const IssueModal: React.FC<PropTypes> = props => {
   const [title, setTitle] = useState(props.issue?.title);
   const [description, setDescription] = useState(props.issue?.description);
   const [dueDate, setDueDate] = useState(props.issue?.due_date);
-  const [selectedGroup, setSelectedGroup] = useState('');
-  const [selectedProject, setSelectedProject] = useState('');
   const [validated, setValidated] = useState(false);
   const [isLoading, setLoading] = useState(false);
   const url = useSelector(selectUrl);
@@ -139,25 +131,6 @@ const IssueModal: React.FC<PropTypes> = props => {
     setTitle(props.issue?.title);
     setDescription(props.issue?.description);
     setDueDate(props.issue?.due_date);
-    if (props.issue && props.issue.labels) {
-      const projectLabel = props.issue.labels
-        .map(label => (typeof label === 'string' ? label : label.name))
-        .find(label => label && label.startsWith('project::'));
-      if (projectLabel) {
-        const projectName = projectLabel.split('::')[1];
-        const project = projects.find(project => project.name === projectName);
-        const group = groups.find(
-          group => project && project.name_with_namespace.includes(group.name),
-        );
-        if (project && group) {
-          setSelectedGroup(group.name);
-          setSelectedProject(projectName);
-        }
-      }
-    } else {
-      setSelectedProject('');
-      setSelectedGroup('');
-    }
   }, [props.issue, groups, projects]);
 
   if (!props.project) return null;
@@ -229,44 +202,6 @@ const IssueModal: React.FC<PropTypes> = props => {
               value={dueDate}
               onChange={e => setDueDate(e.target.value)}
             />
-          </Form.Group>
-          <Form.Group className="mb-3">
-            <Form.Text>
-              Choose an associated Project by first selecting the projects
-              group. The assoicated project will set a label on the issue.
-              <br />
-            </Form.Text>
-            <Form.Label>Group</Form.Label>
-            <Form.Select
-              disabled={isLoading}
-              value={selectedGroup}
-              onChange={e => setSelectedGroup(e.target.value)}
-            >
-              {[''].concat(groups.map(group => group.name)).map(groupName => (
-                <option>{groupName}</option>
-              ))}
-            </Form.Select>
-          </Form.Group>
-          <Form.Group className="mb-4">
-            <Form.Label>Project</Form.Label>
-            <Form.Select
-              id="project"
-              disabled={isLoading}
-              value={selectedProject}
-              onChange={e => setSelectedProject(e.target.value)}
-            >
-              {['']
-                .concat(
-                  projects
-                    .filter(project =>
-                      project.name_with_namespace.includes(selectedGroup),
-                    )
-                    .map(project => project.name),
-                )
-                .map(projectName => (
-                  <option>{projectName}</option>
-                ))}
-            </Form.Select>
           </Form.Group>
           <Button type="submit" disabled={isLoading}>
             {isLoading ? <FontAwesomeIcon icon="sync" spin /> : buttonLabel}

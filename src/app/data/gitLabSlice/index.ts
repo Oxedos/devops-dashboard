@@ -112,7 +112,38 @@ const slice = createSlice({
       const {
         payload: { issue },
       } = action;
-      state.issues = upsert(state.issues, [issue], equalByAttribute('id'));
+      // Manually merge issue labels -> after updating an issue we do not receive label details (no colors etc)
+      const newLabels = issue.labels;
+      const oldIssue = state.issues.find(i => i.id === issue.id);
+      if (!oldIssue) {
+        // just insert and be done
+        state.issues = [...state.issues, issue];
+        return;
+      }
+      const oldLabels = oldIssue.labels;
+      // check if we have work to do
+      if (
+        (!newLabels && !oldLabels) ||
+        (newLabels.length <= 0 && oldLabels.length <= 0)
+      ) {
+        state.issues = upsert(state.issues, [issue], equalByAttribute('id'));
+        return;
+      }
+      const mergedLabels = newLabels.map(newLabel => {
+        const newLabelName =
+          typeof newLabel === 'string' ? newLabel : newLabel.name;
+        const oldLabel = oldLabels.find(l =>
+          typeof l === 'string' ? newLabelName === l : newLabelName === l.name,
+        );
+        if (!oldLabel) return newLabel;
+        if (typeof oldLabel === 'string') return newLabel;
+        return oldLabel;
+      });
+      state.issues = upsert(
+        state.issues,
+        [{ ...issue, labels: mergedLabels }],
+        equalByAttribute('id'),
+      );
     },
     updatePipeline(state, action: PayloadAction<{ pipeline: GitLabPipeline }>) {
       const {

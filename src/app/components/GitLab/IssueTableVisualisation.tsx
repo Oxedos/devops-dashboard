@@ -247,11 +247,12 @@ const EventsVisualisation: React.FC<InnerPropTypes> = props => {
                     />
                   </div>
                 )}
-                {issue.labels && (
-                  <div className="label-row">
-                    <LabelRow labels={issue.labels} />
-                  </div>
-                )}
+                <LabelRow
+                  labels={issue.labels || []}
+                  editable
+                  issue={issue}
+                  project={project}
+                />
               </div>
               <div className="status">
                 <IssueStateButton issue={issue} project={project} />

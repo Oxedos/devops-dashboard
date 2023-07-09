@@ -52,6 +52,7 @@ const TimeWrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 0.5em;
+  white-space: nowrap;
 `;
 
 export default DueInDays;

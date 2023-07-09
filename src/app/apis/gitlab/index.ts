@@ -444,7 +444,7 @@ export async function updateIssue(
     description?: string;
     due_date?: string;
     title?: string;
-    labels?: string[];
+    labels?: string[] | '';
   },
   projectName: string | undefined,
   url: string,

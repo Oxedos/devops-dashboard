@@ -1,5 +1,5 @@
 import { globalActions } from 'app';
-import axios, { AxiosResponse, RawAxiosRequestConfig } from 'axios';
+import axios, { AxiosError, AxiosResponse, RawAxiosRequestConfig } from 'axios';
 
 const DEV = process.env.NODE_ENV !== 'production';
 
@@ -96,7 +96,24 @@ export async function getWithKeysetPagination<T>(
 }
 
 export function displayGitLabErrorNotification(error: any, dispatch: Function) {
-  if (error instanceof Error) {
+  console.log(error);
+  if (error instanceof AxiosError && error.response?.data?.message?.base) {
+    dispatch(
+      globalActions.addErrorNotification(
+        `[GitLab] ${error.response.data.message.base}`,
+      ),
+    );
+  } else if (
+    process.env.NODE_ENV === 'development' &&
+    error instanceof AxiosError &&
+    error.response?.data.message
+  ) {
+    dispatch(
+      globalActions.addErrorNotification(
+        `[GitLab] ${JSON.stringify(error.response.data.message)}`,
+      ),
+    );
+  } else if (error instanceof Error) {
     dispatch(globalActions.addErrorNotification(`[GitLab] ${error.message}`));
   } else {
     dispatch(globalActions.addErrorNotification(`[GitLab] Unknown Error`));

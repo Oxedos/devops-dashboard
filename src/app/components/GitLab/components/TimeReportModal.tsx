@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
-import { useDispatch } from 'react-redux';
-import { useSelector } from 'react-redux';
-import Button from 'react-bootstrap/Button';
+import { useDispatch, useSelector } from 'react-redux';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Modal from 'react-bootstrap/Modal';
@@ -10,6 +8,9 @@ import { gitLabActions } from 'app';
 import { addTimeSpent } from 'app/apis/gitlab';
 import { displayGitLabErrorNotification } from 'app/apis/gitlab/helper';
 import { GitLabIssue } from 'app/apis/gitlab/types';
+import LoadingButton, {
+  LoadingState,
+} from 'app/components/common/LoadingButton';
 import { selectUrl } from 'app/data/gitLabSlice/selectors/selectors';
 
 export type PropTypes = {
@@ -19,17 +20,16 @@ export type PropTypes = {
 
 const updateTimeSpent = async (
   event: React.FormEvent<HTMLFormElement>,
+  timeSpent: string,
   issue: GitLabIssue,
   gitLabUrl: string | undefined,
-  setValidated,
-  setLoading,
+  setState: React.Dispatch<React.SetStateAction<LoadingState>>,
   onSuccess,
   dispatch,
 ) => {
   const form = event.currentTarget;
   event.preventDefault();
   event.stopPropagation();
-  setValidated(true);
   if (form.checkValidity() === false) {
     return;
   }
@@ -38,12 +38,11 @@ const updateTimeSpent = async (
   if (!gitLabUrl) return;
 
   try {
-    const target: any = event.target;
-    setLoading(true);
+    setState(LoadingState.loading);
     const newTimeStats = await addTimeSpent(
       issue.project_id,
       issue.iid,
-      target.duration.value || '',
+      timeSpent,
       gitLabUrl,
     );
     dispatch(
@@ -54,34 +53,24 @@ const updateTimeSpent = async (
     form.reset();
     onSuccess();
   } catch (error) {
+    setState(LoadingState.error);
     displayGitLabErrorNotification(error, dispatch);
-  } finally {
-    setLoading(false);
+    setTimeout(() => setState(LoadingState.pending), 1500);
   }
 };
 
 const TimeReportModal: React.FC<PropTypes> = props => {
-  const [isLoading, setLoading] = useState(false);
-  const [isValidated, setValidated] = useState(false);
-  const [success, setSuccess] = useState(false);
+  const [state, setState] = useState<LoadingState>(LoadingState.pending);
+  const [timeSpent, setTimeSpent] = useState('');
   const dispatch = useDispatch();
   const gitLabUrl = useSelector(selectUrl);
   if (!props.issue) return null;
 
   const onSuccess = () => {
-    setSuccess(true);
-    setTimeout(() => {
-      setSuccess(false);
-      setValidated(false);
-    }, 1500);
+    setState(LoadingState.success);
+    setTimeSpent('');
+    setTimeout(() => setState(LoadingState.pending), 1500);
   };
-
-  let buttonLabel: any = 'Save';
-  if (isLoading) {
-    buttonLabel = <FontAwesomeIcon icon="sync" spin />;
-  } else if (success) {
-    buttonLabel = <FontAwesomeIcon icon="check" />;
-  }
 
   return (
     <Modal show onHide={props.onHide}>
@@ -90,14 +79,14 @@ const TimeReportModal: React.FC<PropTypes> = props => {
         Time Spent: {props.issue.time_stats.human_total_time_spent}
         <Form
           noValidate
-          validated={isValidated}
+          validated={!!timeSpent}
           onSubmit={e =>
             updateTimeSpent(
               e,
+              timeSpent,
               props.issue,
               gitLabUrl,
-              setValidated,
-              setLoading,
+              setState,
               onSuccess,
               dispatch,
             )
@@ -115,14 +104,27 @@ const TimeReportModal: React.FC<PropTypes> = props => {
               </a>
             </Form.Label>
             <InputGroup>
-              <Form.Control placeholder="1h 30m" id="duration" />
-              <Button
-                variant="outline-success"
-                type="submit"
-                disabled={isLoading}
-              >
-                {buttonLabel}
-              </Button>
+              <Form.Control
+                placeholder="1h 30m"
+                id="duration"
+                value={timeSpent}
+                onChange={e => setTimeSpent(e.target.value)}
+                pattern="^-?(\d+\s*((months)|(month)|(mo)|(weeks)|(week)|(w)|(days)|(day)|(d)|(hours)|(hour)|(h)|(minutes)|(minute)|(m))\s*)+$"
+              />
+              <LoadingButton variant="primary" type="submit" state={state}>
+                Save
+              </LoadingButton>
+              <Form.Control.Feedback type="invalid">
+                Invalid time format. See{' '}
+                <a
+                  href="https://docs.gitlab.com/ee/user/project/time_tracking.html#available-time-units"
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  docs
+                </a>{' '}
+                for help.
+              </Form.Control.Feedback>
             </InputGroup>
             <Form.Text>
               Record time spent for this issue. Example: 1h 30 or -30m
