@@ -40,6 +40,12 @@ const getWebUrl = (event: GitLabEvent, gitLabUrl: string | undefined) => {
       gitLabUrl,
     ).toString();
   }
+  if (targetType === 'Issue') {
+    return new URL(
+      `${basePath}/issues/${event.target_iid}`,
+      gitLabUrl,
+    ).toString();
+  }
   if (targetType === 'branch' && actionName === 'pushed new') {
     return new URL(
       `${basePath}/tree/${event.push_data?.ref}`,
@@ -72,8 +78,25 @@ const getWebUrl = (event: GitLabEvent, gitLabUrl: string | undefined) => {
 
 const getAdditionalInfo = (event: GitLabEvent) => {
   if (!event) return;
-  if (event.push_data && event.push_data.commit_title) {
+  // commit push
+  if (
+    event.action_name === 'pushed to' &&
+    event.push_data &&
+    event.push_data.commit_title
+  ) {
     return event.push_data.commit_title;
+  }
+  // new branch
+  if (
+    (event.action_name === 'created' || event.action_name === 'pushed new') &&
+    event.push_data &&
+    event.push_data.ref_type === 'branch' &&
+    event.push_data.ref
+  ) {
+    return undefined;
+  }
+  if (event.action_name === 'opened' && event.target_type === 'Issue') {
+    return event.target_title;
   }
   if (event.note && event.note.body) {
     return event.note.body;
@@ -106,6 +129,8 @@ const getFriendlyTargetRaw = (targetType: string | undefined) => {
       return 'code changes';
     case 'Note':
       return 'note';
+    case 'Issue':
+      return 'issue';
     default:
       return targetType;
   }
@@ -156,12 +181,43 @@ const getIcon = (
   if (actionName === 'created') {
     return { color: GlobalColours.green, icon: 'plus' };
   }
+  if (actionName === 'opened') {
+    return { color: GlobalColours.green, icon: 'plus' };
+  }
   if (actionName === 'left') {
     return { color: GlobalColours.red, icon: 'user-minus' };
   }
 
   // Fallback
   return { color: GlobalColours.gray, icon: 'circle' };
+};
+
+const getProjectDescription = (event: GitLabEvent) => {
+  const project = event.project?.name;
+  if (!project) return undefined;
+  if (event.target_title)
+    return (
+      <>
+        in <div className="gray">{project}</div>
+      </>
+    );
+  if (
+    (event.action_name === 'created' ||
+      event.action_name === 'joined' ||
+      event.action_name === 'left') &&
+    !event.target_type
+  ) {
+    return (
+      <>
+        <div className="gray">{project}</div>
+      </>
+    );
+  }
+  return (
+    <>
+      <div className="gray">{project} / </div>
+    </>
+  );
 };
 
 const EventsVisualisation: React.FC<InnerPropTypes> = props => {
@@ -202,12 +258,7 @@ const EventsVisualisation: React.FC<InnerPropTypes> = props => {
             event.action_name
           } ${getFriendlyTarget(event)} `;
           const eventTarget =
-            event.target_title ||
-            event.push_data?.ref ||
-            event.push_data?.commit_title;
-          const relatedProject = event.project
-            ? `${event.project.name} / `
-            : '';
+            event.push_data?.ref || event.push_data?.commit_title;
           const additionalInfo = getAdditionalInfo(event);
           const webUrl = getWebUrl(event, gitLabUrl);
           const card = (
@@ -218,10 +269,8 @@ const EventsVisualisation: React.FC<InnerPropTypes> = props => {
               </div>
               <div className="container">
                 {actionDescription}
-                <div className="gray">
-                  {relatedProject}
-                  {eventTarget}
-                </div>
+                {getProjectDescription(event)}
+                <div className="gray">{eventTarget}</div>
                 {additionalInfo && (
                   <div className="extra-content">
                     <GitLabMarkdown
