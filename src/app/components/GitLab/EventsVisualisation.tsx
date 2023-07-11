@@ -82,7 +82,6 @@ const getAdditionalInfo = (event: GitLabEvent) => {
 
 const getFriendlyTarget = (event: GitLabEvent) => {
   const targetType = event.target_type || event.push_data?.ref_type;
-  if (!targetType) return undefined;
   switch (targetType) {
     case 'DiffNote':
     case 'DiscussionNote':
@@ -96,7 +95,8 @@ const getFriendlyTarget = (event: GitLabEvent) => {
 };
 
 const getFriendlyTargetRaw = (targetType: string | undefined) => {
-  if (!targetType) return undefined;
+  // Possibly a problem -> any other events without a targetType?
+  if (!targetType) return 'project';
   switch (targetType) {
     case 'MergeRequest':
       return 'merge request';
@@ -152,6 +152,12 @@ const getIcon = (
   }
   if (actionName === 'commented on') {
     return { color: GlobalColours.white, icon: 'comment' };
+  }
+  if (actionName === 'created') {
+    return { color: GlobalColours.green, icon: 'plus' };
+  }
+  if (actionName === 'left') {
+    return { color: GlobalColours.red, icon: 'user-minus' };
   }
 
   // Fallback
