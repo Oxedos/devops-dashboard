@@ -98,6 +98,15 @@ const getAdditionalInfo = (event: GitLabEvent) => {
   if (event.action_name === 'opened' && event.target_type === 'Issue') {
     return event.target_title;
   }
+  if (event.action_name === 'opened' && event.target_type === 'MergeRequest') {
+    return event.target_title;
+  }
+  if (
+    event.action_name === 'accepted' &&
+    event.target_type === 'MergeRequest'
+  ) {
+    return event.target_title;
+  }
   if (event.note && event.note.body) {
     return event.note.body;
   }
