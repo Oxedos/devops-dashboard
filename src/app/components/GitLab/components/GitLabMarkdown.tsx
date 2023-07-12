@@ -29,12 +29,12 @@ const prependGitlabUrl = (
 
 type PropTypes = {
   project?: GitLabProject;
-  content: string;
+  content?: string;
 };
 
 const GitLabMarkdown: React.FC<PropTypes> = props => {
   const gitLabUrl = useSelector(selectUrl);
-
+  if (!props.content) return null;
   return (
     <ReactMarkdown
       transformImageUri={url => prependGitlabUrl(url, props.project, gitLabUrl)}
