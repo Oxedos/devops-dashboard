@@ -58,8 +58,7 @@ const Pipeline: React.FC<PropTypes> = props => {
     }
     stages[stage_id].jobs.push(job);
     return stages;
-  },
-  []);
+  }, []);
 
   const backgroundColour = getBackgroundColour(pipeline);
 
