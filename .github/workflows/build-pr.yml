@@ -26,6 +26,9 @@ jobs:
     name: 'Dependabot Automerge'
     needs: [build]
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     if: ${{ github.actor == 'dependabot[bot]' && github.event_name == 'pull_request'}}
     steps:
       - name: Dependabot metadata
