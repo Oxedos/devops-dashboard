@@ -29,15 +29,20 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    if: ${{ github.actor == 'dependabot[bot]' && github.event_name == 'pull_request'}}
+    if: (github.actor == 'dependabot[bot]' || github.actor == 'Oxedos') && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'dependencies')
     steps:
       - name: Dependabot metadata
         id: metadata
         uses: dependabot/fetch-metadata@v1.3.1
         with:
           github-token: '${{ secrets.GITHUB_TOKEN }}'
+      - name: Review PR
+        run: gh pr review --approve "$PR_URL"
+        env:
+          PR_URL: ${{github.event.pull_request.html_url}}
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - name: Enable auto-merge for Dependabot PRs
-        run: gh pr merge --admin "$PR_URL"
+        run: gh pr merge --squash --admin "$PR_URL"
         env:
           PR_URL: ${{github.event.pull_request.html_url}}
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
