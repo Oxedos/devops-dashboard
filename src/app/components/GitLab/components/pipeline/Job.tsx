@@ -4,7 +4,7 @@ import { default as PopoverBase } from 'react-bootstrap/Popover';
 import styled from 'styled-components/macro';
 import { GitLabJob, GitLabMR } from 'app/apis/gitlab/types';
 import PlayButton from './PlayButton';
-import { JobStatus, StatusStyle } from './Status';
+import { JobStatus, StatusStyle } from '../Status';
 
 type PropTypes = {
   job: GitLabJob;

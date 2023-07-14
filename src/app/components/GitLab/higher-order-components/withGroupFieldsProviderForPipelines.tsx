@@ -22,7 +22,7 @@ const withGroupFieldsProviderForPipelines = (
         options: availableGroups,
       },
       {
-        name: 'pipeline-status-hr',
+        name: 'pipeline-hr',
         hr: true,
       },
       {
@@ -31,7 +31,16 @@ const withGroupFieldsProviderForPipelines = (
         label: 'Compact View',
       },
       {
-        name: 'pipeline-status-hr',
+        name: 'pipeline-hr-2',
+        hr: true,
+      },
+      {
+        name: 'showStages',
+        type: 'checkbox',
+        label: 'Collapse jobs to stages',
+      },
+      {
+        name: 'pipeline-hr-3',
         hr: true,
       },
       {

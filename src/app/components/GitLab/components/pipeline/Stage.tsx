@@ -3,9 +3,9 @@ import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { default as PopoverBase } from 'react-bootstrap/Popover';
 import styled from 'styled-components/macro';
 import { GitLabJob, GitLabMR } from 'app/apis/gitlab/types';
-import { getStatusProperties } from './PipelineStatusHelper';
+import { getStatusProperties } from '../PipelineStatusHelper';
 import PlayButton from './PlayButton';
-import { default as Status, JobStatus, StatusStyle } from './Status';
+import { default as Status, JobStatus, StatusStyle } from '../Status';
 
 type PropTypes = {
   stage: string;

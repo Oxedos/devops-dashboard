@@ -3,7 +3,7 @@ import { useSelector } from 'react-redux';
 import styled from 'styled-components/macro';
 import { compose } from '@reduxjs/toolkit';
 import { GitLabPipeline } from 'app/apis/gitlab/types';
-import Pipeline from 'app/components/GitLab/components/Pipeline';
+import Pipeline from 'app/components/GitLab/components/pipeline/Pipeline';
 import { selectPipelinesFiltered } from 'app/data/gitLabSlice/selectors/pipelineSelectors';
 import VisualisationContainer from '../visualisations/VisualisationContainer';
 import withWidgetConfigurationModal from '../visualisations/higher-order-components/WithWidgetConfigurationModal';
@@ -15,6 +15,7 @@ type PropTypesNoHoc = {
   id: string;
   group?: string;
   compact?: boolean;
+  showStages?: boolean;
   pipelines_canceled?: boolean;
   pipelines_created?: boolean;
   pipelines_failed?: boolean;
@@ -64,6 +65,7 @@ const PipelineVisualisation: React.FC<PropTypes> = props => {
                 groupName={props.group || ''}
                 compact={props.compact}
                 mr={pipeline.associatedMr}
+                showStages={props.showStages}
               />
             </div>
           );

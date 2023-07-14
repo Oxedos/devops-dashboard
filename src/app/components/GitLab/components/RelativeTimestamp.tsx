@@ -28,7 +28,6 @@ const RelativeTime: React.FC<PropTypes> = props => {
 };
 
 const TimeWrapper = styled.div`
-  padding-right: 1em;
   white-space: nowrap;
   & > span {
     padding-left: 0.5em;

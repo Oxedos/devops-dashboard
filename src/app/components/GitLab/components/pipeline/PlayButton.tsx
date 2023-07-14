@@ -1,53 +1,56 @@
 import React, { memo } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { gitLabActions } from 'app';
-import { GitLabPipeline } from 'app/apis/gitlab/types';
+import { GitLabJob } from 'app/apis/gitlab/types';
 import { selectLoaders } from 'app/data/globalSlice/selectors';
 import { GlobalColours } from 'styles/global-styles';
-import Status, { StatusStyle } from './Status';
+import Status, { StatusStyle } from '../Status';
 
 type PropTypes = {
-  pipeline: GitLabPipeline;
+  job: GitLabJob;
   groupName: string;
+  mrIid: number;
+  projectId: number;
 };
 
-const RerunButton: React.FC<PropTypes> = props => {
-  const { pipeline, groupName } = props;
+const PlayButton: React.FC<PropTypes> = props => {
+  const { job, groupName, mrIid, projectId } = props;
   const dispatch = useDispatch();
-  const loadingIdToCheck = `[GitLab] rerunPipelines ${pipeline.project_id} ${pipeline.ref}`;
+  const loadingIdToCheck = `[GitLab] playJob ${projectId} ${job.id}`;
+
   const loadingIds = useSelector(selectLoaders);
   const isLoading = loadingIds.includes(loadingIdToCheck);
 
-  if (
-    pipeline.status !== 'failed' &&
-    pipeline.status !== 'canceled' &&
-    pipeline.status !== 'success'
-  ) {
+  if (job.status !== 'manual') {
     return null;
   }
 
-  const rerun = () => {
+  const rerun = (e: MouseEvent) => {
     if (isLoading) return;
+    e.preventDefault();
+    e.stopPropagation();
     dispatch(
-      gitLabActions.reloadPipeline({
-        groupName: groupName,
-        projectId: pipeline.project_id,
-        ref: pipeline.ref,
+      gitLabActions.playJob({
+        groupName,
+        projectId,
+        jobId: job.id,
+        mrIid,
       }),
     );
   };
 
   return (
     <Status
-      icon="sync"
-      tooltip="Rerun Pipeline"
+      icon={isLoading ? 'sync' : 'play'}
+      tooltip="Play Job"
       style={StatusStyle.round}
       color={GlobalColours.white}
       background={GlobalColours.widget}
       onClick={rerun}
       spin={isLoading}
+      disabled={isLoading}
     />
   );
 };
 
-export default memo(RerunButton);
+export default memo(PlayButton);

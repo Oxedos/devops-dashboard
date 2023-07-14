@@ -96,10 +96,12 @@ const LabelRow: React.FC<PropTypes> = props => {
   return (
     <Wrapper>
       <LabelsContainer>
-        <FontAwesomeIcon
-          icon={state === LoadingState.loading ? 'sync' : 'tags'}
-          spin={state === LoadingState.loading}
-        />
+        {(props.labels.length > 0 || props.editable) && (
+          <FontAwesomeIcon
+            icon={state === LoadingState.loading ? 'sync' : 'tags'}
+            spin={state === LoadingState.loading}
+          />
+        )}
         {labels}
         {props.editable && (
           <FontAwesomeIcon
@@ -175,7 +177,7 @@ const Wrapper = styled.div`
 
 const LabelsContainer = styled.div`
   display: flex;
-  flex-flow: row;
+  flex-flow: row wrap;
   align-items: center;
   justify-content: start;
   gap: 1em;

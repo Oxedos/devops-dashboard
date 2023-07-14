@@ -5,7 +5,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GitLabMR } from 'app/apis/gitlab/types';
 import { GlobalColours } from 'styles/global-styles';
 
-const getStatusDetails = (
+export const getMrStatusDetail = (
   mr: GitLabMR,
 ): { icon: IconProp; detail: string; color: string; status: string } => {
   switch (mr.detailed_merge_status) {
@@ -119,7 +119,7 @@ const getStatusDetails = (
 };
 
 const MrMergeStatus: React.FC<{ mr: GitLabMR }> = props => {
-  const statusDetails = getStatusDetails(props.mr);
+  const statusDetails = getMrStatusDetail(props.mr);
   return (
     <OverlayTrigger
       overlay={overlayProps => (
