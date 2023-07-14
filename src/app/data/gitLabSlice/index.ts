@@ -153,7 +153,7 @@ const slice = createSlice({
       state.pipelines = upsert(
         state.pipelines,
         [pipeline],
-        equalByAttribute('id'),
+        equalByAttribute('ref'),
       );
     },
     reloadPipeline(
