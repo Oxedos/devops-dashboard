@@ -29,7 +29,7 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
-    if: (github.actor == 'dependabot[bot]' || github.actor == 'Oxedos') && github.event_name == 'pull_request' && contains(github.event.pull_request.labels.*.name, 'dependencies')
+    if: github.actor == 'dependabot[bot]' && github.event_name == 'pull_request'
     steps:
       - name: Dependabot metadata
         id: metadata
