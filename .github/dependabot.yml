@@ -9,3 +9,35 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "daily"
+    groups:
+      dev-dependencies:
+        patterns:
+          - "*babel*"
+          - "@pmmmwh/*"
+          - "@trivago/*"
+          - "@types/*"
+          - "*bootstrap*"
+          - "*eslint*"
+          - "*postcss*"
+          - "*prettier*"
+          - "*stylelint*"
+          - "*webpack*"
+      dependencies:
+        patterns:
+          - "*fontawesome*"
+          - "*reduxjs*"
+          - "axios"
+          - "browserlist"
+          - "react-*"
+          - "dotenv*"
+          - "remark*"
+          - "resolve"
+          - "rss-parser"
+          - "sanitize*"
+          - "shelljs"
+          - "styled-components"
+          - "ts-node"
+          - "typescript"
+          - "universalify"
+          - "uuid"
+          - "moment"
