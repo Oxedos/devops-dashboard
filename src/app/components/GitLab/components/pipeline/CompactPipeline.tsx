@@ -71,10 +71,6 @@ const Wrapper = styled.div`
   gap: 0.5em;
   border-radius: 0.5em;
 
-  .red {
-    background: red;
-  }
-
   .flex-row {
     display: flex;
     flex: row wrap;
@@ -118,7 +114,7 @@ const Wrapper = styled.div`
   }
 
   .height-100 {
-    height: 100%;
+    min-height: 100%;
   }
 
   .footer {
