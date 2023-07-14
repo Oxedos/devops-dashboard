@@ -1,9 +1,9 @@
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { GitlabLabelDetail } from 'app/apis/gitlab/types';
 import React from 'react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import Badge from 'react-bootstrap/Badge';
 import styled from 'styled-components/macro';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { GitlabLabelDetail } from 'app/apis/gitlab/types';
 import { GlobalColours } from 'styles/global-styles';
 
 type PropTypes = {
@@ -39,65 +39,68 @@ const getLabelProperties = (
   };
 };
 
-type LabelComponentProps = {
-  onDelete?: (name) => void;
-  editable?: boolean;
-  disabled?: boolean;
-};
+const Label: React.FC<PropTypes> = props => {
+  const { label, onDelete, disabled, editable } = props;
+  if (!label) return null;
+  const labelProperties = getLabelProperties(props.label);
 
-const SimpleLabelComponent: React.FC<
-  LabelProperties & LabelComponentProps
-> = props => {
-  const { backgroundColor, textColor, name, onDelete, editable, disabled } =
-    props;
-  return (
-    <ColoredBadged pill $background={backgroundColor} $color={textColor}>
-      {name}
-      {editable && (
-        <span
-          className="fa-layers"
-          style={{
-            cursor: disabled ? 'unset' : 'pointer',
-          }}
-          onClick={e => {
-            e.preventDefault();
-            e.stopPropagation();
-            if (disabled) return;
-            if (!onDelete) return;
-            onDelete(name);
-          }}
-        >
-          <FontAwesomeIcon icon="circle" color={backgroundColor} />
-          <FontAwesomeIcon icon="times" inverse transform="shrink-3" />
-        </span>
-      )}
-    </ColoredBadged>
-  );
-};
-
-const ScopedLabelComponent: React.FC<
-  LabelProperties & LabelComponentProps
-> = props => {
-  const { backgroundColor, textColor, name, onDelete, editable, disabled } =
-    props;
-  const [key, value] = name.split('::');
-
-  return (
-    <ScopedLabel
-      style={{
-        boxShadow: `inset 0 0 0 3px ${backgroundColor}`,
-        color: textColor,
-      }}
-    >
-      <LabelKey
+  let labelComponent: React.ReactNode;
+  if (labelProperties.name.includes('::')) {
+    const [key, value] = labelProperties.name.split('::');
+    labelComponent = (
+      <ScopedLabel
         style={{
-          background: backgroundColor,
+          boxShadow: `inset 0 0 0 3px ${labelProperties.backgroundColor}`,
+          color: labelProperties.textColor,
         }}
       >
-        {key}
-      </LabelKey>
-      <LabelValue $buttonHoverColor={backgroundColor}>
-        <span>{value}</span>
+        <LabelKey
+          style={{
+            background: labelProperties.backgroundColor,
+          }}
+        >
+          {key}
+        </LabelKey>
+        <LabelValue $buttonHoverColor={labelProperties.backgroundColor}>
+          <span>{value}</span>
+          {editable && (
+            <span
+              className="fa-layers"
+              style={{
+                cursor: disabled ? 'unset' : 'pointer',
+              }}
+              onClick={e => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (disabled) return;
+                if (!onDelete) return;
+                onDelete(labelProperties.name);
+              }}
+            >
+              <FontAwesomeIcon
+                icon="circle"
+                transform="shrink-2"
+                color={GlobalColours.widget}
+              />
+              <FontAwesomeIcon
+                icon="times"
+                inverse
+                transform="shrink-6"
+                color={labelProperties.textColor}
+              />
+            </span>
+          )}
+        </LabelValue>
+      </ScopedLabel>
+    );
+  } else {
+    labelComponent = (
+      <ColoredBadge
+        pill
+        $background={labelProperties.backgroundColor}
+        $color={labelProperties.textColor}
+      >
+        {labelProperties.name}
         {editable && (
           <span
             className="fa-layers"
@@ -109,50 +112,17 @@ const ScopedLabelComponent: React.FC<
               e.stopPropagation();
               if (disabled) return;
               if (!onDelete) return;
-              onDelete(name);
+              onDelete(labelProperties.name);
             }}
           >
             <FontAwesomeIcon
               icon="circle"
-              transform="shrink-2"
-              color={GlobalColours.widget}
+              color={labelProperties.backgroundColor}
             />
-            <FontAwesomeIcon
-              icon="times"
-              inverse
-              transform="shrink-6"
-              color={textColor}
-            />
+            <FontAwesomeIcon icon="times" inverse transform="shrink-3" />
           </span>
         )}
-      </LabelValue>
-    </ScopedLabel>
-  );
-};
-
-const Label: React.FC<PropTypes> = props => {
-  const { label } = props;
-  if (!label) return null;
-  const labelProperties = getLabelProperties(props.label);
-
-  let labelComponent: React.ReactNode;
-  if (labelProperties.name.includes('::')) {
-    labelComponent = (
-      <ScopedLabelComponent
-        {...labelProperties}
-        onDelete={props.onDelete}
-        editable={props.editable}
-        disabled={props.disabled}
-      />
-    );
-  } else {
-    labelComponent = (
-      <SimpleLabelComponent
-        {...labelProperties}
-        onDelete={props.onDelete}
-        editable={props.editable}
-        disabled={props.disabled}
-      />
+      </ColoredBadge>
     );
   }
 
@@ -161,7 +131,7 @@ const Label: React.FC<PropTypes> = props => {
       <OverlayTrigger
         placement="bottom"
         overlay={overlayProps => (
-          <Tooltip id="button-tooltip" {...overlayProps}>
+          <Tooltip id={`tooltip-${labelProperties.name}`} {...overlayProps}>
             {labelProperties.description}
           </Tooltip>
         )}
@@ -173,7 +143,7 @@ const Label: React.FC<PropTypes> = props => {
   return labelComponent;
 };
 
-const ColoredBadged = styled(Badge)`
+const ColoredBadge = styled(Badge)`
   background: ${(props: any) =>
     props.$background
       ? `${props.$background} !important`
