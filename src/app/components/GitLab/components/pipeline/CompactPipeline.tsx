@@ -48,7 +48,9 @@ const CompactPipeline: React.FC<PipelinePropTypes> = props => {
           </div>
         </div>
         <div className="flex-column justify-space-between height-100 gap">
-          <GitLabUser user={pipeline.jobs[0].user} imgOnly />
+          {pipeline.jobs && pipeline.jobs.length > 0 && (
+            <GitLabUser user={pipeline.jobs[0].user} imgOnly />
+          )}
           <RerunButton pipeline={pipeline} groupName={props.groupName} />
         </div>
       </div>

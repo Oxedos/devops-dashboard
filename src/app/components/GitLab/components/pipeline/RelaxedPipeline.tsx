@@ -34,7 +34,9 @@ const RelaxedPipeline: React.FC<PipelinePropTypes> = props => {
             <PipelineTitle pipeline={pipeline} mr={mr} />
           </strong>
         </div>
-        <GitLabUser user={pipeline.jobs[0].user} imgOnly />
+        {pipeline.jobs && pipeline.jobs.length > 0 && (
+          <GitLabUser user={pipeline.jobs[0].user} imgOnly />
+        )}
       </div>
       <div className="flex-row justify-start">
         {showStages ? (

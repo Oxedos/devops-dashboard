@@ -101,7 +101,7 @@ export type GitLabPipelineBasic = {
 
 export type GitLabPipeline = {
   // Non Gitlab attribues
-  jobs: GitLabJob[];
+  jobs?: GitLabJob[];
   title: string | undefined; // Title of associated MR if present
   mr_web_url: string | undefined; // Web URL of associated MR if present
   labels: GitlabLabelDetail[];

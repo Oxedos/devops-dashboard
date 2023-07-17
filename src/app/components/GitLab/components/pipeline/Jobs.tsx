@@ -12,7 +12,7 @@ type PropTypes = {
 const Jobs: React.FC<PropTypes> = props => {
   const { pipeline, groupName, mr } = props;
 
-  const sortedJobs: GitLabJob[] = pipeline.jobs
+  const sortedJobs: GitLabJob[] = (pipeline.jobs || [])
     .slice()
     .sort((j1, j2) => j1.id - j2.id);
 
