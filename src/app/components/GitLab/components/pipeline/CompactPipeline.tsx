@@ -23,13 +23,15 @@ const CompactPipeline: React.FC<PipelinePropTypes> = props => {
 
   return (
     <Wrapper style={{ background: backgroundColour }}>
-      <div className="flex-row">
+      <div className="flex-row gap">
         <div className="flex-column flex-grow gap">
-          <div className="flex-row align-center justify-start text-gap">
-            <ProjectName project={project} />
-            <strong>
-              <PipelineTitle pipeline={pipeline} mr={mr} />
-            </strong>
+          <div className="flex-row align-center justify-start">
+            <div className="inline">
+              <ProjectName project={project} />
+              <strong>
+                <PipelineTitle pipeline={pipeline} mr={mr} />
+              </strong>
+            </div>
           </div>
           <div className="flex-row align-center justify-start">
             <div className="padded-right">
@@ -78,6 +80,13 @@ const Wrapper = styled.div`
     flex: row wrap;
   }
 
+  .inline {
+    display: inline;
+    strong {
+      padding-left: 0.5em;
+    }
+  }
+
   .flex-column {
     display: flex;
     flex: column nowrap;
@@ -103,12 +112,12 @@ const Wrapper = styled.div`
     min-width: 1em;
   }
 
-  .text-gap {
+  .gap {
     gap: 0.5em;
   }
 
-  .gap {
-    gap: 0.5em;
+  .em-gap {
+    gap: 1em;
   }
 
   .padded-right {
@@ -117,9 +126,6 @@ const Wrapper = styled.div`
 
   .height-100 {
     min-height: 100%;
-  }
-
-  .footer {
   }
 `;
 
