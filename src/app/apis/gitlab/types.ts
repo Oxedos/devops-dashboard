@@ -187,6 +187,8 @@ export type GitLabMR = {
   };
   has_conflicts: boolean;
   blocking_discussions_resolved: boolean;
+  // Added by me
+  approvalState?: GitlabMrApprovalState;
 };
 
 export type GitLabMrExtended = {
@@ -342,3 +344,23 @@ export type GitLabIssue = {
     completed_count: number;
   };
 } & GitLabIssueExtraAttributes;
+
+export type GitLabMrApprovalRule = {
+  id: number;
+  name: string;
+  rule_type: string;
+  eligible_approvers: GitLabUserReference[];
+  approvals_required: number;
+  users: GitLabUserReference[];
+  groups: GitLabGroup[];
+  contains_hidden_groups: boolean;
+  approved_by: GitLabUserReference[];
+  source_rule: any;
+  approved: boolean;
+  overridden: boolean;
+};
+
+export type GitlabMrApprovalState = {
+  approval_rules_overwritten: boolean;
+  rules: GitLabMrApprovalRule[];
+};

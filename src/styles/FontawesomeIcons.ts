@@ -58,6 +58,7 @@ import {
   faCircleInfo,
   faTags,
   faUserMinus,
+  faThumbsUp,
 } from '@fortawesome/free-solid-svg-icons';
 
 const customMetric: any = {
@@ -140,6 +141,7 @@ export function loadIcons() {
     faCircleInfo,
     faTags,
     faUserMinus,
+    faThumbsUp,
   );
 
   // custom SVGs

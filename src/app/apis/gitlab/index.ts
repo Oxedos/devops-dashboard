@@ -13,6 +13,7 @@ import {
   GitLabProject,
   GitLabTimeStats,
   GitLabUserData,
+  GitlabMrApprovalState,
 } from './types';
 
 export const API_SUFFIX = '/api/v4';
@@ -523,4 +524,21 @@ export async function renderIssueContentAsMarkdown(
       },
     }),
   };
+}
+
+export async function getApprovalState(
+  url: string,
+  projectId: number,
+  mrIid: number,
+): Promise<GitlabMrApprovalState | undefined> {
+  if (!projectId) return undefined;
+  const link =
+    normalizeUrl(url, API_SUFFIX) +
+    `/projects/${projectId}/merge_requests/${mrIid}/approval_state`;
+  try {
+    const response = await axios.get<GitlabMrApprovalState>(link);
+    return response.data;
+  } catch (error) {
+    throw new Error(getGitLabErrorMessage(error));
+  }
 }

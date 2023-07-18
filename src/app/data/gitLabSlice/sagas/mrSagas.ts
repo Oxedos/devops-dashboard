@@ -21,12 +21,14 @@ export function* loadMergeRequests() {
     ...userReviewingMrs,
     ...groupMrs,
   ];
-  const mrs = allMrs.reduce((acc: GitLabMR[], curr) => {
+  let mrs = allMrs.reduce((acc: GitLabMR[], curr) => {
     if (!acc.find(accMr => accMr.id === curr.id)) {
       return [...acc, curr];
     }
     return acc;
   }, []);
+  // Get approval status for each MR
+  mrs = yield call(addApprovalStates, mrs);
   yield put(gitLabActions.setMrs({ mrs }));
   yield call(removeLoader, loaderId);
 }
@@ -87,5 +89,33 @@ function* getMrsWithUserAsReviewer() {
   } catch (error) {
     yield call(displayNotification, error);
     return [];
+  }
+}
+
+function* addApprovalStates(mrs: GitLabMR[]) {
+  const url = yield select(selectUrl);
+  if (!mrs || mrs.length <= 0) return [];
+  const mrsWithApproval: GitLabMR[] = [];
+  for (let mr of mrs) {
+    const mrWithApproval = yield call(addApprovalState, mr, url);
+    mrsWithApproval.push(mrWithApproval);
+  }
+  return mrsWithApproval;
+}
+
+function* addApprovalState(mr: GitLabMR, url: string) {
+  if (!mr) return mr;
+  try {
+    const approvalState = yield call(
+      Api.getApprovalState,
+      url,
+      mr.project_id,
+      mr.iid,
+    );
+    mr.approvalState = approvalState;
+    return mr;
+  } catch (error) {
+    console.log(error);
+    return mr;
   }
 }

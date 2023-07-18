@@ -1,14 +1,14 @@
-import React, { ComponentType, MouseEvent } from 'react';
-import { useSelector } from 'react-redux';
-import { OverlayTrigger, Tooltip } from 'react-bootstrap';
-import styled from 'styled-components/macro';
 import {
   IconDefinition,
   findIconDefinition,
 } from '@fortawesome/fontawesome-svg-core';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { compose } from '@reduxjs/toolkit';
-import { GitLabMR, GitLabPipeline } from 'app/apis/gitlab/types';
+import {
+  GitLabMR,
+  GitLabPipeline,
+  GitLabUserReference,
+} from 'app/apis/gitlab/types';
 import GitLabUser from 'app/components/GitLab/components/GitLabUser';
 import MrMergeStatus from 'app/components/GitLab/components/MrMergeStatus';
 import {
@@ -17,6 +17,11 @@ import {
 } from 'app/components/GitLab/components/Status';
 import { selectMrsFiltered } from 'app/data/gitLabSlice/selectors/mrSelectors';
 import { selectPipelines } from 'app/data/gitLabSlice/selectors/pipelineSelectors';
+import React, { ComponentType, MouseEvent } from 'react';
+import { OverlayTrigger, Tooltip } from 'react-bootstrap';
+import { useSelector } from 'react-redux';
+import styled from 'styled-components/macro';
+import { GlobalColours } from 'styles/global-styles';
 import SimpleMessage from '../visualisations/SimpleMessageVisualisation';
 import VisualisationContainer from '../visualisations/VisualisationContainer';
 import withWidgetConfigurationModal from '../visualisations/higher-order-components/WithWidgetConfigurationModal';
@@ -37,6 +42,18 @@ type innerPropTypes = {
   userAsReviewer?: boolean;
   includeWIP?: boolean;
 } & OuterPropTypes;
+
+const isApproved = (mr: GitLabMR, reviewer: GitLabUserReference) => {
+  if (!mr || !mr.approvalState) return;
+  for (let approvalRule of mr.approvalState.rules) {
+    if (!approvalRule.approved) continue;
+    if (!approvalRule.approved_by || approvalRule.approved_by.length <= 0)
+      continue;
+    const approvedByIds = approvalRule.approved_by.map(approver => approver.id);
+    if (approvedByIds.includes(reviewer.id)) return true;
+  }
+  return false;
+};
 
 const MrTableVisualisation: React.FC<innerPropTypes> = props => {
   const mrs = useSelector(state =>
@@ -181,7 +198,18 @@ const MrTableVisualisation: React.FC<innerPropTypes> = props => {
                 </Col>
                 <Col>
                   {mr.reviewers && (
-                    <GitLabUser user={mr.reviewers[0]} imgOnly />
+                    <GitLabUser
+                      user={mr.reviewers[0]}
+                      imgOnly
+                      iconProps={
+                        isApproved(mr, mr.reviewers[0])
+                          ? {
+                              color: GlobalColours.green,
+                              icon: 'thumbs-up',
+                            }
+                          : undefined
+                      }
+                    />
                   )}
                 </Col>
                 <Col>
