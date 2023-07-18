@@ -12,7 +12,6 @@ type PropTypes = {
   jobs: GitLabJob[];
   nextJobs?: GitLabJob[];
   withDivider?: boolean;
-  groupName: string;
   mr?: GitLabMR;
 };
 
@@ -83,7 +82,6 @@ const Stage: React.FC<PropTypes> = props => {
                 <FloatRight>
                   <PlayButton
                     job={job}
-                    groupName={props.groupName}
                     mrIid={props.mr.iid}
                     projectId={props.mr.project_id}
                   />

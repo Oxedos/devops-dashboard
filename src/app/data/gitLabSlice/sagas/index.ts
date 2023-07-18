@@ -15,7 +15,7 @@ import { loadEvents } from './eventsSaga';
 import { loadGroups } from './groupSagas';
 import { loadIssues } from './issueSagas';
 import { loadMergeRequests } from './mrSagas';
-import { loadPipelines, playJobs, rerunPipelines } from './pipelineSagas';
+import { loadPipelines, rerunPipelines } from './pipelineSagas';
 import { loadProjects } from './projectSagas';
 import { loadUserInfo, tryLoadingUserinfo } from './userSagas';
 
@@ -129,7 +129,6 @@ export function* gitLabSaga() {
   yield takeLeading(gitLabActions.reload.type, loadAll);
   yield takeLeading(gitLabActions.deleteConfiguration.type, clear);
   yield takeEvery(gitLabActions.reloadPipeline.type, rerunPipelines);
-  yield takeEvery(gitLabActions.playJob.type, playJobs);
   yield takeLeading(gitLabActions.setUrl.type, persist);
   yield takeLeading(gitLabActions.setApplicationId.type, persist);
   yield spawn(pollLong);

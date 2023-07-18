@@ -5,12 +5,11 @@ import styled from 'styled-components';
 
 type PropTypes = {
   pipeline: GitLabPipeline;
-  groupName: string;
   mr?: GitLabMR;
 };
 
 const Stages: React.FC<PropTypes> = props => {
-  const { pipeline, groupName, mr } = props;
+  const { pipeline, mr } = props;
 
   const stages = (pipeline.jobs || [])
     .slice()
@@ -38,7 +37,6 @@ const Stages: React.FC<PropTypes> = props => {
               idx < stages.length - 2 ? stages[idx + 1].jobs : undefined
             }
             withDivider={idx < stages.length - 1}
-            groupName={groupName}
             mr={mr}
           />
         </StageWrapper>

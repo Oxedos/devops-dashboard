@@ -10,13 +10,12 @@ type PropTypes = {
   job: GitLabJob;
   nextJob?: GitLabJob;
   withDivider?: boolean;
-  groupName: string;
   mr?: GitLabMR;
 };
 
 const Job: React.FC<PropTypes> = props => {
   const [isShown, show] = useState(false);
-  const { job, mr, groupName } = props;
+  const { job, mr } = props;
 
   const popover = innerProps => (
     <Popover id="popover-basic" {...innerProps}>
@@ -30,7 +29,6 @@ const Job: React.FC<PropTypes> = props => {
               <FloatRight>
                 <PlayButton
                   job={job}
-                  groupName={groupName}
                   mrIid={mr.iid}
                   projectId={mr.project_id}
                 />

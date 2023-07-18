@@ -12,14 +12,12 @@ export const selectGitlabSlice = (state: RootState) => {
 export const selectConfigured = createSelector(selectGitlabSlice, state => {
   return state.url && state.applicationId;
 });
+
 export const selectUrl = createSelector(selectGitlabSlice, state => state.url);
+
 export const selectUserData = createSelector(
   selectGitlabSlice,
   state => state.userData,
-);
-export const selectJobsToPlay = createSelector(
-  selectGitlabSlice,
-  state => state.jobsToPlay,
 );
 
 export function createParameterSelector(selector) {

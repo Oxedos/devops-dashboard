@@ -2,8 +2,6 @@ import { gitLabActions } from 'app';
 import {
   createPipelineForRef,
   getPipelines,
-  loadPipelineForMr,
-  playJob as playJobApi,
   rerunPipeline as rerunPipelineApi,
 } from 'app/apis/gitlab';
 import {
@@ -21,7 +19,7 @@ import {
   selectPipelinesToReload,
 } from '../selectors/pipelineSelectors';
 import { selectProjectsByGroup } from '../selectors/projectSelectors';
-import { selectJobsToPlay, selectUrl } from '../selectors/selectors';
+import { selectUrl } from '../selectors/selectors';
 import { displayNotification, removeLoader, setLoader } from './sagaHelper';
 
 export function* loadPipelines() {
@@ -209,56 +207,5 @@ function* rerunPipeline(
       gitLabActions.removePipelineToReload({ groupName, projectId, ref }),
     );
     yield call(removeLoader, loader);
-  }
-}
-
-export function* playJobs() {
-  const url: string = yield select(selectUrl);
-  const jobsToPlay: {
-    groupName: string;
-    projectId: number;
-    mrIid: number;
-    jobId: number;
-  }[] = yield select(selectJobsToPlay);
-  const loaderId = yield call(setLoader, 'Play Jobs');
-  for (let job of jobsToPlay) {
-    yield fork(
-      playJob,
-      url,
-      job.projectId,
-      job.jobId,
-      job.mrIid,
-      job.groupName,
-    );
-  }
-  yield call(removeLoader, loaderId);
-}
-
-function* playJob(
-  url: string,
-  projectId: number,
-  jobId: number,
-  mrIid: number,
-  groupName: string,
-) {
-  // immediately remove pipeline from list as to not start them several times
-  yield put(
-    gitLabActions.removeJobToPlay({ projectId, jobId, mrIid, groupName }),
-  );
-
-  try {
-    // play job
-    yield call(playJobApi, url, projectId, jobId);
-    // reload this Pipeline
-    // TODO: Do I have to load everything in API.loadPipelineForMr?
-    const pipelineData = yield call(loadPipelineForMr, url, projectId, mrIid);
-    yield put(gitLabActions.updatePipeline({ pipeline: pipelineData }));
-  } catch (error) {
-    yield call(displayNotification, error);
-  } finally {
-    // just to be sure
-    yield put(
-      gitLabActions.removeJobToPlay({ projectId, jobId, mrIid, groupName }),
-    );
   }
 }

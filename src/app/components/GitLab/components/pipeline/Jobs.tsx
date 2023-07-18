@@ -5,12 +5,11 @@ import styled from 'styled-components';
 
 type PropTypes = {
   pipeline: GitLabPipeline;
-  groupName: string;
   mr?: GitLabMR;
 };
 
 const Jobs: React.FC<PropTypes> = props => {
-  const { pipeline, groupName, mr } = props;
+  const { pipeline, mr } = props;
 
   const sortedJobs: GitLabJob[] = (pipeline.jobs || [])
     .slice()
@@ -27,7 +26,6 @@ const Jobs: React.FC<PropTypes> = props => {
               idx < sortedJobs.length - 2 ? sortedJobs[idx + 1] : undefined
             }
             withDivider={idx < sortedJobs.length - 1}
-            groupName={groupName}
             mr={mr}
           />
         </JobWrapper>

@@ -14,7 +14,7 @@ import PipelineTitle from './PipelineTitle';
 import Stages from './Stages';
 
 const CompactPipeline: React.FC<PipelinePropTypes> = props => {
-  const { pipeline, mr, groupName, showStages } = props;
+  const { pipeline, mr, showStages } = props;
   const project = useSelector(selectProjects).find(
     project => project.id === props.pipeline.project_id,
   );
@@ -43,9 +43,9 @@ const CompactPipeline: React.FC<PipelinePropTypes> = props => {
               />
             </div>
             {showStages ? (
-              <Stages pipeline={pipeline} groupName={groupName} mr={mr} />
+              <Stages pipeline={pipeline} mr={mr} />
             ) : (
-              <Jobs pipeline={pipeline} groupName={groupName} mr={mr} />
+              <Jobs pipeline={pipeline} mr={mr} />
             )}
           </div>
         </div>

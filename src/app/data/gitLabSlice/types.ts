@@ -7,7 +7,6 @@ import {
   GitLabProject,
   GitLabUserData,
   GroupName,
-  JobId,
   ProjectId,
 } from 'app/apis/gitlab/types';
 
@@ -44,10 +43,4 @@ export interface GitLabState {
     groupName: GroupName;
     ref: string;
   }[]; // Pipelines that will be reloaded
-  jobsToPlay: {
-    projectId: ProjectId;
-    jobId: JobId;
-    mrIid: number;
-    groupName: GroupName;
-  }[];
 }

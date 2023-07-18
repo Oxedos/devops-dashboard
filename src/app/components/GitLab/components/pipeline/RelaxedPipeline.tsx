@@ -6,15 +6,15 @@ import GitLabUser from '../GitLabUser';
 import LabelRow from '../LabelRow';
 import ProjectName from '../ProjectName';
 import RelativeTime from '../RelativeTimestamp';
-import RerunButton from './RerunButton';
 import { PipelineStatus, StatusStyle } from '../Status';
 import Jobs from './Jobs';
 import { PipelinePropTypes, getPipelineBackgroundColor } from './Pipeline';
 import PipelineTitle from './PipelineTitle';
+import RerunButton from './RerunButton';
 import Stages from './Stages';
 
 const RelaxedPipeline: React.FC<PipelinePropTypes> = props => {
-  const { pipeline, mr, groupName, showStages } = props;
+  const { pipeline, mr, showStages } = props;
   const project = useSelector(selectProjects).find(
     project => project.id === props.pipeline.project_id,
   );
@@ -40,9 +40,9 @@ const RelaxedPipeline: React.FC<PipelinePropTypes> = props => {
       </div>
       <div className="flex-row justify-start">
         {showStages ? (
-          <Stages pipeline={pipeline} groupName={groupName} mr={mr} />
+          <Stages pipeline={pipeline} mr={mr} />
         ) : (
-          <Jobs pipeline={pipeline} groupName={groupName} mr={mr} />
+          <Jobs pipeline={pipeline} mr={mr} />
         )}
       </div>
       {pipeline.labels && (
