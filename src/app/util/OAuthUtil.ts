@@ -92,11 +92,7 @@ export const redirectToGitlabAuth = async (
 
   dispatch(gitLabActions.setUrl(gitlabHostSanitized));
   dispatch(gitLabActions.setApplicationId(appIdSanitized));
-  sendOAuthDataToServiceWorker(
-    pkceValues,
-    gitlabHostSanitized,
-    gitlabHostSanitized,
-  );
+  sendOAuthDataToServiceWorker(pkceValues, gitlabHostSanitized, appIdSanitized);
 
   document.location.href = `${gitlabHostSanitized}/oauth/authorize?redirect_uri=${redirectUri}&client_id=${appIdSanitized}&response_type=code&state=${state}&scope=api&code_challenge=${codeChallenge}&code_challenge_method=S256`;
 };
