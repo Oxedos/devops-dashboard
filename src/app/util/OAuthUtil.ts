@@ -2,6 +2,7 @@ import { gitLabActions } from 'app';
 import { globalActions } from 'app';
 import { PkceValues } from 'app/data/gitLabSlice/types';
 import { SW_MESSAGE_TYPES } from 'service-worker';
+import sanitizeHtml from 'sanitize-html';
 
 export const PUBLIC_URL =
   process.env.PUBLIC_URL.startsWith('.') || !process.env.PUBLIC_URL
@@ -81,15 +82,21 @@ export const redirectToGitlabAuth = async (
     );
     return;
   }
+
   const pkceValues = await generatePkceValues();
-  dispatch(gitLabActions.setUrl(gitlabHost));
-  dispatch(gitLabActions.setApplicationId(applicationId));
-  sendOAuthDataToServiceWorker(pkceValues, gitlabHost, applicationId);
-  document.location.href = `${gitlabHost}/oauth/authorize?redirect_uri=${encodeURIComponent(
-    REDIRECT_URI,
-  )}&client_id=${applicationId}&response_type=code&state=${
-    pkceValues.state
-  }&scope=api&code_challenge=${
-    pkceValues.codeChallenge
-  }&code_challenge_method=S256`;
+  const { state, codeChallenge } = pkceValues;
+
+  const redirectUri = encodeURIComponent(REDIRECT_URI);
+  const gitlabHostSanitized = sanitizeHtml(gitlabHost);
+  const appIdSanitized = sanitizeHtml(applicationId);
+
+  dispatch(gitLabActions.setUrl(gitlabHostSanitized));
+  dispatch(gitLabActions.setApplicationId(appIdSanitized));
+  sendOAuthDataToServiceWorker(
+    pkceValues,
+    gitlabHostSanitized,
+    gitlabHostSanitized,
+  );
+
+  document.location.href = `${gitlabHostSanitized}/oauth/authorize?redirect_uri=${redirectUri}&client_id=${appIdSanitized}&response_type=code&state=${state}&scope=api&code_challenge=${codeChallenge}&code_challenge_method=S256`;
 };
