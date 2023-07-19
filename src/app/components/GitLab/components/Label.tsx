@@ -11,6 +11,7 @@ type PropTypes = {
   editable?: boolean;
   onDelete?: (name) => void;
   disabled?: boolean;
+  small?: boolean;
 };
 
 type LabelProperties = {
@@ -40,7 +41,7 @@ const getLabelProperties = (
 };
 
 const Label: React.FC<PropTypes> = props => {
-  const { label, onDelete, disabled, editable } = props;
+  const { label, onDelete, disabled, editable, small } = props;
   if (!label) return null;
   const labelProperties = getLabelProperties(props.label);
 
@@ -52,6 +53,7 @@ const Label: React.FC<PropTypes> = props => {
         style={{
           boxShadow: `inset 0 0 0 3px ${labelProperties.backgroundColor}`,
           color: labelProperties.textColor,
+          fontSize: small ? '10px' : '15px',
         }}
       >
         <LabelKey
@@ -99,6 +101,7 @@ const Label: React.FC<PropTypes> = props => {
         pill
         $background={labelProperties.backgroundColor}
         $color={labelProperties.textColor}
+        $fontSize={small ? '10px !important' : '15px !important'}
       >
         {labelProperties.name}
         {editable && (
@@ -149,9 +152,11 @@ const ColoredBadge = styled(Badge)`
       ? `${props.$background} !important`
       : 'var(--clr-blue-lighter)'};
   color: ${(props: any) => (props.$color ? props.$color : 'var(--clr-white)')};
+  font-size: ${(props: any) => (props.$fontSize ? props.$fontSize : '15px')};
   display: flex;
   flex-flow: row nowrap;
   gap: 0.5em;
+  font-size: 10px;
 
   .fa-layers {
     cursor: pointer;
@@ -174,21 +179,19 @@ const ScopedLabel = styled.div`
 `;
 
 const LabelKey = styled.span`
-  padding-left: 0.5rem;
-  line-height: 1rem;
-  font-size: 0.75rem;
-  padding-right: 0.25rem;
+  padding-left: 0.5em;
+  line-height: 1em;
+  padding-right: 0.25em;
   height: 100%;
 `;
 
 const LabelValue: any = styled.span`
-  line-height: 1rem;
-  font-size: 0.75rem;
-  padding-left: 0.25rem;
-  padding-right: 0.15rem;
+  line-height: 1em;
+  padding-left: 0.25em;
+  padding-right: 0.15em;
 
   & > :first-child {
-    padding-right: 0.25rem;
+    padding-right: 0.25em;
   }
 
   & .fa-layers {

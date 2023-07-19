@@ -27,6 +27,7 @@ import VisualisationContainer from '../visualisations/VisualisationContainer';
 import withWidgetConfigurationModal from '../visualisations/higher-order-components/WithWidgetConfigurationModal';
 import withGitLabConfiguredCheck from './higher-order-components/withGitLabConfiguredCheck';
 import withMrTableFieldsProvider from './higher-order-components/withMrTableFieldsProvider';
+import LabelRow from './components/LabelRow';
 
 type OuterPropTypes = {
   id: string;
@@ -180,7 +181,10 @@ const MrTableVisualisation: React.FC<innerPropTypes> = props => {
                 {/* my-group/my-subgroup/my-project!123 */}
                 {mr.references.full.split('!')[0].split('/').slice(-1)}
               </NameCol>
-              <TitleCol>{mr.title}</TitleCol>
+              <TitleCol>
+                {mr.title}
+                <LabelRow labels={mr.labels} hideIcon small />
+              </TitleCol>
               <StatusCol>
                 <Col>
                   {pipeline && (
@@ -281,8 +285,8 @@ const NameCol = styled.div`
 
 const TitleCol = styled.div`
   display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
+  flex-flow: column nowrap;
+  align-items: start;
   justify-content: flex-start;
   flex-grow: 1;
   overflow: hidden;
