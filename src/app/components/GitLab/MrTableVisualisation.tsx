@@ -44,7 +44,11 @@ type innerPropTypes = {
   includeWIP?: boolean;
 } & OuterPropTypes;
 
-const isApproved = (mr: GitLabMR, reviewer: GitLabUserReference) => {
+const isApproved = (
+  mr: GitLabMR,
+  reviewer: GitLabUserReference | undefined,
+) => {
+  if (!reviewer) return;
   if (!mr || !mr.approvalState) return;
   for (let approvalRule of mr.approvalState.rules) {
     if (!approvalRule.approved) continue;
