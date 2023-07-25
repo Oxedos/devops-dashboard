@@ -2,6 +2,8 @@
 @import "~bootstrap/scss/functions";
 
 // 2. Include any default variable overrides here
+$font-size-base:              0.75rem !default; 
+
 $white: #ecebeb !default;
 $blue: #4a69bd !default;
 $red:     #e55039 !default;

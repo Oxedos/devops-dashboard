@@ -177,7 +177,7 @@ const MrTableVisualisation: React.FC<innerPropTypes> = props => {
                   <MrTitle mr={mr} />
                 </Inline>
                 <Indented>
-                  <LabelRow labels={mr.labels} hideIcon small />
+                  <LabelRow labels={mr.labels} small />
                 </Indented>
               </TitleCol>
               <StatusCol>
