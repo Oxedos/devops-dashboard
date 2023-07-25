@@ -216,7 +216,9 @@ const EventsVisualisation: React.FC<InnerPropTypes> = props => {
                 }
               >
                 <p>
-                  <strong>{issue.title}</strong>
+                  <a href={issue.web_url} target="_blank" rel="noreferrer">
+                    <strong>{issue.title}</strong>
+                  </a>
                 </p>
                 {issue.description && issue.renderedDescription && (
                   <div
@@ -330,6 +332,7 @@ const CardWrapper = styled.div`
     flex-flow: column;
     flex-grow: 1;
     justify-content: space-evenly;
+    gap: 1em;
     p {
       margin: 0;
     }
@@ -352,7 +355,6 @@ const CardWrapper = styled.div`
   }
 
   .description {
-    padding: 1em 1em 1em 0;
     & .table {
       width: unset !important;
     }
@@ -384,6 +386,15 @@ const CardWrapper = styled.div`
     & > svg:hover {
       filter: brightness(85%);
     }
+  }
+
+  a {
+    color: var(--clr-white);
+    text-decoration: none;
+  }
+
+  a:hover {
+    text-decoration: underline;
   }
 `;
 

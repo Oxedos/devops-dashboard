@@ -19,7 +19,7 @@ const withFieldsProviderForIssuesTable = (WrappedComponent: React.FC<any>) => {
         name: 'projectName',
         label: 'Project',
         type: 'select',
-        options: availableProjects,
+        options: [''].concat(availableProjects),
       },
     ];
 

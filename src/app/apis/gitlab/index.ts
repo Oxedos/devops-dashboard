@@ -458,6 +458,16 @@ export async function updateIssue(
   return renderIssueContentAsMarkdown(response.data, projectName, url);
 }
 
+export async function deleteIssue(
+  projectId: number,
+  issueIid: number,
+  url: string,
+): Promise<void> {
+  const link =
+    normalizeUrl(url, API_SUFFIX) + `/projects/${projectId}/issues/${issueIid}`;
+  await axios.delete<GitLabIssue>(link);
+}
+
 export async function addTimeSpent(
   projectId: number,
   issueIid: number,

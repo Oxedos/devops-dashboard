@@ -22,6 +22,7 @@ export enum VisualisationType {
   WS_VULNERABLE_DEPENDENCIES_TABLE,
   GITLAB_EVENTS,
   GITLAB_ISSUES,
+  GITLAB_ADD_ISSUE,
 }
 
 /**
@@ -205,5 +206,11 @@ export const AllVisualisations = [
     icon: 'stream',
     type: VisualisationType.GITLAB_ISSUES,
     label: 'Project Issues',
+  },
+  {
+    group: 'gitlab',
+    icon: 'plus',
+    type: VisualisationType.GITLAB_ADD_ISSUE,
+    label: 'Add Issue Vis',
   },
 ];

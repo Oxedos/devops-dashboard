@@ -143,6 +143,12 @@ const slice = createSlice({
         equalByAttribute('id'),
       );
     },
+    removeIssue(state, action: PayloadAction<{ issue: GitLabIssue }>) {
+      const {
+        payload: { issue },
+      } = action;
+      state.issues = state.issues.filter(i => i.id !== issue.id);
+    },
     updatePipeline(state, action: PayloadAction<{ pipeline: GitLabPipeline }>) {
       const {
         payload: { pipeline },
