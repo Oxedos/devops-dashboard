@@ -10,13 +10,13 @@ import {
   GitLabUserReference,
 } from 'app/apis/gitlab/types';
 import GitLabUser from 'app/components/GitLab/components/GitLabUser';
-import MrMergeStatus from 'app/components/GitLab/components/MrMergeStatus';
 import {
   PipelineStatus,
   StatusStyle,
 } from 'app/components/GitLab/components/Status';
 import { selectMrsFiltered } from 'app/data/gitLabSlice/selectors/mrSelectors';
 import { selectPipelines } from 'app/data/gitLabSlice/selectors/pipelineSelectors';
+import { selectProjects } from 'app/data/gitLabSlice/selectors/projectSelectors';
 import React, { ComponentType, MouseEvent } from 'react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
@@ -25,9 +25,11 @@ import { GlobalColours } from 'styles/global-styles';
 import SimpleMessage from '../visualisations/SimpleMessageVisualisation';
 import VisualisationContainer from '../visualisations/VisualisationContainer';
 import withWidgetConfigurationModal from '../visualisations/higher-order-components/WithWidgetConfigurationModal';
+import LabelRow from './components/LabelRow';
+import MrTitle from './components/MrTitle';
+import ProjectName from './components/ProjectName';
 import withGitLabConfiguredCheck from './higher-order-components/withGitLabConfiguredCheck';
 import withMrTableFieldsProvider from './higher-order-components/withMrTableFieldsProvider';
-import LabelRow from './components/LabelRow';
 
 type OuterPropTypes = {
   id: string;
@@ -72,6 +74,7 @@ const MrTableVisualisation: React.FC<innerPropTypes> = props => {
   );
 
   const pipelines = useSelector(selectPipelines);
+  const projects = useSelector(selectProjects);
 
   let title = 'Merge Requests';
   let message = 'No Merge Requests to display';
@@ -115,12 +118,7 @@ const MrTableVisualisation: React.FC<innerPropTypes> = props => {
     >
       <Container>
         <Row className="header">
-          <NameCol>
-            <strong>Project</strong>
-          </NameCol>
-          <TitleCol>
-            <strong>Title</strong>
-          </TitleCol>
+          <TitleCol />
           <StatusCol>
             <Col>
               <OverlayTrigger
@@ -161,33 +159,26 @@ const MrTableVisualisation: React.FC<innerPropTypes> = props => {
                 </div>
               </OverlayTrigger>
             </Col>
-            <Col>
-              <OverlayTrigger
-                placement="left"
-                overlay={overlayProps => (
-                  <Tooltip id="reviewer" {...overlayProps}>
-                    Merge Status
-                  </Tooltip>
-                )}
-              >
-                <FontAwesomeIcon icon="code-merge" />
-              </OverlayTrigger>
-            </Col>
           </StatusCol>
         </Row>
         {mrs.map(mr => {
           const pipeline =
             pipelines &&
             pipelines.find(pipeline => pipeline.ref.includes(`${mr.iid}`));
+          const project =
+            projects && projects.find(p => p.id === mr.project_id);
           return (
             <Row key={mr.id} onClick={e => rowClick(e, mr)}>
-              <NameCol>
-                {/* my-group/my-subgroup/my-project!123 */}
-                {mr.references.full.split('!')[0].split('/').slice(-1)}
-              </NameCol>
               <TitleCol>
-                {mr.title}
-                <LabelRow labels={mr.labels} hideIcon small />
+                <Inline>
+                  <strong>
+                    <ProjectName project={project} />
+                  </strong>
+                  <MrTitle mr={mr} />
+                </Inline>
+                <Indented>
+                  <LabelRow labels={mr.labels} hideIcon small />
+                </Indented>
               </TitleCol>
               <StatusCol>
                 <Col>
@@ -219,9 +210,6 @@ const MrTableVisualisation: React.FC<innerPropTypes> = props => {
                       }
                     />
                   )}
-                </Col>
-                <Col>
-                  <MrMergeStatus mr={mr} />
                 </Col>
               </StatusCol>
             </Row>
@@ -275,23 +263,22 @@ const Col = styled.div`
   width: 3em;
 `;
 
-const NameCol = styled.div`
-  display: flex;
-  flex-flow: row nowrap;
-  align-items: center;
-  justify-content: flex-start;
-  max-width: 12em;
-  width: clamp(4em, 10em, 12em);
-  min-width: 4em;
-  overflow: hidden;
-  white-space: nowrap;
+const Inline = styled.div`
+  display: inline-flex;
+  gap: 0.5em;
+`;
+
+const Indented = styled.div`
+  padding-left: 0.5em;
 `;
 
 const TitleCol = styled.div`
   display: flex;
   flex-flow: column nowrap;
   align-items: start;
-  justify-content: flex-start;
+  justify-content: center;
+  gap: 0.5em;
+  padding: 0.25em;
   flex-grow: 1;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -303,8 +290,8 @@ const StatusCol = styled.div`
   flex-flow: row nowrap;
   align-items: center;
   justify-content: space-around;
-  width: 15em;
-  min-width: 15em;
+  width: 10em;
+  min-width: 10em;
 `;
 
 MrTableVisualisation.defaultProps = {

@@ -96,9 +96,15 @@ const LabelRow: React.FC<PropTypes> = props => {
     />
   ));
 
+  if (!props.editable && labels.length <= 0) return null;
+
   return (
     <Wrapper>
-      <LabelsContainer>
+      <LabelsContainer
+        style={{
+          gap: props.small ? '0.5em' : '1em',
+        }}
+      >
         {!props.hideIcon && (props.labels.length > 0 || props.editable) && (
           <FontAwesomeIcon
             icon={state === LoadingState.loading ? 'sync' : 'tags'}
@@ -183,7 +189,6 @@ const LabelsContainer = styled.div`
   flex-flow: row wrap;
   align-items: center;
   justify-content: start;
-  gap: 1em;
 
   & > svg:not(:first-child) {
     cursor: pointer;
