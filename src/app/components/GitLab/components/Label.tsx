@@ -11,7 +11,6 @@ type PropTypes = {
   editable?: boolean;
   onDelete?: (name) => void;
   disabled?: boolean;
-  small?: boolean;
 };
 
 type LabelProperties = {
@@ -41,7 +40,7 @@ const getLabelProperties = (
 };
 
 const Label: React.FC<PropTypes> = props => {
-  const { label, onDelete, disabled, editable, small } = props;
+  const { label, onDelete, disabled, editable } = props;
   if (!label) return null;
   const labelProperties = getLabelProperties(props.label);
 
@@ -53,7 +52,7 @@ const Label: React.FC<PropTypes> = props => {
         style={{
           boxShadow: `inset 0 0 0 3px ${labelProperties.backgroundColor}`,
           color: labelProperties.textColor,
-          fontSize: small ? '10px' : '15px',
+          fontSize: '10px',
         }}
       >
         <LabelKey
@@ -101,7 +100,6 @@ const Label: React.FC<PropTypes> = props => {
         pill
         $background={labelProperties.backgroundColor}
         $color={labelProperties.textColor}
-        $fontSize={small ? '10px !important' : '15px !important'}
       >
         {labelProperties.name}
         {editable && (
@@ -152,7 +150,7 @@ const ColoredBadge = styled(Badge)`
       ? `${props.$background} !important`
       : 'var(--clr-blue-lighter)'};
   color: ${(props: any) => (props.$color ? props.$color : 'var(--clr-white)')};
-  font-size: ${(props: any) => (props.$fontSize ? props.$fontSize : '15px')};
+  font-size: 10px !important;
   display: flex;
   flex-flow: row nowrap;
   gap: 0.5em;
@@ -176,6 +174,7 @@ const ScopedLabel = styled.div`
   overflow: hidden;
   border-radius: 0.75rem;
   font-weight: bold;
+  font-size: 10px !important;
 `;
 
 const LabelKey = styled.span`

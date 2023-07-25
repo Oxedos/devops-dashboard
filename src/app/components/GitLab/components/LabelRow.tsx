@@ -23,7 +23,6 @@ export type PropTypes = {
   labels: (GitlabLabelDetail | string)[];
   editable?: boolean;
   hideIcon?: boolean;
-  small?: boolean;
 };
 
 const updateLabels = async (
@@ -78,7 +77,6 @@ const LabelRow: React.FC<PropTypes> = props => {
       disabled={state === LoadingState.loading}
       label={label}
       key={typeof label === 'string' ? label : label.name}
-      small={props.small}
       onDelete={name => {
         const newLabels = props.labels.filter(l =>
           typeof l === 'string' ? l !== name : l.name !== name,
@@ -100,11 +98,7 @@ const LabelRow: React.FC<PropTypes> = props => {
 
   return (
     <Wrapper>
-      <LabelsContainer
-        style={{
-          gap: props.small ? '0.5em' : '1em',
-        }}
-      >
+      <LabelsContainer>
         {!props.hideIcon && (props.labels.length > 0 || props.editable) && (
           <FontAwesomeIcon
             icon={state === LoadingState.loading ? 'sync' : 'tags'}
@@ -189,6 +183,7 @@ const LabelsContainer = styled.div`
   flex-flow: row wrap;
   align-items: center;
   justify-content: start;
+  gap: 0.5em;
 
   & > svg:not(:first-child) {
     cursor: pointer;

@@ -58,7 +58,7 @@ const CompactPipeline: React.FC<PipelinePropTypes> = props => {
       </div>
       <div className="flex-row align-center justify-space-between">
         {pipeline.labels ? (
-          <LabelRow labels={pipeline.labels} small />
+          <LabelRow labels={pipeline.labels} />
         ) : (
           <div className="dummy" />
         )}
