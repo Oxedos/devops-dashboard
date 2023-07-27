@@ -19,6 +19,7 @@ WhiteSource (Deprecated)::
 WhiteSource (aka. Mend) support is deprecated and will be removed in the future
 
 ## Security
+This project runs completely in your own browser, no backend service is used. All request against GitLab are directly send to your GitLab instance. The project is shipped as a staticly generated html project and deployed via GitHub Pages.
 
 The Dashboard uses GitLabs link:https://docs.gitlab.com/ee/api/oauth2.html#authorization-code-with-proof-key-for-code-exchange-pkce[ Authorization code with Proof Key for Code Exchange (PKCE) flow]. The resulting access and refresh tokens are **not** persisted in the session storage or anything similar. To still enable a convenient usage of the dashboard while maintaining a high level of security, a service worker is utilized for handling the authentication. This service worker holds the tokens and signals the front end if re-authentication is needed.
 
