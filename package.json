@@ -92,11 +92,11 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "7.22.9",
+    "@babel/core": "7.22.10",
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.10",
     "@trivago/prettier-plugin-sort-imports": "4.2.0",
-    "@types/node": "20.4.8",
-    "@types/react": "18.2.18",
+    "@types/node": "20.4.9",
+    "@types/react": "18.2.19",
     "@types/react-dom": "18.2.7",
     "@types/react-redux": "7.1.25",
     "@types/react-router-dom": "5.3.3",
