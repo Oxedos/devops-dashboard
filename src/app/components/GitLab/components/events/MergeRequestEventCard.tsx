@@ -21,9 +21,22 @@ const getColor = (action: string) => {
     case 'closed':
       return GlobalColours.red;
     case 'accepted':
+    case 'approved':
       return GlobalColours.green;
     default:
       return GlobalColours.white;
+  }
+};
+
+const getIcon = (action: string) => {
+  switch (action) {
+    case 'opened':
+    case 'closed':
+    case 'accepted':
+    default:
+      return 'code-pull-request';
+    case 'approved':
+      return 'thumbs-up';
   }
 };
 
@@ -32,7 +45,7 @@ const MergeRequestEventCard: React.FC<PropTypes> = props => {
   const { event } = props;
   const eventIconProps: EventIconProps = {
     color: getColor(event.action_name),
-    icon: 'code-pull-request',
+    icon: getIcon(event.action_name),
   };
 
   return (
