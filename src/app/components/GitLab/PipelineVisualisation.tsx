@@ -22,6 +22,7 @@ type PropTypesNoHoc = {
   pipelines_running?: boolean;
   pipelines_success?: boolean;
   pipelines_manual?: boolean;
+  pipelines_pending?: boolean;
   displayPipelinesForBranches?: boolean;
   displayPipelinesForMRs?: boolean;
 };
@@ -45,6 +46,7 @@ const PipelineVisualisation: React.FC<PropTypes> = props => {
       includeRunning: props.pipelines_running,
       includeSuccess: props.pipelines_success,
       includeManual: props.pipelines_manual,
+      includePending: props.pipelines_pending,
     }),
   );
 

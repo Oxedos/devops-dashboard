@@ -46,6 +46,7 @@ function* getGroupPipelines() {
     includeRunning: boolean;
     includeCreated: boolean;
     includeManual: boolean;
+    includePending: boolean;
   }[] = yield select(selectGroupsListeningForPipelines);
   if (groupsListeningForPipelines.length <= 0) return [];
 
@@ -60,6 +61,7 @@ function* getGroupPipelines() {
       groupConfig.includeRunning,
       groupConfig.includeSuccess,
       groupConfig.includeManual,
+      groupConfig.includePending,
     );
     const groupPipelines = yield call(
       getPipelinesForGroup,

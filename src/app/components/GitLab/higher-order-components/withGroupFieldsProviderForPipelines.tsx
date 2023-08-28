@@ -78,6 +78,11 @@ const withGroupFieldsProviderForPipelines = (
         type: 'checkbox',
       },
       {
+        name: 'pipelines_pending',
+        label: 'Pending',
+        type: 'checkbox',
+      },
+      {
         name: 'pipeline-ref-hr',
         hr: true,
       },

@@ -61,6 +61,7 @@ export const selectPipelinesFiltered = createSelector(
     createParameterSelector(p => p.includeRunning),
     createParameterSelector(p => p.includeSuccess),
     createParameterSelector(p => p.includeManual),
+    createParameterSelector(p => p.includePending),
   ],
   (
     pipelinesInGroup,
@@ -73,6 +74,7 @@ export const selectPipelinesFiltered = createSelector(
     includeRunning,
     includeSuccess,
     includeManual,
+    includePending,
   ) => {
     // Figure out which status the user wants to see
     const selectedStatus = getSelectedPipelineStatus(
@@ -82,6 +84,7 @@ export const selectPipelinesFiltered = createSelector(
       includeRunning,
       includeSuccess,
       includeManual,
+      includePending,
     );
     if (selectedStatus.length <= 0) return [];
     // filter pipelines by status and sort by date
@@ -123,6 +126,7 @@ export function getSelectedPipelineStatus(
   pipelines_running,
   pipelines_success,
   pipelines_manual,
+  pipelines_pending,
 ) {
   const status: string[] = [];
   if (pipelines_canceled) status.push('canceled');
@@ -131,6 +135,7 @@ export function getSelectedPipelineStatus(
   if (pipelines_running) status.push('running');
   if (pipelines_success) status.push('success');
   if (pipelines_manual) status.push('manual');
+  if (pipelines_pending) status.push('pending');
   return status;
 }
 

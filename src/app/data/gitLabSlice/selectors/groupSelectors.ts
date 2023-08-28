@@ -45,6 +45,7 @@ export const selectGroupsListeningForPipelines = createSelector(
         includeRunning: true,
         includeCreated: true,
         includeManual: true,
+        includePending: true,
       }))
       .filter(groupConfig => !!groupConfig.group);
     const groupsForPipelinesVis = configuredVisualisations
@@ -61,6 +62,7 @@ export const selectGroupsListeningForPipelines = createSelector(
         includeRunning: !!vis.props?.pipelines_running,
         includeCreated: !!vis.props?.pipelines_created,
         includeManual: !!vis.props?.pipelines_manual,
+        includePending: !!vis.props?.pipelines_pending,
       }));
     return Array.from(
       [...groupsForMrTableVis, ...groupsForPipelinesVis]
@@ -81,6 +83,7 @@ export const selectGroupsListeningForPipelines = createSelector(
             includeRunning: curr.includeRunning || accGroup.includeRunning,
             includeCreated: curr.includeCreated || accGroup.includeCreated,
             includeManual: curr.includeManual || accGroup.includeManual,
+            includePending: curr.includePending || accGroup.includePending,
           });
           return acc;
         }, new Map<String, any>())

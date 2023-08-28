@@ -24,6 +24,8 @@ export const getPipelineBackgroundColor = (pipeline: GitLabPipeline) => {
     return GlobalColours.green + alpha;
   } else if (pipeline.status === 'manual') {
     return undefined;
+  } else if (pipeline.status === 'pending') {
+    return GlobalColours.yellow + alpha;
   }
   return undefined;
 };
