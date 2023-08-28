@@ -35,7 +35,7 @@
     "react-router-dom": "6.15.0",
     "redux-injectors": "2.1.0",
     "redux-saga": "1.2.3",
-    "rehype-sanitize": "5.0.1",
+    "rehype-sanitize": "6.0.0",
     "remark-gfm": "3.0.1",
     "resolve": "1.22.4",
     "rss-parser": "3.13.0",
