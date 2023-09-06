@@ -128,7 +128,7 @@
     "mini-css-extract-plugin": "2.7.6",
     "node-plop": "0.32.0",
     "node-polyfill-webpack-plugin": "2.0.1",
-    "plop": "3.1.2",
+    "plop": "4.0.0",
     "postcss": "8.4.29",
     "postcss-flexbugs-fixes": "5.0.2",
     "postcss-loader": "7.3.3",
