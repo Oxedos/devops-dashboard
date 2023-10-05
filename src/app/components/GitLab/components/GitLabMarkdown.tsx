@@ -1,5 +1,7 @@
 import React from 'react';
-import ReactMarkdown, { uriTransformer } from 'react-markdown';
+import ReactMarkdown, {
+  defaultUrlTransform as uriTransformer,
+} from 'react-markdown';
 import { useSelector } from 'react-redux';
 import Table from 'react-bootstrap/esm/Table';
 import styled from 'styled-components/macro';
@@ -37,9 +39,13 @@ const GitLabMarkdown: React.FC<PropTypes> = props => {
   if (!props.content) return null;
   return (
     <ReactMarkdown
-      transformImageUri={url => prependGitlabUrl(url, props.project, gitLabUrl)}
+      urlTransform={(url, _, node) => {
+        if (node && node.tagName === 'img') {
+          return prependGitlabUrl(url, props.project, gitLabUrl);
+        }
+        return url;
+      }}
       children={props.content}
-      linkTarget="_blank"
       rehypePlugins={[rehypeSanitize]}
       remarkPlugins={[remarkGfm]}
       components={{

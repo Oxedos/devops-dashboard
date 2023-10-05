@@ -185,7 +185,7 @@ const StyledFigure = styled(Figure)`
   }
 `;
 
-const BlueButton = styled(Button)`
+const BlueButton: any = styled(Button)`
   width: 100%;
   display: flex;
   flex-flow: row;
