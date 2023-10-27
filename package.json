@@ -96,7 +96,7 @@
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.11",
     "@trivago/prettier-plugin-sort-imports": "4.2.1",
     "@types/node": "20.8.9",
-    "@types/react": "18.2.32",
+    "@types/react": "18.2.33",
     "@types/react-dom": "18.2.14",
     "@types/react-redux": "7.1.28",
     "@types/react-router-dom": "5.3.3",
