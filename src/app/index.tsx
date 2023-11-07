@@ -15,7 +15,7 @@ import {
   useNavigate,
   useParams,
 } from 'react-router-dom';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import * as GitlabSlice from 'app/data/gitLabSlice';
 import * as GlobalSlice from 'app/data/globalSlice';
 import * as RssSlice from 'app/data/rssSlice';

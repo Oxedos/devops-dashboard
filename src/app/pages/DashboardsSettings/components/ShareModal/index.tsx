@@ -3,7 +3,7 @@ import { useDispatch } from 'react-redux';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import Modal from 'react-bootstrap/Modal';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import { globalActions } from 'app';
 import { replacer, reviver } from 'app/apis/persistance';
 import { Dashboard } from 'app/data/globalSlice/types';

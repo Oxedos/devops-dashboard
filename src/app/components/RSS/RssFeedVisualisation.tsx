@@ -1,7 +1,7 @@
 import React, { ComponentType } from 'react';
 import { useSelector } from 'react-redux';
 import Figure from 'react-bootstrap/Figure';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import { compose } from '@reduxjs/toolkit';
 import { selectFeeds } from 'app/data/rssSlice/selectors';
 import moment from 'moment';

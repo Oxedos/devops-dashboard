@@ -6,7 +6,7 @@ import Button from 'react-bootstrap/Button';
 import Figure from 'react-bootstrap/Figure';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { gitLabActions } from 'app';
 import NavigationBar from 'app/components/Dashboard/NavigationBar';

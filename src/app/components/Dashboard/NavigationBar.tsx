@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { rssActions, whitesourceActions, gitLabActions } from 'app';
 import AddVisualisationModal from 'app/components/visualisations/AddVisualisationModal';

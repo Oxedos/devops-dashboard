@@ -1,6 +1,6 @@
 import React from 'react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { GitLabIssue, GitLabIssueState } from 'app/apis/gitlab/types';
 import moment from 'moment';

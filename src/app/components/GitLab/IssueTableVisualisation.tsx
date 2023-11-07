@@ -1,7 +1,7 @@
 import React, { ComponentType, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Button from 'react-bootstrap/Button';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { compose } from '@reduxjs/toolkit';
 import { gitLabActions } from 'app';

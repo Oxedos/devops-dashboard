@@ -5,7 +5,7 @@ import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import InputGroup from 'react-bootstrap/InputGroup';
 import Modal from 'react-bootstrap/Modal';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import { globalActions } from 'app';
 import {
   getAfterVisualisationRemovedActions,

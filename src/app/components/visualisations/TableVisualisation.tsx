@@ -1,6 +1,6 @@
 import React, { FunctionComponent, memo } from 'react';
 import Table from 'react-bootstrap/Table';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import VisualisationContainer from 'app/components/visualisations/VisualisationContainer';
 
 type PropTypes = {

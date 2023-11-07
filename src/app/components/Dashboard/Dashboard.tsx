@@ -1,7 +1,7 @@
 import React from 'react';
 import GridLayout, { WidthProvider } from 'react-grid-layout';
 import { useDispatch } from 'react-redux';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import { globalActions } from 'app';
 import { ConfiguredVisualisation } from 'app/data/VisualisationTypes';
 import Visualisation from '../visualisations/Visualisation';
