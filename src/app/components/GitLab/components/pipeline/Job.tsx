@@ -1,7 +1,7 @@
 import React, { memo, useState } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import { default as PopoverBase } from 'react-bootstrap/Popover';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import { GitLabJob, GitLabMR } from 'app/apis/gitlab/types';
 import PlayButton from './PlayButton';
 import { JobStatus, StatusStyle } from '../Status';

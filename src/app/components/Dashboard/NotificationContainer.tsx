@@ -1,7 +1,7 @@
 import React from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import Toast from 'react-bootstrap/Toast';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { globalActions } from 'app';
 import { selectNotifications } from 'app/data/globalSlice/selectors';

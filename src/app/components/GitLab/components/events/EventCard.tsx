@@ -1,5 +1,5 @@
 import React from 'react';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import { IconProp } from '@fortawesome/fontawesome-svg-core';
 import { GitLabEvent } from 'app/apis/gitlab/types';
 import GitLabUser from '../GitLabUser';

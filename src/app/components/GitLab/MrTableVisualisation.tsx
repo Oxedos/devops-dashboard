@@ -20,7 +20,7 @@ import { selectProjects } from 'app/data/gitLabSlice/selectors/projectSelectors'
 import React, { ComponentType, MouseEvent } from 'react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import { useSelector } from 'react-redux';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import { GlobalColours } from 'styles/global-styles';
 import SimpleMessage from '../visualisations/SimpleMessageVisualisation';
 import VisualisationContainer from '../visualisations/VisualisationContainer';

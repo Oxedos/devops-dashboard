@@ -1,6 +1,6 @@
 import React, { ComponentType } from 'react';
 import { useSelector } from 'react-redux';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import { compose } from '@reduxjs/toolkit';
 import { selectEventsByGroup } from 'app/data/gitLabSlice/selectors/eventSelectors';
 import SimpleMessage from '../visualisations/SimpleMessageVisualisation';

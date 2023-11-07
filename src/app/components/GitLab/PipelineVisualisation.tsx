@@ -1,6 +1,6 @@
 import React, { ComponentType } from 'react';
 import { useSelector } from 'react-redux';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import { compose } from '@reduxjs/toolkit';
 import { GitLabPipeline } from 'app/apis/gitlab/types';
 import Pipeline from 'app/components/GitLab/components/pipeline/Pipeline';

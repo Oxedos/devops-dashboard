@@ -3,7 +3,7 @@ import { GitlabLabelDetail } from 'app/apis/gitlab/types';
 import React from 'react';
 import { OverlayTrigger, Tooltip } from 'react-bootstrap';
 import Badge from 'react-bootstrap/Badge';
-import styled from 'styled-components/macro';
+import styled from 'styled-components';
 import { GlobalColours } from 'styles/global-styles';
 
 type PropTypes = {
