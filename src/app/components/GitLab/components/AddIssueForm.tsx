@@ -213,7 +213,6 @@ const AddIssueForm: React.FC<PropTypes> = props => {
           <Form.Select
             id="projectName"
             required
-            placeholder="Project"
             disabled={isLoading}
             value={projectName}
             onChange={e => setProjectName(e.target.value)}
