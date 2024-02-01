@@ -10,6 +10,11 @@ updates:
     schedule:
       interval: "daily"
     groups:
+      redux:
+        patterns:
+          - "@reduxjs*"
+          - "redux-*"
+          - "react-redux"
       dev-dependencies:
         patterns:
           - "*babel*"
@@ -25,7 +30,6 @@ updates:
       dependencies:
         patterns:
           - "*fontawesome*"
-          - "*reduxjs*"
           - "axios"
           - "browserlist"
           - "react-*"
