@@ -27,6 +27,7 @@ updates:
           - "*prettier*"
           - "*stylelint*"
           - "*webpack*"
+          - "husky"
       dependencies:
         patterns:
           - "*fontawesome*"
