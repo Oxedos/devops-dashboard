@@ -92,7 +92,7 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "7.24.1",
+    "@babel/core": "7.24.3",
     "@pmmmwh/react-refresh-webpack-plugin": "0.5.11",
     "@trivago/prettier-plugin-sort-imports": "4.3.0",
     "@types/node": "20.11.30",
@@ -129,7 +129,7 @@
     "node-plop": "0.32.0",
     "node-polyfill-webpack-plugin": "3.0.0",
     "plop": "4.0.1",
-    "postcss": "8.4.37",
+    "postcss": "8.4.38",
     "postcss-flexbugs-fixes": "5.0.2",
     "postcss-loader": "8.1.1",
     "postcss-normalize": "10.0.1",
@@ -148,7 +148,7 @@
     "stylelint-config-styled-components": "0.1.1",
     "stylelint-processor-styled-components": "1.10.0",
     "terser-webpack-plugin": "5.3.10",
-    "webpack": "5.90.3",
+    "webpack": "5.91.0",
     "webpack-dev-server": "5.0.4",
     "webpack-manifest-plugin": "5.0.0",
     "workbox-webpack-plugin": "7.0.0"
