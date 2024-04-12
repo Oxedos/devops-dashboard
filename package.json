@@ -139,7 +139,7 @@
     "react-dev-utils": "12.0.1",
     "resolve-url-loader": "5.0.0",
     "sass": "1.74.1",
-    "sass-loader": "14.1.1",
+    "sass-loader": "14.2.0",
     "semver": "7.6.0",
     "source-map-loader": "5.0.0",
     "style-loader": "4.0.0",
