@@ -42,7 +42,7 @@
     "sanitize-html": "2.13.0",
     "sanitize.css": "13.0.0",
     "shelljs": "0.8.5",
-    "styled-components": "6.1.10",
+    "styled-components": "6.1.11",
     "ts-node": "10.9.2",
     "typescript": "5.4.5",
     "universalify": "2.0.1",
