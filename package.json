@@ -11,7 +11,7 @@
     "@fortawesome/react-fontawesome": "0.2.1",
     "@reduxjs/toolkit": "1.9.7",
     "@svgr/webpack": "8.1.0",
-    "axios": "1.6.8",
+    "axios": "1.7.0",
     "browserslist": "4.23.0",
     "camelcase": "8.0.0",
     "dotenv": "16.4.5",
