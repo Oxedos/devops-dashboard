@@ -44,7 +44,7 @@
     "shelljs": "0.8.5",
     "styled-components": "6.1.13",
     "ts-node": "10.9.2",
-    "typescript": "5.6.2",
+    "typescript": "5.6.3",
     "universalify": "2.0.1",
     "uuid": "10.0.0"
   },
