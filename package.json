@@ -46,7 +46,7 @@
     "ts-node": "10.9.2",
     "typescript": "5.6.3",
     "universalify": "2.0.1",
-    "uuid": "10.0.0"
+    "uuid": "11.0.1"
   },
   "scripts": {
     "start": "node ./scripts/start.js",
