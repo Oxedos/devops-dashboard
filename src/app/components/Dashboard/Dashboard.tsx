@@ -1,5 +1,5 @@
 import React from 'react';
-import GridLayout, { WidthProvider } from 'react-grid-layout';
+import GridLayout, { WidthProvider } from 'react-grid-layout/legacy';
 import { useDispatch } from 'react-redux';
 import styled from 'styled-components';
 import { globalActions } from 'app';
