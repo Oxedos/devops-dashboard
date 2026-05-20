@@ -87,6 +87,7 @@ const pipeline: any = {
 
 export function loadIcons() {
   library.add(
+    ...[
     faTachometerAlt,
     faCogs,
     faCog,
@@ -142,7 +143,7 @@ export function loadIcons() {
     faTags,
     faUserMinus,
     faThumbsUp,
-  );
+    ] as any[]);
 
   // custom SVGs
   library.add(customMetric, pipeline);
