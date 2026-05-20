@@ -48,7 +48,7 @@ const Dashboard: React.FC<PropTypes> = props => {
         rowHeight={20}
         draggableHandle=".visContainerDraggableHandle"
         onLayoutChange={layout =>
-          dispatch(globalActions.updateDashboardLayout({ dashboardId, layout }))
+          dispatch(globalActions.updateDashboardLayout({ dashboardId, layout: [...layout] }))
         }
       >
         {props.visualisations.map(visualisation => (
