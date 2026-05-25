@@ -17,7 +17,7 @@
     "dotenv": "17.4.2",
     "dotenv-expand": "13.0.0",
     "fontfaceobserver": "2.3.0",
-    "fs-extra": "11.2.0",
+    "fs-extra": "11.3.5",
     "identity-obj-proxy": "3.0.0",
     "inquirer": "13.4.3",
     "inquirer-directory": "2.2.0",
