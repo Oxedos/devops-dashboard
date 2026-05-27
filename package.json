@@ -126,7 +126,7 @@
     "is-ci": "4.1.0",
     "lint-staged": "17.0.5",
     "mini-css-extract-plugin": "2.10.2",
-    "node-plop": "0.32.0",
+    "node-plop": "0.32.3",
     "node-polyfill-webpack-plugin": "4.1.0",
     "plop": "4.0.5",
     "postcss": "8.5.15",
