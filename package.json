@@ -139,7 +139,7 @@
     "prompts": "2.4.2",
     "react-dev-utils": "12.0.1",
     "resolve-url-loader": "5.0.0",
-    "sass": "1.77.6",
+    "sass": "1.100.0",
     "sass-loader": "17.0.0",
     "semver": "7.8.4",
     "source-map-loader": "5.0.0",
