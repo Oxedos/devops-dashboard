@@ -92,7 +92,7 @@
     }
   },
   "devDependencies": {
-    "@babel/core": "7.29.7",
+    "@babel/core": "8.0.1",
     "@pmmmwh/react-refresh-webpack-plugin": "0.6.2",
     "@trivago/prettier-plugin-sort-imports": "6.0.2",
     "@types/node": "25.9.3",
