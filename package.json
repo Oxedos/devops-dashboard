@@ -129,7 +129,7 @@
     "node-plop": "0.32.3",
     "node-polyfill-webpack-plugin": "4.1.0",
     "plop": "4.0.5",
-    "postcss": "8.5.15",
+    "postcss": "8.5.25",
     "postcss-flexbugs-fixes": "5.0.2",
     "postcss-loader": "8.2.1",
     "postcss-normalize": "13.0.1",
